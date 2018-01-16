@@ -1,5 +1,4 @@
-import sbt._
-import Keys._
+
 
 // val pattern = "^(2.12)*".r
 

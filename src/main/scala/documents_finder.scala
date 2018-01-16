@@ -1,22 +1,22 @@
 import java.io.File
-
-import scala.language.postfixOps
+import collection.mutable
 
  object DocumentsFinder {
 
-  def recursiveTreeDocsSearch(dir: String /**, l: List[File]*/) : List[File] = {
-    val these = new File(dir)
-    List[File]() ++ these.listFiles.map(
-      x => x match {
-          case _ if x.isDirectory => recursiveTreeDocsSearch(x.getAbsolutePath)
-          case _ if x.isFile && x.getName.endsWith(".docx") || x.getName.endsWith(".doc") || x.getName.endsWith(".txt") => x
-          case _ => Array[File]()
-        }
-    )
-  }
+   def recursiveTreeDocsSearch(dir: String): List[File] = {
+     val files = new File(dir).listFiles().toList
+     val list = mutable.ArrayBuffer[File]()
+     files.filter(x => x.isDirectory).foreach(j => list ++= recursiveTreeDocsSearch(j.getAbsolutePath))
+     list.toList ++ files.filter(x => x.isFile).filter(
+       f => (f.getName endsWith ".docx") || (f.getName endsWith ".doc") || (f.getName endsWith ".txt")
+     )
+   }
+
+   def getPaths(docs: List[File]) = docs.flatMap(d => d.getAbsolutePath)
 
    def main(args: Array[String]): Unit = {
-    print(recursiveTreeDocsSearch("C:/Users/USER/odrive/Google Drive (2)"/**, List[File]()*/))
+     val docs = recursiveTreeDocsSearch("/Users/Fred88/odrive/Google Drive (2)")
+     print(getPaths(docs))
    }
 }
 
