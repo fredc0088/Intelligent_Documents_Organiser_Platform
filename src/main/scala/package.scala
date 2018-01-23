@@ -1,3 +1,7 @@
+import Util.Control.using
+
+import scala.util.{Failure, Success, Try}
+
 package object Util {
 
   /**
@@ -16,8 +20,41 @@ package object Util {
       }
   }
 
+
   object Types {
-    type Tokenizer = (String => Array[String])
+    type Tokenizer = (String => Vector[String])
+    type Word = String
+    type Term = (String, Double)
+
+  }
+
+  object I_O {
+    def readDocWithTry(file: String) = {
+      Try {
+        val lines = using(scala.io.Source.fromFile(file)) {
+          source => (for (line <- source.getLines) yield line).toList
+        }
+        lines
+      }
+    }
+
+    def GetDocContent(filePath: String) = {
+      val content = readDocWithTry(filePath)
+      content match {
+        case Success(lines) => lines.mkString
+        case Failure(t) => throw new Exception(t) { println(t.getStackTrace) }
+      }
+
+    }
+  }
+
+  object Operators {
+
+    implicit class |>[A](val a: A) extends AnyVal {
+      def |>[B](op: A => B) : B = op(a)
+    }
+
+
   }
 
 
