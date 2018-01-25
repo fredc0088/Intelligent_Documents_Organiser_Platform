@@ -25,6 +25,8 @@ package object Util {
     type Tokenizer = (String => Vector[String])
     type Word = String
     type Term = (String, Double)
+    type Paths = Traversable[String]
+    trait TextModel
 
   }
 
