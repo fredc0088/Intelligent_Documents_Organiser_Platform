@@ -3,7 +3,7 @@ package org.Fcocco01.DocumentClassifier
 import java.io.File
 import collection.mutable
 
- object DocumentsFinder {
+ object DocGathering {
 
    class DocumentFinder(directories: Array[String],directoriesToExclude: Array[String]) {
 
@@ -26,15 +26,16 @@ import collection.mutable
      }
    }
    object DocumentFinder {
-     def apply(directories: Array[String],directoriesToExclude: Array[String]): DocumentFinder =
+     def apply(directories: Array[String],directoriesToExclude: Array[String] = Array()): DocumentFinder =
        new DocumentFinder(directories,directoriesToExclude)
    }
 
 
 
    def main(args: Array[String]): Unit = {
-     val docs = recursiveTreeDocsSearch("C:\\Users\\USER\\odrive\\Google Drive (2)")
-     getPaths(docs)
+     val d = DocumentFinder(Array("../../test/resources/1"))
+     val docs = d.recursiveTreeDocsSearch("../../test/resources/1")
+     d.getPaths(docs)
    }
 }
 

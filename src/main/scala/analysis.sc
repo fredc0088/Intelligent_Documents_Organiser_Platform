@@ -18,7 +18,7 @@ object analysis {
     *
     */
   trait TF[T] {
-    def tf(term: T, document: Traversable[T])= {
+    def tf(term: T, document: Traversable[T]) : Double = {
       val frequency = () => {
         var f = 0
         for (w <- document if term == w) {
@@ -30,12 +30,24 @@ object analysis {
     }
   }
 
-  trait IDF {
-    def idf(term: Token, documents: List[DocumentVector]) = {
-      val docs = documents.map(_.getVector)
+
+  trait _IDF [A,T] extends T {
+
+    type Word = A with String
+    type DocsLists = Traversable[A]
+    type DenomFunction = (A,Traversable[T]) => Double
+    type Unwrapper = DocsLists => Vector[Vector[A]]
+
+    def idf(term: A, documents: DocsLists,extractor: Unwrapper) : Double = {
+      val docs = documents.map(extractor(_))
       for (doc <- docs) {
         doc
       }
+      ???
+    }
+
+    def getTermWeighted(term: Word, docsList: DocsLists, denom: DenomFunction, ex: Unwrapper) : Double = {
+      denom(term,docsList) / idf(term, docsList,ex)
     }
   }
 
@@ -62,6 +74,17 @@ object analysis {
     }
   }
 
+  class BagOfWordsSingleDoc(docPath : String, tokenizer: Tokenizer) extends BagOfWordsModeller[String](tokenizer) {
+    override def apply(tokenizer: Tokenizer) : Vector[Term] = {
+      tokenizer(ExtractDocContent(docPath)).distinct
+    }
+  }
+  object BagOfWordsSingleDoc {
+    def apply(docPath: String, tokenizer: Tokenizer): Vector[Token] = {
+      val newInstance = new BagOfWordsSingleDoc(docPath, tokenizer)
+      newInstance(tokenizer)
+    }
+  }
   /**
     * Vectorize a document using a custom way of tokenization and a custom dictionary
     * To follow the Bag-Of-World model
@@ -71,6 +94,10 @@ object analysis {
     */
   abstract class DocumentVector(dictionary: BagOfWords, private val tokenizer: Tokenizer, docPath: String) {
     def getVector() : Vector[Term]
+    val completeText : String
+    val tokens: Vector[Term]
+    val docId : String
+    val size : BigInt
   }
 
   /** A Document is transformed into a vector with information regarding the
@@ -84,15 +111,15 @@ object analysis {
     *  @param docPath absolute or relative path to the documents or any file containing text
     */
   class DocumentVectorTfWeighted(dictionary: BagOfWords, private val tokenizer: Tokenizer, docPath: String)
-  extends DocumentVector (dictionary,tokenizer,docPath) with TF[Tokens]{
-    val completeText = ExtractDocContent(docPath)
+  extends DocumentVector (dictionary,tokenizer,docPath) with TF[Token]{
+    override val completeText = ExtractDocContent(docPath)
     private val tokensInDocuments = tokenizer(completeText)
-    private val tokens =
+    override val tokens =
       for {
         d <- dictionary
       } yield d -> tf(d, tokensInDocuments)
-    val docId= docPath
-    val size = tokensInDocuments.size
+    override val docId= docPath
+    override val size = tokensInDocuments.size
 
     override def toString() = {
       val s = for((k,v) <- tokens) yield s"${k}\n${v}"
@@ -100,7 +127,7 @@ object analysis {
     }
 
     override def getVector() = {
-      tokens
+      this.tokens
     }
   }
   object DocumentVectorTfWeighted {
@@ -111,7 +138,7 @@ object analysis {
 
 
   def main(args: Array[String]): Unit = {
-    val testPath = "C:/Users/USER/odrive/Google Drive (2)/Various/Daily Exercises.docx"
+    val testPath = "../../test/resources/1/1.2/Java - Generics by Oracle.docx"
     val r : Paths= Array(testPath)
     val t = TokenizedText(raw"""b[a-zA-Z]w+""", "./../resources/stop-word-list.txt")
     val dictionary : BagOfWords = BagOfWordsDictionary(r,t)
