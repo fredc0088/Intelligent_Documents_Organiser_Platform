@@ -31,7 +31,7 @@ lazy val root = (project in file("."))
     version := "0.0.1",
     scalaVersion := "2.12.3",
     organization := name.value,
-    scalacOptions := List("-encoding", "utf8", "-Xfatal-warnings", "-deprecation", "-unchecked"),
+    scalacOptions := List("-encoding", "utf8", "-Xfatal-warnings", "-deprecation", "-unchecked", "-feature"),
     //libraryDependencies ++= Seq(check(scalaVersion.value), scalactic(scalaVersion.value), testlib(scalaVersion.value))
     libraryDependencies ++= Seq(check, scalactic, testlib)
   )

@@ -1,8 +1,8 @@
-import Util.Control.using
 
 import scala.util.{Failure, Success, Try}
+import scala.language.reflectiveCalls
 
-package object Util {
+package Util {
 
   /**
     * Object's name: Control
@@ -22,18 +22,19 @@ package object Util {
 
 
   object Types {
-    type Tokenizer = (String => Vector[String])
-    type Word = String
-    type Term = (String, Double)
+    type Token = String
+    type TFIDFValue = Double
+    type Term = (Token,TFIDFValue)
+    type Tokenizer = (String => Vector[Token])
+    type BagOfWordsModeller[T] = (Tokenizer) => Vector[Token]
+    type BagOfWords = Vector[Token]
     type Paths = Traversable[String]
-    trait TextModel
-
   }
 
   object I_O {
     def readDocWithTry(file: String) = {
       Try {
-        val lines = using(scala.io.Source.fromFile(file)) {
+        val lines = Control.using(scala.io.Source.fromFile(file)) {
           source => (for (line <- source.getLines) yield line).toList
         }
         lines
