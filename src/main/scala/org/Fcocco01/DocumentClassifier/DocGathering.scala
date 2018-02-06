@@ -33,8 +33,8 @@ import collection.mutable
 
 
    def main(args: Array[String]): Unit = {
-     val d = DocumentFinder(Array("../../test/resources/1"))
-     val docs = d.recursiveTreeDocsSearch("../../test/resources/1")
+     val d = DocumentFinder(Array("1"))
+     val docs = d.recursiveTreeDocsSearch("1")
      d.getPaths(docs)
    }
 }

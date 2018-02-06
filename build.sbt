@@ -25,6 +25,10 @@ val scalactic = "org.scalactic" %% "scalactic" % "3.0.4"
 
 val testlib = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 
+val poi = "org.apache.poi" % "poi" % "3.9"
+
+val poiOOXML = "org.apache.poi" % "poi-ooxml" % "3.9"
+
 lazy val root = (project in file("."))
   .settings(
     name := "Intelligent documents classicator platform",
@@ -33,5 +37,5 @@ lazy val root = (project in file("."))
     organization := name.value,
     scalacOptions := List("-encoding", "utf8", "-Xfatal-warnings", "-deprecation", "-unchecked", "-feature"),
     //libraryDependencies ++= Seq(check(scalaVersion.value), scalactic(scalaVersion.value), testlib(scalaVersion.value))
-    libraryDependencies ++= Seq(check, scalactic, testlib)
+    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiOOXML)
   )
