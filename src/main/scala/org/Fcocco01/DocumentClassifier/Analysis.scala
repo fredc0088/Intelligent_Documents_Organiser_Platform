@@ -8,14 +8,16 @@ package object Analysis {
     */
   trait Tf {
     def tf(document: Traversable[String], term: String) : Double = {
-      val frequency = () => {
-        var f = 0
-        for (w <- document if term == w) {
-          f += 1
+      if(document.size > 0) {
+        val frequency = () => {
+          var f = 0
+          for (w <- document if term == w) {
+            f += 1
+          }
+          f
         }
-        f
-      }
-      frequency() / document.size
+        frequency() / document.size
+      } else 0.0
     }
   }
   object Tf extends Tf
@@ -30,9 +32,10 @@ package object Analysis {
                    extractor: String => String) {
       private val idf : Double = {
         val docs = documents.map(extractor(_))
+        val term = this.term
         var count = 0
         for (doc <- docs if(doc.contains(term))) count = count + 1
-        Math.log(documents.size / count)
+        Math.log(documents.size / (1 + count))
       }
       def get() : Double= {
         idf

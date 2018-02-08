@@ -4,7 +4,7 @@ object Classify {
 
   import Util.I_O.GetDocContent
   import Types._
-  import Token.Tokenizer.TokenizedText
+  import Token.Tokenizer.{TokenizedText, StopWords}
   import Modeller.Models.BagOfWordsDictionary
 
   def ExtractDocContent(docPath: String): String = {
@@ -64,15 +64,18 @@ object Classify {
   }
 
     def main(args: Array[String]): Unit = {
-      val testPath = "C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\test\\resources\\1\\1.2\\JavaLab7.doc"
+      val testPath =
+        "C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\test\\resources\\1\\1.2\\Java - Generics by Oracle.docx"
       val r : Paths= Array(testPath)
-      val dictionary : BagOfWords = BagOfWordsDictionary(r,TokenizedText(raw"""b[a-zA-Z]w+""", "C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\main\\resources\\stop-word-list.txt"))
+      val stopWords = StopWords("C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\main\\resources\\stop-word-list.txt")
+      val dictionary : BagOfWords =
+        BagOfWordsDictionary(r,TokenizedText("\\s+", stopWords))
       val idfWeightedTerms = for {
         s <- dictionary
       } yield Analysis.Idf.IDFValue(s, r, GetDocContent)
       var y : Vector[DocumentVectorTfWeighted] = Vector()
       for (i <- r)
-        y = y :+ DocumentVectorTfWeighted(dictionary,TokenizedText(raw"""b[a-zA-Z]w+""", "C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\main\\resources\\stop-word-list.txt"),i,idfWeightedTerms)
+        y = y :+ DocumentVectorTfWeighted(dictionary,TokenizedText(raw"""b[a-zA-Z]w+""", stopWords),i,idfWeightedTerms)
       println(y(0).getVector.mkString)
 
 

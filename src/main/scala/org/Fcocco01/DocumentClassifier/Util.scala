@@ -16,59 +16,62 @@ package object Util {
   object Control {
 
     def using[A <: {def close() : Unit}, B](param: A)(f: A => B): B =
-      try {
-        f(param)
-      } finally {
-        param.close()
-      }
+      try f(param) finally param.close()
   }
 
-  object I_O {
+    object I_O {
 
-    import org.apache.poi.xwpf.usermodel.{XWPFDocument, XWPFParagraph}
+      import org.apache.poi.xwpf.usermodel.XWPFDocument
+      import org.apache.poi.xwpf.extractor.XWPFWordExtractor
 
-
-    def readDocWithTry(file: String) = {
-      Try {
-        val lines = Control.using(io.Source.fromFile(file, Codec.ISO8859.name)) {
-          source => (for (
-            line <- source.getLines
-          ) yield line).toList
+      def readDocWithTry(file: String) = {
+        file.split("\\.").last match {
+          case x@("doc" | "docx") => Try {
+            val document = new XWPFDocument(new java.io.FileInputStream(file))
+            val extractor = new XWPFWordExtractor(document)
+            extractor.getText.split(" ").toList
+          }
+          case _ => Try {
+            val lines = Control.using(io.Source.fromFile(file, Codec.ISO8859.name)) {
+              source =>
+                (for (
+                  line <- source.getLines
+                ) yield line.split(" ")).toList.flatten
+            }
+            lines
+          }
         }
-        lines
+      }
+
+      def GetDocContent(filePath: String): String = {
+        readDocWithTry(filePath) match {
+          case Success(lines) => lines.mkString(" ")
+          case Failure(t) => throw new Exception(t) {
+            println(t.getStackTrace)
+          }
+        }
       }
     }
 
-    def readDoc(file: String) : String = {
-      val f = scala.io.Source.fromFile(file,Codec.ISO8859.name)
-      try {
-        var content : List[String]= List()
-        for (line <- f.getLines())
-          content = content :+ line
-        f.close()
-        content.mkString(" ")
-      } catch {
-        case e : Exception => e.getMessage
-      }
-      finally {
-        f.close()
+
+    object Operators {
+
+      implicit class |>[A](val a: A) extends AnyVal {
+        def |>[B](op: A => B): B = op(a)
       }
     }
 
-    def GetDocContent(filePath: String) : String = {
-      readDocWithTry(filePath) match {
-        case Success(lines) => lines.mkString(" ")
-        case Failure(t) => throw new Exception(t) { println(t.getStackTrace) }
-      }
-    }
-  }
-
-
-  object Operators {
-    implicit class |>[A](val a: A) extends AnyVal {
-      def |>[B](op: A => B) : B = op(a)
+  object String_Manipulation {
+    def onlyDigits(s: String) = {
+      var isDigit = true
+      for(c <- s if !Character.isDigit(c)) isDigit = false
+      isDigit
     }
   }
 
-
+  object Constants {
+    val ZERO = 0
+    val ZEROd = 0.0
+    val ONE = 1
+  }
 }
