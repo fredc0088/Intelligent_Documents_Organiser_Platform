@@ -23,11 +23,23 @@ package object Util {
 
       import org.apache.poi.xwpf.usermodel.XWPFDocument
       import org.apache.poi.xwpf.extractor.XWPFWordExtractor
+      import org.apache.pdfbox.pdmodel.PDDocument
+      import org.apache.pdfbox.text.PDFTextStripper
+      import java.io.FileInputStream
 
       def readDocWithTry(file: String) = {
         file.split("\\.").last match {
+          case "pdf" => Try {
+            /**
+              * To decide whether to keep it.
+              * Mapping to unicode is not good and the process is way too slow
+              */
+            val document = PDDocument.load(new java.io.File(file))
+            val stripper = new PDFTextStripper().getText(document)
+            stripper.split(" ").toList
+          }
           case x@("doc" | "docx") => Try {
-            val document = new XWPFDocument(new java.io.FileInputStream(file))
+            val document = new XWPFDocument(new FileInputStream(file))
             val extractor = new XWPFWordExtractor(document)
             extractor.getText.split(" ").toList
           }
@@ -73,5 +85,15 @@ package object Util {
     val ZERO = 0
     val ZEROd = 0.0
     val ONE = 1
+  }
+
+  object Formatting {
+
+    import java.text.DecimalFormat
+
+    def roundDecimals(d: Double) = {
+      val df = new DecimalFormat("#.##########")
+      df.format(d).toDouble
+    }
   }
 }

@@ -37,9 +37,9 @@ object Classify {
     *  @param docPath absolute or relative path to the documents or any file containing text
     */
   class DocumentVectorTfWeighted(dictionary: BagOfWords, private val tokenizer: Tokenizer, docPath: String,
-                                 idf: Traversable[Analysis.Idf.IDFValue])
+                                 idf: Traversable[Analysis.Idf.IDFValue],extractor: String => String)
   extends DocumentVector (dictionary,tokenizer,docPath) with Analysis.Tf  {
-    private val tokensInDocuments = tokenizer(docPath)
+    private val tokensInDocuments = tokenizer(extractor(docPath))
     override val tokens = (
       for {
         d <- dictionary
@@ -49,7 +49,7 @@ object Classify {
     override val size = tokensInDocuments.size
 
     override def toString() = {
-      val s = for((k,v) <- tokens) yield s"${k} -> ${v}\n"
+      val s = for((k,v) <- tokens) yield s"${k} -> ${Util.Formatting.roundDecimals(v)}  \n"
       s.mkString
     }
 
@@ -59,29 +59,32 @@ object Classify {
   }
   object DocumentVectorTfWeighted {
     def apply(dictionary: BagOfWords, tokenizer: Tokenizer, docPath: String,
-              idf: Traversable[Analysis.Idf.IDFValue]) =
-      new DocumentVectorTfWeighted(dictionary, tokenizer, docPath, idf)
+              idf: Traversable[Analysis.Idf.IDFValue], extractor: String => String) =
+      new DocumentVectorTfWeighted(dictionary, tokenizer, docPath, idf,extractor)
   }
 
     def main(args: Array[String]): Unit = {
-      val testPath =
-        "C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\test\\resources\\1\\1.2\\Java - Generics by Oracle.docx"
-      val r : Paths= Array(testPath)
-      val stopWords = StopWords("C:\\Users\\USER\\Documents\\Projects\\Git_Repos\\Intelligent_Documents_Classificator_Platform\\src\\main\\resources\\stop-word-list.txt")
+      val testPath1 =
+        ".\\src\\test\\resources\\1\\1.2\\Java - Generics by Oracle.docx"
+      val testPath2 =
+        ".\\src\\test\\resources\\1\\1.1\\demo.docx"
+      val testPath3 =
+        ".\\src\\test\\resources\\3\\3.2\\test.docx"
+      val testPath4 =
+        ".\\src\\test\\resources\\1\\1.2\\clustering.pdf"
+      val tests : Paths= Array(testPath1,testPath2,testPath3
+        //,testPath4
+      )
+      val stopWords = StopWords(".\\src\\main\\resources\\stop-word-list.txt")
       val dictionary : BagOfWords =
-        BagOfWordsDictionary(r,TokenizedText("\\s+", stopWords))
+        BagOfWordsDictionary(tests,TokenizedText("\\s+", stopWords))
       val idfWeightedTerms = for {
         s <- dictionary
-      } yield Analysis.Idf.IDFValue(s, r, GetDocContent)
-      var y : Vector[DocumentVectorTfWeighted] = Vector()
-      for (i <- r)
-        y = y :+ DocumentVectorTfWeighted(dictionary,TokenizedText(raw"""b[a-zA-Z]w+""", stopWords),i,idfWeightedTerms)
-      println(y(0).getVector.mkString)
-
+      } yield Analysis.Idf.IDFValue(s, tests, GetDocContent)
+      var vectors : Vector[DocumentVectorTfWeighted] = Vector()
+      for (i <- tests)
+        vectors = vectors :+ DocumentVectorTfWeighted(dictionary,TokenizedText("\\s+", stopWords),i,idfWeightedTerms, GetDocContent)
+      println(vectors(0).getVector.mkString)
 
     }
-
-
-
-
 }

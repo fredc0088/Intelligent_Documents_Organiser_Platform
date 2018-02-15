@@ -1,5 +1,7 @@
 package org.Fcocco01.DocumentClassifier
 
+import scala.math.BigDecimal.RoundingMode
+
 package object Analysis {
 
   /**
@@ -16,7 +18,7 @@ package object Analysis {
           }
           f
         }
-        frequency() / document.size
+        frequency().toDouble / document.size
       } else 0.0
     }
   }
@@ -31,11 +33,11 @@ package object Analysis {
     class IDFValue(val term: String, documents: Traversable[String],
                    extractor: String => String) {
       private val idf : Double = {
-        val docs = documents.map(extractor(_))
+        val docs = documents.map(extractor(_).replace("\n"," ").toLowerCase)
         val term = this.term
         var count = 0
-        for (doc <- docs if(doc.contains(term))) count = count + 1
-        Math.log(documents.size / (1 + count))
+        for (doc <- docs if(doc.contains(term))) {count = count + 1}
+        Math.log10(documents.size.toDouble / (count).toDouble)
       }
       def get() : Double= {
         idf
@@ -51,6 +53,9 @@ package object Analysis {
     def _IDF(term: String, doc: Traversable[String],
              weightingFun: (Traversable[String],String) => Double,
              idf: Traversable[IDFValue]) = {
+//        BigDecimal((weightingFun(doc, term) * idf.filter(_.term == term).head.get).toString)
+//          .setScale(5,RoundingMode.HALF_UP)
+//          .toDouble
       weightingFun(doc, term) * idf.filter(_.term == term).head.get
     }
   }
