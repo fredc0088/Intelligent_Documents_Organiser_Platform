@@ -8,27 +8,15 @@ package object Analysis {
     * This trait allow to incorporate a per-document analysis of each term
     * regarding their weight in the document.
     */
-  trait Tf {
-    def tf(document: Traversable[String], term: String) : Double = {
+  object Tf {
+    def tf(f: (Traversable[String],String) => Double, document: Traversable[String], term : String) : Double = {
       if(document.size > 0) {
-        val frequency = () => {
-          var f = 0
-          for (w <- document if term == w) {
-            f += 1
-          }
-          f
-        }
-        frequency().toDouble / document.size
+        f(document, term) / document.size
       } else 0.0
     }
   }
-  object Tf extends Tf
 
-
-  object Idf {
-
-    type DocsLists = Traversable[String]
-    type Unwrapper = DocsLists => Vector[Vector[String]]
+  object TfIdf {
 
     class IDFValue(val term: String, documents: Traversable[String],
                    extractor: String => String) {
@@ -50,13 +38,12 @@ package object Analysis {
     }
 
 
-    def _IDF(term: String, doc: Traversable[String],
-             weightingFun: (Traversable[String],String) => Double,
+    def TFIDF(term: String, doc: Traversable[String], f: (Traversable[String],String) => Double,
              idf: Traversable[IDFValue]) = {
 //        BigDecimal((weightingFun(doc, term) * idf.filter(_.term == term).head.get).toString)
 //          .setScale(5,RoundingMode.HALF_UP)
 //          .toDouble
-      weightingFun(doc, term) * idf.filter(_.term == term).head.get
+      (f(doc, term) / doc.size) * idf.filter(_.term == term).head.get
     }
   }
 

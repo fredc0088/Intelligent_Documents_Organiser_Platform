@@ -1,36 +1,73 @@
 package org.Fcocco01.DocumentClassifier
 
 import Util.I_O.GetDocContent
-import Types.{BagOfWordsModeller,Token,Tokenizer,Paths}
+import Types.{Modeller, Paths, Term, Token, Tokenizer, Tokens}
+import Analysis.Tf.tf
+import Analysis.TfIdf.{IDFValue,TFIDF}
+
+import scala.collection.mutable
 
 package object Modeller {
 
   object Models {
 
-    class BagOfWordsDictionary(docsPathsList: Paths, tokenizer: Tokenizer)
-      extends BagOfWordsModeller[Paths]{
-      override def apply(tokenizer: Tokenizer) : Vector[Token] = {
+    private def getFrequency(vocabulary: Tokens, term: Token) = {
+      var f = 0
+      for (v <- vocabulary if term == v) f += 1
+      f
+    }
+
+    class Dictionary(docsPathsList: Paths, tokenizer: Tokenizer){
+      def apply(tokenizer: Tokenizer) : Vector[Token] = {
         docsPathsList.flatMap(x => tokenizer(GetDocContent(x)))
           .toVector.distinct
       }
     }
-    object BagOfWordsDictionary {
+    object Dictionary {
       def apply(d: Paths, tokenizer: Tokenizer) : Vector[Token]= {
-        val newInstance = new BagOfWordsDictionary(d,tokenizer)
+        val newInstance = new Dictionary(d,tokenizer)
         newInstance(tokenizer)
       }
     }
 
-    class BagOfWordsSingleDoc(docPath : String, tokenizer: Tokenizer) extends BagOfWordsModeller[String] {
-      override def apply(tokenizer: Tokenizer) : Vector[Token] = {
-        tokenizer(GetDocContent(docPath)).distinct
+
+    abstract class Modeller(tokens: Tokens) {
+      def apply(holder: AnyVal): Modeller = new Modeller(tokens)
+    }
+
+    case class BagOfWorld(dictionary: Tokens , docPath: String, tokens: Tokens) extends Modeller {
+      def apply(holder: AnyVal) = {
+        var m = new mutable.MutableList[(Token,Double)]() // mutable to try to improve perfomances
+        for(d <- dictionary) m :+ (d, getFrequency(tokens,d).toDouble)
+        m.toMap
       }
     }
-    object BagOfWordsSingleDoc {
-      def apply(docPath: String, tokenizer: Tokenizer): Vector[Token] = {
-        val newInstance = new BagOfWordsSingleDoc(docPath, tokenizer)
-        newInstance(tokenizer)
+    object BagOfWorld{
+      def apply(dictionary: Tokens , docPath: String, tokens: Tokens) = {
+        new BagOfWorld(dictionary, docPath, tokens)
       }
     }
+
+    case class TfIDF(dictionary: Tokens , docPath: String, tokens: Tokens) extends Modeller {
+      def apply(holder: Vector[IDFValue]) = {
+        var m = new mutable.MutableList[(Token,Double)]()
+        holder match {
+          case x : Vector[IDFValue] => {
+            //var m = new mutable.MutableList[(Token,Double)]() // mutable to try to improve perfomances
+            for(d <- dictionary) m :+ TFIDF(d,tokens, getFrequency, x)
+            m.toMap
+          }
+          case _ => {
+            var m = new mutable.MutableList[(Token,Double)]() // mutable to try to improve perfomances
+            for(d <- dictionary) m :+ (getFrequency(tokens, d) / tokens.size)
+            m.toMap
+          }
+        }
+        var m = new mutable.MutableList[(Token,Double)]() // mutable to try to improve perfomances
+        for(d <- dictionary) m :+ (d, getFrequency(tokens,d).toDouble)
+        m.toMap
+      }
+    }
+
   }
 }
