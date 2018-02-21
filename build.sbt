@@ -1,4 +1,5 @@
 import sbt.Keys.testFrameworks
+import sbt.addCompilerPlugin
 
 // val pattern = "^(2.12)*".r
 
@@ -36,17 +37,21 @@ val speedTest = "com.storm-enroute" %% "scalameter-core" % "0.9"
 
 val scalaFX = "org.scalafx" %% "scalafx" % "8.0.144-R12"
 
+val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
+
 lazy val root = (project in file("."))
   .settings(
     name := "Intelligent documents classicator platform",
     version := "0.0.1",
     scalaVersion := "2.12.3",
     organization := name.value,
+    autoCompilerPlugins := true,
     scalacOptions := List("-encoding", "utf8", "-Xfatal-warnings", "-deprecation", "-unchecked", "-feature"),
     //libraryDependencies ++= Seq(check(scalaVersion.value), scalactic(scalaVersion.value), testlib(scalaVersion.value))
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/releases",
-    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiOOXML, pdfbox, speedTest, scalaFX),
+    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiOOXML, pdfbox, speedTest, scalaFX, sclFXML),
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    parallelExecution in Test := false
+    parallelExecution in Test := false,
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
