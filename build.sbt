@@ -49,3 +49,4 @@ lazy val root = (project in file("."))
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false
   )
+

@@ -1,23 +1,8 @@
 package org.Fcocco01.DocumentClassifier
 
-import scala.math.BigDecimal.RoundingMode
-
 package object Analysis {
 
-  /**
-    * This trait allow to incorporate a per-document analysis of each term
-    * regarding their weight in the document.
-    */
-  object Tf {
-    def tf(f: (Traversable[String],String) => Double, document: Traversable[String], term : String) : Double = {
-      if(document.size > 0) {
-        f(document, term) / document.size
-      } else 0.0
-    }
-  }
-
-  object TfIdf {
-
+  object IDF {
     class IDFValue(val term: String, documents: Traversable[String],
                    extractor: String => String) {
       private val idf : Double = {
@@ -27,7 +12,7 @@ package object Analysis {
         for (doc <- docs if(doc.contains(term))) {count = count + 1}
         Math.log10(documents.size.toDouble / (count).toDouble)
       }
-      def get() : Double= {
+      def get() : Double = {
         idf
       }
     }
@@ -36,18 +21,75 @@ package object Analysis {
                 extractor: String => String): IDFValue =
         new IDFValue(term, documents, extractor)
     }
+  }
 
+  def GetFrequency(document: Traversable[String], term: String) = {
+    var count = 0
+    for (w <- document if term == w) count += 1
+    count
+  }
 
-    def TFIDF(term: String, doc: Traversable[String], f: (Traversable[String],String) => Double,
-             idf: Traversable[IDFValue]) = {
-//        BigDecimal((weightingFun(doc, term) * idf.filter(_.term == term).head.get).toString)
-//          .setScale(5,RoundingMode.HALF_UP)
-//          .toDouble
-      (f(doc, term) / doc.size) * idf.filter(_.term == term).head.get
+  object ModelFunctions {
+    def tf(document: Traversable[String], term: String) = {
+      if (document.size > 0) {
+        val frequency = () => {
+          var f = 0
+          for (w <- document if term == w) f += 1
+          f
+        }
+        frequency().toDouble / document.size
+      } else 0.0
+    }
+
+    type IDFValue = IDF.IDFValue
+
+    def idf(term: String, values: Traversable[IDFValue]) = {
+      values.filter(_.term == term).head.get
+    }
+
+    def tfidf(idfValues: Traversable[IDFValue]) =
+      (term: String, document: Traversable[String]) => {
+        (term,tf(document,term) * idf(term, idfValues))
+    }
+
+    def bag(term: String, document: Traversable[String]) = {
+      (term, GetFrequency(document,term).toDouble)
     }
   }
 
+  /************************OOP Style**************************************/
+  /**
+    trait Tf {
 
+      def tf(document: Traversable[String], term: String) = {
+        if (document.size > 0) {
+          val frequency = () => {
+            var f = 0
+            for (w <- document if term == w) {
+              f += 1
+            }
+            f
+          }
+          frequency().toDouble / document.size
+        } else 0.0
+      }
+    }
 
+      trait Idf {
+
+        type IDFValue = IDF.IDFValue
+
+        def getIdf(term: String, values: Traversable[IDFValue]) = {
+          values.filter(_.term == term).head.get
+        }
+
+      }
+
+      trait BagOfWords {
+
+        def makeBagTerm(term: String, document: Traversable[String]) =
+          (term, GetFrequency(document,term).toDouble)
+      }
+  */
 
 }

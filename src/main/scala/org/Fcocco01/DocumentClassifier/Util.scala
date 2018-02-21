@@ -71,6 +71,13 @@ package object Util {
       implicit class |>[A](val a: A) extends AnyVal {
         def |>[B](op: A => B): B = op(a)
       }
+
+//      implicit class Semigroup[A,Double](val m1: Map[A,Double]) extends AnyVal {
+//        def <*>(m2: Map[A,Double]) = {
+//          m2.map{ case (k,v) => k -> (v * m1.getOrElse(k,v))}
+//        }
+//      }
+
     }
 
   object String_Manipulation {
@@ -89,11 +96,8 @@ package object Util {
 
   object Formatting {
 
-    import java.text.DecimalFormat
-
     def roundDecimals(d: Double) = {
-      val df = new DecimalFormat("#.##########")
-      df.format(d).toDouble
+      new java.math.BigDecimal(d).toPlainString
     }
   }
 }

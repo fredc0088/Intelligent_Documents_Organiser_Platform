@@ -1,28 +1,19 @@
 package org.Fcocco01.DocumentClassifier
 
-import java.util
 import javax.swing.plaf.RootPaneUI
 
 import scalafx.application.JFXApp
-import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, TextArea}
+import scalafx.scene.control.Button
 import scalafx.scene.layout.BorderPane
 import scalafx.scene.paint.Color
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.input
-import scalafx.stage.{DirectoryChooser, Stage}
-import java.awt.Desktop
-import scalafx.Includes._
-import scalafx.event._
+import scalafx.event.{Event,EventHandler,ActionEvent}
+import scalafx.stage.DirectoryChooser
 
 
 object Gui extends JFXApp {
-  var a: util.ArrayList[String] = new util.ArrayList[String]()
-  //val desktop = Desktop
-
-
-
   stage = new JFXApp.PrimaryStage {
     title = "IDCP"
     scene = new Scene(800,600)  {
@@ -30,7 +21,24 @@ object Gui extends JFXApp {
       val btnExclude = new Button("Exclude directories")
       btnOpen.layoutX = 100
       btnOpen.layoutY = 300
-      //btnOpen.setOnAction(new )
+
+      val dirchoose = new DirectoryChooser()
+      dirchoose.title = "Select a directory"
+      dirchoose.initialDirectory
+
+//      btnOpen.setOnAction(EventHandler[ActionEvent] {
+//        def handle(Event: ActionEvent) : Unit = {
+//          val dir = dirchoose.showDialog(this.getWindow)
+//          //if(dir != null)
+//        }
+//      } )
+
+
+//      btnOpen.onAction = (event: ActionEvent) => {
+//
+//
+//      }
+
 
       //val button = new Button("Click me")
 //      button.layoutX = 100
@@ -42,19 +50,38 @@ object Gui extends JFXApp {
       val pn = new BorderPane
       root = pn
     }
-
   }
-
-  def selectDirs(mainStage: Stage) = {
-    val dirchoose = new DirectoryChooser()
-    dirchoose.title = "Select a directory"
-    dirchoose.setInitialDirectory(new java.io.File(System.getProperty("user.home")))
-    val txtarea = new TextArea()
-    txtarea.setMinHeight(50)
-    val btn = new Button("Open")
-    //btn.setOnAction(new scala)
-  }
-
-
+//
+//  class DirectoryChooserDemo extends Application {
+//    @throws[Exception]
+//    override def start(primaryStage: Stage): Unit = {
+//      val directoryChooser = new DirectoryChooser
+//      configuringDirectoryChooser(directoryChooser)
+//      val textArea = new TextArea
+//      textArea.setMinHeight(70)
+//      val button = new Button("Open DirectoryChooser and select a directory")
+//      button.setOnAction(new EventHandler[ActionEvent]() {
+//        override def handle(event: ActionEvent): Unit = {
+//          val dir = directoryChooser.showDialog(primaryStage)
+//          if (dir != null) textArea.setText(dir.getAbsolutePath)
+//          else textArea.setText(null)
+//        }
+//      })
+//      val root = new VBox
+//      root.setPadding(new Insets(10))
+//      root.setSpacing(5)
+//      root.getChildren.addAll(textArea, button)
+//      val scene = new Scene(root, 400, 200)
+//      primaryStage.setTitle("JavaFX DirectoryChooser (o7planning.org)")
+//      primaryStage.setScene(scene)
+//      primaryStage.show()
+//    }
+//
+//    private def configuringDirectoryChooser(directoryChooser: DirectoryChooser) = { // Set title for DirectoryChooser
+//      directoryChooser.setTitle("Select Some Directories")
+//      // Set Initial Directory
+//      directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")))
+//    }
+//  }
 
 }
