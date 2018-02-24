@@ -10,7 +10,7 @@ package object Analysis {
         val term = this.term
         var count = 0
         for (doc <- docs if(doc.contains(term))) {count = count + 1}
-        Math.log10(documents.size.toDouble / (count).toDouble)
+        1 + Math.log10(documents.size.toDouble / (count).toDouble)
       }
       def get() : Double = {
         idf
