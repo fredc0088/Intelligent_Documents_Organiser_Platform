@@ -11,7 +11,7 @@ package object Analysis {
         val term = this.term
         var count = 0
         for (doc <- docs if(doc.contains(term))) {count = count + 1}
-        1 + Math.log10(documents.size.toDouble / (count).toDouble)
+        Math.log10(1 + (documents.size.toDouble / (count).toDouble))
       }
       def get() : Double = {
         idf
@@ -32,15 +32,18 @@ package object Analysis {
 
   object ModelFunctions {
 
+    def tfLogNorm(document: Traversable[String], term: String) = {
+      (term, 1 + Math.log10(GetFrequency(document, term)))
+    }
+
     def tf(document: Traversable[String], term: String) = {
-      if (document.size > 0) {
-        val frequency = () => {
-          var f = 0
-          for (w <- document if term == w) f += 1
-          f
-        }
-        (term,frequency().toDouble / document.size)
-      } else (term,0.0)
+      (term, (GetFrequency(document, term).toDouble / document.size))
+    }
+
+    def wdf(document: Traversable[String], term: String) = {
+      §
+      (term, (Math.log10(GetFrequency(document, term).toDouble) /
+        Math.log(document.size)))
     }
 
     type IDFValue = IDF.IDFValue

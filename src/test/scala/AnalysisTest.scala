@@ -3,7 +3,7 @@ package org.Fcocco01.DocumentClassifier
 
 class AnalysisTest extends UnitTest ("Analysis"){
 
-  import Resources._
+  import TestingResources._
   var timeTaken: Double = _
 
   override def beforeAll(): Unit = {
