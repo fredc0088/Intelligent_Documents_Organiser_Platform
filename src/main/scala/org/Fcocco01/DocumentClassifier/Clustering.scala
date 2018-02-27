@@ -5,7 +5,7 @@ import Util.Operators.|>
 
 package object Clustering {
 
-  object Comparison {
+  object Similarity {
     type Vector = NormalisedVector
 
     def cosine(vector1: Vector, vector2: Vector) = {

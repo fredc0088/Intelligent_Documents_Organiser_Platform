@@ -19,58 +19,55 @@ package object Util {
       try f(param) finally param.close()
   }
 
-    object I_O {
+  object I_O {
 
-      import org.apache.poi.xwpf.usermodel.XWPFDocument
-      import org.apache.poi.xwpf.extractor.XWPFWordExtractor
-      import org.apache.pdfbox.pdmodel.PDDocument
-      import org.apache.pdfbox.text.PDFTextStripper
-      import java.io.FileInputStream
+    import org.apache.poi.xwpf.usermodel.XWPFDocument
+    import org.apache.poi.xwpf.extractor.XWPFWordExtractor
+    import org.apache.pdfbox.pdmodel.PDDocument
+    import org.apache.pdfbox.text.PDFTextStripper
+    import java.io.FileInputStream
 
-      def readDocWithTry(file: String) = {
-        file.split("\\.").last match {
-          case "pdf" => Try {
-            /**
-              * To decide whether to keep it.
-              * Mapping to unicode is not good and the process is way too slow
-              */
-            val document = PDDocument.load(new java.io.File(file))
-            val stripper = new PDFTextStripper().getText(document)
-            stripper.split(" ").toList
-          }
-          case x@("doc" | "docx") => Try {
-            val document = new XWPFDocument(new FileInputStream(file))
-            val extractor = new XWPFWordExtractor(document)
-            extractor.getText.split(" ").toList
-          }
-          case _ => Try {
-            val lines = Control.using(io.Source.fromFile(file, Codec.ISO8859.name)) {
-              source =>
-                (for (
-                  line <- source.getLines
-                ) yield line.split(" ")).toList.flatten
-            }
-            lines
-          }
+    def readDocWithTry(file: String) = {
+      file.split("\\.").last match {
+        case "pdf" => Try {
+          /**
+            * To decide whether to keep it.
+            * Mapping to unicode is not good and the process is way too slow
+            */
+          val document = PDDocument.load(new java.io.File(file))
+          val stripper = new PDFTextStripper().getText(document)
+          stripper.split(" ").toList
         }
-      }
-
-      def GetDocContent(filePath: String): String = {
-        readDocWithTry(filePath) match {
-          case Success(lines) => lines.mkString(" ")
-          case Failure(t) => throw new Exception(t) {
-            println(t.getStackTrace)
+        case x@("doc" | "docx") => Try {
+          val document = new XWPFDocument(new FileInputStream(file))
+          val extractor = new XWPFWordExtractor(document)
+          extractor.getText.split(" ").toList
+        }
+        case _ => Try {
+          val lines = Control.using(io.Source.fromFile(file, Codec.ISO8859.name)) {
+            source =>
+              (for (
+                line <- source.getLines
+              ) yield line.split(" ")).toList.flatten
           }
+          lines
         }
       }
     }
 
-
-    object Operators {
-
-      implicit class |>[A](val a: A) extends AnyVal {
-        def |>[B](op: A => B): B = op(a)
+    def GetDocContent(filePath: String): String = {
+      readDocWithTry(filePath) match {
+        case Success(lines) => lines.mkString(" ")
+        case Failure(t) => throw new Exception(t) {println(t.getStackTrace)}
       }
+    }
+  }
+
+  object Operators {
+
+    implicit class |>[A](val a: A) extends AnyVal {
+      def |>[B](op: A => B): B = op(a)
+    }
 
 //      implicit class Semigroup[A,Double](val m1: Map[A,Double]) extends AnyVal {
 //        def <*>(m2: Map[A,Double]) = {

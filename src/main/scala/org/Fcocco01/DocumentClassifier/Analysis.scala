@@ -3,6 +3,7 @@ package org.Fcocco01.DocumentClassifier
 package object Analysis {
 
   object IDF {
+
     class IDFValue(val term: String, documents: Traversable[String],
                    extractor: String => String) {
       private val idf : Double = {
@@ -30,6 +31,7 @@ package object Analysis {
   }
 
   object ModelFunctions {
+
     def tf(document: Traversable[String], term: String) = {
       if (document.size > 0) {
         val frequency = () => {
@@ -37,8 +39,8 @@ package object Analysis {
           for (w <- document if term == w) f += 1
           f
         }
-        frequency().toDouble / document.size
-      } else 0.0
+        (term,frequency().toDouble / document.size)
+      } else (term,0.0)
     }
 
     type IDFValue = IDF.IDFValue
@@ -49,7 +51,7 @@ package object Analysis {
 
     def tfidf(idfValues: Traversable[IDFValue]) =
       (term: String, document: Traversable[String]) => {
-        (term,tf(document,term) * idf(term, idfValues))
+        (term, tf(document,term)._2 * idf(term, idfValues))
     }
 
     def bag(term: String, document: Traversable[String]) = {

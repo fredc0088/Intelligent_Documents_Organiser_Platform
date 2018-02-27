@@ -1,5 +1,7 @@
 package org.Fcocco01.DocumentClassifier
 
-abstract class UnitTest (component: String) extends org.scalatest.FlatSpec with org.scalatest.Matchers {
+import org.scalatest._
+
+abstract class UnitTest (component: String) extends FlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll  with BeforeAndAfterEach {
   behavior of component
 }

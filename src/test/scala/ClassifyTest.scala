@@ -2,17 +2,21 @@ package org.Fcocco01.DocumentClassifier
 
 import Util.I_O.GetDocContent
 import org.Fcocco01.DocumentClassifier.Classify.Dictionary
-import org.Fcocco01.DocumentClassifier.DocumentFrequency.IDF
-import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{StopWords, TokenizedText}
+import org.Fcocco01.DocumentClassifier.Analysis.IDF
+import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{TokenizedText}
 import Classify._
+import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.tfidf
 
-
-class ClassifyTest() extends UnitTest("Classify") {
+class ClassifyTest extends UnitTest("Classify") {
   import Resources._
+  var vectors : Vector[NormalisedVector] = Vector[NormalisedVector]()
+  var singleVector : DocumentVector = _
+  var timeTaken: Double = _
 
-
-  it should "Produce a normalised vector with tf-idf weighting" in {
-
+  override def beforeAll(): Unit = {
+    timeTaken = System.nanoTime()
+    println("Starting instantiation")
+    val timeInstantiation = System.nanoTime()
     val tests = Array(testPath1, testPath2, testPath3
       //,testPath4
     )
@@ -21,35 +25,47 @@ class ClassifyTest() extends UnitTest("Classify") {
     val idfWeightedTerms = for {
       s <- dictionary
     } yield IDF.IDFValue(s, tests, GetDocContent)
-    val original = DocumentVector(TokenizedText("\\s+", stopWords), testPath2, Option(GetDocContent))
-    val test = TfIdfVector(dictionary,original,idfWeightedTerms)
-    it should "Return right size" in {
-      test.size shouldBe(2110)
-    }
-    it should "vector should be map of right type" in {
-      test.vector.foreach{_._2 shouldBe Double }
-    }
-    it should "vector values should never be above 1" in {
-      test.vector.foreach{x => assert(x._2 < 1)}
-    }
+    println("Ready at " + (System.currentTimeMillis() / 6000) )
+    val testsPar = tests.par
+    vectors = testsPar.map{ a =>
+          val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
+          NormalisedVector(dictionary,DocumentVector(TokenizedText("\\s+", stopWords), a, Option(GetDocContent)),tfidfFun)
+        }(collection.breakOut)
 
+    testsPar.foreach{e => Thread.sleep(100000); println(e)}
+    singleVector = DocumentVector(TokenizedText("(\\s+)(\\()(+)(-)(*)(\\))", stopWords), testPath2, Option(GetDocContent))
+    println(("Instatiating time was " + ((System.nanoTime() - timeInstantiation) / 1000000000.0) / 60) + " mins")
+    super.beforeAll()
   }
 
-}
 
+  override def afterAll() : Unit = {
+    timeTaken = (System.nanoTime() - timeTaken) / 1000000000.0
+    println("The whole process has taken " + (timeTaken / 60) + " mins")
+  }
 
+  it should "Return no empty vectors and no skip any" in {
+    vectors.size shouldBe 3
+  }
 
-object Resources {
-  val demoDocxMock=
-    ""
-  val testPath1 =
-    ".\\src\\test\\resources\\1\\1.2\\Java - Generics by Oracle.docx"
-  val testPath2 =
-    ".\\src\\test\\resources\\1\\1.1\\demo.docx"
-  val testPath3 =
-    ".\\src\\test\\resources\\3\\3.2\\test.docx"
-  val testPath4 =
-    ".\\src\\test\\resources\\1\\1.2\\clustering.pdf"
+  it should "Return right size" in {
+    vectors(0).size shouldBe 2110
+  }
 
-  val stopWords = StopWords(".\\src\\main\\resources\\stop-word-list.txt")
+  it should "vector values should never be above 1" in {
+    vectors(0).vector.foreach{x => assert(x._2 < 1)}
+  }
+
+  it should "All its objects are same size" in {
+    vectors.foreach(x => x.size shouldBe 2110)
+  }
+
+  it should "Having a single vector of right size" in {
+    singleVector.size
+  }
+
+  it should "have a total test that exceed 10 minutes execution" in {
+    assert((((System.nanoTime() - timeTaken) / 1000000000.0) / 60) < 10)
+  }
+
 }
