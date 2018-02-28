@@ -41,7 +41,6 @@ package object Analysis {
     }
 
     def wdf(document: Traversable[String], term: String) = {
-      §
       (term, (Math.log10(GetFrequency(document, term).toDouble) /
         Math.log(document.size)))
     }
@@ -56,6 +55,11 @@ package object Analysis {
       (term: String, document: Traversable[String]) => {
         (term, tf(document,term)._2 * idf(term, idfValues))
     }
+
+    def wdfidf(idfValues: Traversable[IDFValue]) =
+      (term: String, document: Traversable[String]) => {
+        (term, wdf(document, term)._2 * idf(term, idfValues))
+      }
 
     def bag(term: String, document: Traversable[String]) = {
       (term, GetFrequency(document,term).toDouble)

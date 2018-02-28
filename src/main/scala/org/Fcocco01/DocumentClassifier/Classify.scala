@@ -82,7 +82,7 @@ object Classify {
       new NormalisedVector(dictionary, unNormalisedVector, modeller)
   }
 
-  class Matrix(v: Vector[NormalisedVector]) {
+  class Matrix_Normalised(v: Vector[NormalisedVector]) {
     val x = v.head.vector.map(_._1)
     val y = v.map(_.docId)
     val matrix = for (i <- v) {
