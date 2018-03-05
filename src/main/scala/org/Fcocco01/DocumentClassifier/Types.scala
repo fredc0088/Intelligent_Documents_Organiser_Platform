@@ -6,5 +6,5 @@ package object Types {
   type Token = String
   type Tokens = Traversable[Token]
   type Tokenizer = (String => Vector[Token])
-
+  type Scheme = (String, Traversable[String]) => (Token,Double)
 }

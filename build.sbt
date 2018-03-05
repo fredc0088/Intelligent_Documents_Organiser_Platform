@@ -27,9 +27,11 @@ val scalactic = "org.scalactic" %% "scalactic" % "3.0.4"
 
 val testlib = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 
-val poi = "org.apache.poi" % "poi" % "3.9"
+val poi = "org.apache.poi" % "poi" % "3.17"
 
-val poiOOXML = "org.apache.poi" % "poi-ooxml" % "3.9"
+val poiDocX = "org.apache.poi" % "poi-ooxml" % "3.17"
+
+val poiDoc = "org.apache.poi" % "poi-scratchpad" % "3.17"
 
 val pdfbox = "org.apache.pdfbox" % "pdfbox" % "2.0.8"
 
@@ -39,9 +41,11 @@ val scalaFX = "org.scalafx" %% "scalafx" % "8.0.144-R12"
 
 val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
 
+val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
+
 lazy val root = (project in file("."))
   .settings(
-    name := "Intelligent documents classicator platform",
+    name := "Intelligent documents classicator",
     version := "0.0.1",
     scalaVersion := "2.12.3",
     organization := name.value,
@@ -49,8 +53,8 @@ lazy val root = (project in file("."))
     scalacOptions := List("-encoding", "utf8", "-Xfatal-warnings", "-deprecation", "-unchecked", "-feature"),
     //libraryDependencies ++= Seq(check(scalaVersion.value), scalactic(scalaVersion.value), testlib(scalaVersion.value))
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/releases",
-    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiOOXML, pdfbox, speedTest, scalaFX, sclFXML),
+    addCompilerPlugin(paradise cross CrossVersion.full),
+    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, pdfbox, speedTest, scalaFX, sclFXML),
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    parallelExecution in Test := false,
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    parallelExecution in Test := false
   )

@@ -1,28 +1,153 @@
 package org.Fcocco01.DocumentClassifier
 
-import org.Fcocco01.DocumentClassifier.Classify.NormalisedVector
+import org.Fcocco01.DocumentClassifier.Classify.DocumentVector
 import Util.Operators.|>
+import scala.annotation.tailrec
 
-package object Clustering {
+object Clustering {
+
+  type DVector = DocumentVector
 
   object Similarity {
-    type Vector = NormalisedVector
+    type Vector = DocumentVector
 
-    def cosine(vector1: Vector, vector2: Vector) = {
+
+    def cosine(vector1: DVector, vector2: DVector) = {
       val a: Double = getAbsoluteValue(vector1) |> Math.sqrt
       val b: Double = getAbsoluteValue(vector2) |> Math.sqrt
       getDocProduct(vector1, vector2).map(_._2).reduce(_ + _) / (a * b)
     }
 
-    def getDocProduct(v1: Vector, v2: Vector) =
+    def getDocProduct(v1: DVector, v2: DVector) =
       v1.vector.map { case (k, v) => k -> (v * v2.vector.getOrElse(k, 0.0)) }
 
-    def getAbsoluteValue(vector: Vector): Double = {
+    def getAbsoluteValue(vector: DVector): Double = {
       vector.vector.toVector.map(x => Math.pow(x._2, 2)).reduce(_ + _)
     }
   }
 
-  object HierarchicalClust {
+  object HierarchicalClustering {
 
+    type MatrixEl = (Double, DVector, DVector)
+    type SimMatrix = Array[Array[MatrixEl]]
+
+    sealed trait Cluster {
+      def getVectors : List[DVector]
+      def getTitle : String
+      /*
+      Merge two existing clusters
+       */
+      def merge(c: Cluster) : MultiCluster = MultiCluster(this, c)
+      def hasVector(v: DVector) : Boolean = getVectors.exists(_ == v)
+    }
+
+    final case class SingleCluster(private val v: DVector) extends Cluster {
+      override def getVectors : List[DVector] = List(v)
+      override def getTitle = {
+        v.vector.maxBy(_._2)._1
+      }
+    }
+
+    final case class MultiCluster(childL: Cluster = null, childR: Cluster = null) extends Cluster{
+
+      override def getTitle: String = ???
+
+      def getPair = if(childL != null && childR != null)
+        (childL,childR) else null
+
+      // NOTE FOR ME: Use Either[A,B] to have different returns
+
+      override def getVectors : List[DVector] =
+        getVectors(this,List.empty[DVector])
+
+      private def getVectors(c: Cluster, a: List[DVector]) : List[DVector] =
+        if(c.isInstanceOf[SingleCluster]) c.getVectors
+        else c.asInstanceOf[MultiCluster].childL.getVectors ::: c.asInstanceOf[MultiCluster].childR.getVectors
+    }
+
+//    def simpleHAC() = {
+//      //val
+//    }
+
+    def getRightCluster(tree: List[Cluster], elToFind: DVector) : Cluster= {
+      tree.find(_.hasVector(elToFind)).get
+    }
+
+    def cutTrav(a: Traversable[MatrixEl]) = {
+        for(s <- a) {
+
+        }
+    }
+
+    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: (Either[SimMatrix,Traversable[MatrixEl]]) => MatrixEl, v: DVector*) = {
+      val cls = init(v.toSeq)
+      val l = cls.size
+
+      val p = scala.collection.mutable.PriorityQueue[MatrixEl](m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / 2 + 1): _*)(Ordering.by(_._1))
+      @tailrec
+      def createClusterTree(setL: Int, tree: List[Cluster]) : Cluster = {
+        tree.size match {
+          case 1 => tree.head
+          case _ => {
+            val c = single_link(Right(p))
+            val cls1 = getRightCluster(tree,c._2)
+            val mergedCls = cls1.merge(getRightCluster(tree,c._3))
+            val newTree = tree.filterNot( x => x == mergedCls.childL || x == mergedCls.childR)
+            val newTree2 = newTree :+ mergedCls
+            println(setL)
+            p.dequeue()
+            createClusterTree(setL + 1,newTree2)
+          }
+        }
+      }
+      val u = createClusterTree(l,cls)
+      u
+    }
+
+
+    def single_link(m: Either[SimMatrix,Traversable[MatrixEl]]) = {
+      val matrix = m match {case Left(x) => x.flatten.toList; case Right(y) => y.toList}
+      @tailrec
+      def find(a : List[MatrixEl]) : MatrixEl= {
+        val mx = a.maxBy(_._1)
+        if(mx._2.docId == mx._3.docId) {
+          find(a diff List(mx))
+        } else mx
+      }
+      find(matrix)
+    }
+
+
+    def createSimMatrix(v: Array[DVector], f: (DVector, DVector) => Double): SimMatrix = {
+      val size = v.size
+      val matrix = Array.ofDim[MatrixEl](size, size)
+      val active = Array.ofDim[Int](matrix.length,matrix.length)
+      for (i <- 0 until v.size) {
+//        val p = scala.collection.mutable.PriorityQueue.empty[MatrixEl](Ordering.by(_._1))
+        for (j <- 0 until v.size) {
+          active(i)(j) = 1
+          matrix(i)(j) =
+            (f(v(i), v(j)), v(i), v(j))
+//          if(!(v(i).docId == v(j).docId))
+//            p.enqueue((f(v(i), v(j)), v(i), v(j)))
+        }
+
+      }
+      matrix
+    }
   }
+
+    def main(args: Array[String]): Unit = {
+      import Classify.g
+      import Clustering.Similarity.cosine
+      import Clustering.HierarchicalClustering._
+      val time = System.nanoTime
+      val p: Array[DVector] = g.toArray
+      val m = createSimMatrix(p, cosine)
+      val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
+      val o = HAC(m, t, single_link, p: _*)
+      println((((time - System.nanoTime)/ 1E9) / 60) + " mins")
+      println(o)
+    }
+
 }
