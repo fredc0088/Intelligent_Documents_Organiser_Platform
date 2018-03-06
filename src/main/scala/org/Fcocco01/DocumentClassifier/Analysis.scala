@@ -32,11 +32,11 @@ package object Analysis {
 
   object ModelFunctions {
 
-    def tfLogNorm(document: Traversable[String], term: String) = {
+    def tfLogNorm(term: String, document: Traversable[String]) = {
       (term, 1 + Math.log10(GetFrequency(document, term)))
     }
 
-    def tf(document: Traversable[String], term: String) = {
+    def tf(term: String, document: Traversable[String]) = {
       (term, (GetFrequency(document, term).toDouble / document.size))
     }
 
@@ -53,7 +53,7 @@ package object Analysis {
 
     def tfidf(idfValues: Traversable[IDFValue]) =
       (term: String, document: Traversable[String]) => {
-        (term, tf(document,term)._2 * idf(term, idfValues))
+        (term, tf(term,document)._2 * idf(term, idfValues))
     }
 
     def wdfidf(idfValues: Traversable[IDFValue]) =

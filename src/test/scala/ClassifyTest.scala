@@ -5,18 +5,19 @@ import org.Fcocco01.DocumentClassifier.Classify.Dictionary
 import org.Fcocco01.DocumentClassifier.Analysis.IDF
 import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{TokenizedText}
 import Classify._
-import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.tfidf
+import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.{tf,tfidf}
 
 class ClassifyTest extends UnitTest("Classify") {
 
   import TestingResources._
   import Regexes.words1gram
 
-  var vectors : Vector[NormalisedVector] = Vector[NormalisedVector]()
+  var vectors : Vector[DocumentVector] = Vector[DocumentVector]()
   var singleVector : DocumentVector = _
-  var timeTaken: Double = _
+  private var timeTaken: Double = _
   val tests = Array(testPath1, testPath2, testPath3
     //,testPath4
+    ,testPath5,testPath6
   )
 
   override def beforeAll(): Unit = {
@@ -32,28 +33,28 @@ class ClassifyTest extends UnitTest("Classify") {
     val testsPar = tests.par
     vectors = testsPar.map{ a =>
           val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
-      NormalisedVector(dictionary, DocumentVector(TokenizedText(words1gram, stopWords), a, Option(GetDocContent)), tfidfFun)
+      NormalisedVector(dictionary, SingleVector(TokenizedText(words1gram, stopWords), a, Option(GetDocContent)), tfidfFun)
         }(collection.breakOut)
 
     testsPar.foreach{e => Thread.sleep(100000); println(e)}
-    singleVector = DocumentVector(TokenizedText(words1gram, stopWords), testPath2, Option(GetDocContent))
-    println(("Instatiating time was " + ((System.nanoTime() - timeInstantiation) / 1000000000.0) / 60) + " mins")
+    singleVector = SingleVector(TokenizedText(words1gram, stopWords), testPath2, Option(GetDocContent), Option(tf))
+    println(("Instantiating time was " + ((System.nanoTime() - timeInstantiation) / 1E9) / 60) + " mins")
     super.beforeAll()
   }
 
 
   override def afterAll() : Unit = {
-    timeTaken <= (System.nanoTime() - timeTaken) / 1000000000.0
-    println("The whole process has taken " + (timeTaken / 60) + " mins")
+    val t = (System.nanoTime() - timeTaken) / 1E9
+    println("The whole process has taken " + (t / 60) + " mins")
     vectors.foreach(el => println(el.toString))
   }
 
   it should "Return no empty vectors and no skip any" in {
-    vectors.size shouldBe 3
+    vectors.size shouldBe 5
   }
 
   it should "Return right size" in {
-    vectors(0).size shouldBe 1167
+    vectors(0).size shouldBe 1210
   }
 
   it should "vector values should never be above 1" in {
@@ -61,7 +62,7 @@ class ClassifyTest extends UnitTest("Classify") {
   }
 
   it should "All its objects are same size" in {
-    vectors.foreach(x => x.size shouldBe 1167)
+    vectors.foreach(x => x.size shouldBe 1210)
   }
 
   //  it should "Having a single vector of right size" in {
@@ -69,7 +70,7 @@ class ClassifyTest extends UnitTest("Classify") {
   //  }
 
   it should "have a total test that exceed 10 minutes execution" in {
-    val time = ((System.nanoTime() - timeTaken) / 1000000000.0) / 60
+    val time = ((System.nanoTime() - timeTaken) / 1E9) / 60
     tests.length match {
       case x if 0 until 8 contains x => assert(time < 10)
 

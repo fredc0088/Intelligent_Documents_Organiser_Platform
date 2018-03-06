@@ -9,6 +9,7 @@ object Classify {
   import Analysis.{ModelFunctions,IDF}
   import ModelFunctions._
 
+
   /**
     * Dictionary of non-trivial words in the whole corpus.
     *
@@ -29,26 +30,42 @@ object Classify {
   }
 
   /**
-    * Vectorize a document using a custom way of tokenization.
+    * Convert a document to a spatial vector.
+    */
+  abstract class DocumentVector {
+    def docId : String
+    def size : Int
+    def tokens : Tokens
+    def vector : Map[Token,Double]
+  }
+
+  /**
+    * Vectorize a single document using a custom way of tokenization.
     *
     * @param tokenizer
     * @param docPath Path to document to be analysed.
     * @param extractor Optional
     */
-  class DocumentVector(private val tokenizer: Tokenizer, docPath: String, extractor: Option[String => String]) {
-    def vector() = {
+  class SingleVector(private val tokenizer: Tokenizer, docPath: String, extractor: Option[String => String],
+                       modeller: Option[Scheme]) extends DocumentVector {
+    def vector = modeller match {
+      case Some(y) => tokens.toArray.distinct.map(x => y(x, tokens)).toMap
+      case None => tokens.toArray.distinct.map(x => (x,0.0)).toMap
+    }
+    def tokens = {
       extractor match {
         case Some(x) => tokenizer(x(docPath))
         case None => tokenizer("")
       }
     }
-    def getId = docPath
+    def docId = docPath
     def size = vector.size
   }
 
-  object DocumentVector {
-    def apply(tokenizer: Tokenizer, docPath: String, extractor: Option[String => String]) = {
-      new DocumentVector(tokenizer, docPath, extractor)
+  object SingleVector {
+    def apply(tokenizer: Tokenizer, docPath: String, extractor: Option[String => String],
+              modeller: Option[Scheme] = None) = {
+      new SingleVector(tokenizer, docPath, extractor, modeller)
     }
   }
 
@@ -62,23 +79,23 @@ object Classify {
     * @param modeller Function which models the vector after a chosen model data
     */
   class NormalisedVector(dictionary: Tokens,
-                         unNormalisedVector: DocumentVector,
-                         modeller: (String, Traversable[String]) => (Token,Double)) {
-    val tokens = unNormalisedVector.vector
+                         unNormalisedVector: SingleVector,
+                         modeller: Scheme) extends DocumentVector {
+    def tokens = unNormalisedVector.tokens
     val vector = {
       var m = Array[(Token,Double)]()
       for(d <- dictionary) m = m :+ modeller(d,tokens)
       m.toMap
     }
-    val docId = unNormalisedVector.getId
-    val size = dictionary.size
+    def docId = unNormalisedVector.docId
+    def size = dictionary.size
     override def toString() =
       (for ((k, v) <- vector) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)}").mkString
   }
   object NormalisedVector{
     def apply(dictionary: Tokens,
-              unNormalisedVector: DocumentVector,
-              modeller: (String, Traversable[String]) => (Token, Double)): NormalisedVector =
+              unNormalisedVector: SingleVector,
+              modeller: Scheme): NormalisedVector =
       new NormalisedVector(dictionary, unNormalisedVector, modeller)
   }
 
@@ -93,72 +110,55 @@ object Classify {
 
   }
 
-  /************************OOP Style**************************************/
-  /**
-  /**
-    * A document vector needs to be normalised to the other vectors in the analysis using
-    * a uniformed dictionary.
-    *
-    * @constructor new vector using a dictionary and a not-normalised vector.
-    * @param dictionary Defined all non-trivial terms in the current analysis.
-    * @param unNormalisedVector Vector that needs to be normalised.
-    */
-  abstract class NormalisedVector(dictionary: Tokens,
-                                  unNormalisedVector: DocumentVector) {
-    val tokens = unNormalisedVector.vector
-    val vector: Map[Token, Double]
-    val docId = unNormalisedVector.getId
-    val size = dictionary.size
-    def getVector() = vector
-    override def toString() = {
-      val s = for ((k, v) <- vector) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)}"
-      s.mkString
+
+//
+//  def main(args: Array[String]): Unit = {
+//    val testPath1 =
+//      "./src/test/resources/1/1.2/Java - Generics by Oracle.docx"
+//    val testPath2 =
+//      "./src/test/resources/1/1.1/demo.docx"
+//    val testPath3 =
+//      "./src/test/resources/3/3.2/test.docx"
+//    val testPath4 =
+//      "./src/test/resources/1/1.2/clustering.pdf"
+//    val tests: Paths = Array(testPath1, testPath2, testPath3
+//      //,testPath4
+//    )
+//    val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
+//    val dictionary: Tokens =
+//      Dictionary(tests, TokenizedText("[^a-z0-9]", stopWords))
+//    val idfWeightedTerms = for {
+//      s <- dictionary
+//    } yield IDF.IDFValue(s, tests, GetDocContent)
+//    tests.size match {
+//      case 0 => ???
+//      case 1 => SingleVector(TokenizedText("[^a-z0-9]", stopWords), tests.head, Option(GetDocContent), Option(tf))
+//      case _ => {
+//        import scala.collection.parallel.mutable.ParArray
+//        //        var vectors: Vector[TfIdfVector] = Vector[TfIdfVector]()
+//        var vectors: Vector[NormalisedVector] = Vector[NormalisedVector]()
+//        for (i <- tests) {
+////          val original = DocumentVector(TokenizedText("\\s+", stopWords), i, Option(GetDocContent))
+////          vectors = vectors :+ TfIdfVector(dictionary,original,idfWeightedTerms)
+//val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
+//          val original = SingleVector(TokenizedText("[^a-z0-9]", stopWords), i, Option(GetDocContent))
+//          vectors = vectors :+ NormalisedVector(dictionary, original, tfidfFun)
+//        }
+//        vectors.foreach { e => Thread.sleep(100); print(e) }
+//        println(vectors(1).toString())
+//      }
+//    }
+//  }
+
+  def g = {
+  object TestingResources {
+
+    object Regexes {
+      val words1gram = "[^a-z0-9]"
     }
-  }
 
-
-  /**
-    * A Document is transformed into a vector with information regarding the
-    * frequency of dictionary's terms in the document, for purpose of analysis.
-    * This specifically let freely use any n-gram model for the tokens, but implements
-    * a Term-Frequency technique to weight in each token.
-    *
-    * @constructor new vector using a dictionary, a tokenizer and the path to the document
-    * @param dictionary Defined all non-trivial terms in the current analysis.
-    * @param unNormalisedVector Vector that needs to be normalised.
-    * @param termsIdfed Collection of terms attached to their IDF weight.
-    */
-  case class TfIdfVector(dictionary: Tokens,
-                         unNormalisedVector: DocumentVector,
-                         termsIdfed: Traversable[IDF.IDFValue])
-    extends NormalisedVector(dictionary,unNormalisedVector) with Tf with Idf {
-    val vector = {
-      var m = Array[(Token,Double)]()
-      for(d <- dictionary) m = m :+ (d, tf(tokens,d) * getIdf(d,termsIdfed))
-      m.toMap
-    }
-  }
-
-  /**
-    * A vector being normalised following a Bag-Of-Words model
-    *
-    * @constructor new vector using a dictionary, a tokenizer and the path to the document
-    * @param dictionary Defined all non-trivial terms in the current analysis.
-    * @param unNormalisedVector Vector that needs to be normalised.
-    */
-  case class BagOfWordsVector(dictionary: Tokens,
-                         unNormalisedVector: DocumentVector)
-    extends NormalisedVector(dictionary,unNormalisedVector) with DocumentFrequency.BagOfWords {
-    val vector = {
-      var m = Array[(Token,Double)]()
-      for(d <- dictionary) m = m :+ makeBagTerm(d,tokens)
-      m.toMap
-    }
-  }
-  */
-
-
-  def main(args: Array[String]): Unit = {
+    val demoDocxMock =
+      ""
     val testPath1 =
       "./src/test/resources/1/1.2/Java - Generics by Oracle.docx"
     val testPath2 =
@@ -167,32 +167,40 @@ object Classify {
       "./src/test/resources/3/3.2/test.docx"
     val testPath4 =
       "./src/test/resources/1/1.2/clustering.pdf"
-    val tests: Paths = Array(testPath1, testPath2, testPath3
-      //,testPath4
-    )
+    val testPath5 =
+      "./src/test/resources/3/3.1/SampleDOCFile_100kb.doc"
+    val testPath6 =
+      "./src/test/resources/3/3.1/3.1.1/TestWordDoc.doc"
+
     val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
-    val dictionary: Tokens =
-      Dictionary(tests, TokenizedText("[^a-z0-9]", stopWords))
+  }
+
+
+
+
+
+    import TestingResources._
+    import Regexes.words1gram
+
+  val tests = Array(testPath1, testPath2, testPath3
+    //,testPath4
+    ,testPath5,testPath6
+  )
+
+    val timeInstantiation = System.nanoTime()
+    val dictionary =
+      Dictionary(tests, TokenizedText(words1gram, stopWords))
     val idfWeightedTerms = for {
       s <- dictionary
     } yield IDF.IDFValue(s, tests, GetDocContent)
-    tests.size match {
-      case 0 => ???
-      case 1 => DocumentVector(TokenizedText("[^a-z0-9]", stopWords), tests.head, Option(GetDocContent))
-      case _ => {
-        import scala.collection.parallel.mutable.ParArray
-        //        var vectors: Vector[TfIdfVector] = Vector[TfIdfVector]()
-        var vectors: Vector[NormalisedVector] = Vector[NormalisedVector]()
-        for (i <- tests) {
-//          val original = DocumentVector(TokenizedText("\\s+", stopWords), i, Option(GetDocContent))
-//          vectors = vectors :+ TfIdfVector(dictionary,original,idfWeightedTerms)
-val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
-          val original = DocumentVector(TokenizedText("[^a-z0-9]", stopWords), i, Option(GetDocContent))
-          vectors = vectors :+ NormalisedVector(dictionary, original, tfidfFun)
-        }
-        vectors.foreach { e => Thread.sleep(100); print(e) }
-        println(vectors(1).toString())
-      }
-    }
+    println("Ready at " + (System.currentTimeMillis() / 6000) )
+    val testsPar = tests.par
+    val vectors = testsPar.map{ a =>
+      val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
+      NormalisedVector(dictionary, SingleVector(TokenizedText(words1gram, stopWords), a, Option(GetDocContent)), tfidfFun)
+    }(collection.breakOut)
+
+    testsPar.foreach{e => Thread.sleep(100000); println(e)}
+  vectors
   }
 }

@@ -23,6 +23,8 @@ package object Util {
 
     import org.apache.poi.xwpf.usermodel.XWPFDocument
     import org.apache.poi.xwpf.extractor.XWPFWordExtractor
+    import org.apache.poi.hwpf.HWPFDocument
+    import org.apache.poi.hwpf.extractor.WordExtractor
     import org.apache.pdfbox.pdmodel.PDDocument
     import org.apache.pdfbox.text.PDFTextStripper
     import java.io.FileInputStream
@@ -38,9 +40,14 @@ package object Util {
           val stripper = new PDFTextStripper().getText(document)
           stripper.split(" ").toList
         }
-        case x@("doc" | "docx") => Try {
+        case "docx" => Try {
           val document = new XWPFDocument(new FileInputStream(file))
           val extractor = new XWPFWordExtractor(document)
+          extractor.getText.split(" ").toList
+        }
+        case "doc" => Try {
+          val document = new HWPFDocument(new FileInputStream(file))
+          val extractor = new WordExtractor(document)
           extractor.getText.split(" ").toList
         }
         case _ => Try {
