@@ -28,6 +28,8 @@ object Clustering {
 
   object HierarchicalClustering {
 
+    import scala.collection.mutable.PriorityQueue
+
     type MatrixEl = (Double, DVector, DVector)
     type SimMatrix = Array[Array[MatrixEl]]
 
@@ -65,64 +67,24 @@ object Clustering {
         else c.asInstanceOf[MultiCluster].childL.getVectors ::: c.asInstanceOf[MultiCluster].childR.getVectors
     }
 
-//    def simpleHAC() = {
-//      //val
-//    }
-
-    def getRightCluster(tree: List[Cluster], elToFind: DVector) : Cluster= {
+    def getRightCluster(tree: List[Cluster], elToFind: DVector) : Cluster =
       tree.find(_.hasVector(elToFind)).get
-    }
 
     def cutMatrix(m: SimMatrix): Array[MatrixEl] =
       m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / 2 + 1)
 
-    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: (Either[SimMatrix,Traversable[MatrixEl]]) => MatrixEl, v: DVector*) = {
-      val cls = init(v.toSeq)
-      val l = cls.size
 
-      val p = scala.collection.mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
-      @tailrec
-      def createClusterTree(setL: Int, tree: List[Cluster]) : Cluster = {
-        tree.size match {
-          case 1 => tree.head
-          case _ => {
-            val c = single_link(Right(p))
-            val cls1 = getRightCluster(tree,c._2)
-            val mergedCls = cls1.merge(getRightCluster(tree,c._3))
-            val newTree = tree.filterNot( x => x == mergedCls.childL || x == mergedCls.childR)
-            val newTree2 = newTree :+ mergedCls
-            println(setL)
-            p.dequeue()
-            createClusterTree(setL + 1,newTree2)
-          }
-        }
-      }
-      val u = createClusterTree(l,cls)
-      u
+    trait Linkage_Strategy {
+      def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) : MatrixEl
+      def getPQueue(m: SimMatrix) : PriorityQueue[MatrixEl]
     }
 
+    object Single_Link extends Linkage_Strategy {
 
-    def single_link(m: Either[SimMatrix,Traversable[MatrixEl]]) = {
-      val matrix = m match {case Left(x) => x.flatten.toList; case Right(y) => y.toList}
-      @tailrec
-      def find(a : List[MatrixEl]) : MatrixEl= {
-        val mx = a.maxBy(_._1)
-        if(mx._2.docId == mx._3.docId) {
-          find(a diff List(mx))
-        } else mx
-      }
-      find(matrix)
-    }
+      override def getPQueue(m: SimMatrix) : PriorityQueue[MatrixEl] =
+      PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
 
-
-    trait linkage_strategy
-
-    object single_link extends linkage_strategy {
-      implicit def orderByMax[MatrixEl]: Ordering[MatrixEl] = {
-        Ordering.by(x => x)
-      }
-
-      def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
+      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
         val matrix = m match {
           case Left(x) => x.flatten.toList;
           case Right(y) => y.toList
@@ -131,6 +93,29 @@ object Clustering {
         @tailrec
         def find(a: List[MatrixEl]): MatrixEl = {
           val mx = a.maxBy(_._1)
+          if (mx._2.docId == mx._3.docId) {
+            find(a diff List(mx))
+          } else mx
+        }
+
+        find(matrix)
+      }
+    }
+
+    object Complete_Link extends Linkage_Strategy {
+
+      override def getPQueue(m: SimMatrix) : PriorityQueue[MatrixEl] =
+        PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1)).reverse
+
+      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
+        val matrix = m match {
+          case Left(x) => x.flatten.toList;
+          case Right(y) => y.toList
+        }
+
+        @tailrec
+        def find(a: List[MatrixEl]): MatrixEl = {
+          val mx = a.minBy(_._1)
           if (mx._2.docId == mx._3.docId) {
             find(a diff List(mx))
           } else mx
@@ -158,6 +143,29 @@ object Clustering {
       }
       matrix
     }
+
+    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Linkage_Strategy, v: DVector*) = {
+      val cls = init(v.toSeq)
+      val p : PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
+      @tailrec
+      def createClusterTree(setL: Int, tree: List[Cluster]) : Cluster = {
+        tree.size match {
+          case 1 => tree.head
+          case _ => {
+            val c = linkStrategy.getDistance(Right(p))
+            val cls1 = getRightCluster(tree,c._2)
+            val mergedCls = cls1.merge(getRightCluster(tree,c._3))
+            val newTree = tree.filterNot( x => x == mergedCls.childL || x == mergedCls.childR)
+            val newTree2 = newTree :+ mergedCls
+            println(setL)
+            p.dequeue()
+            createClusterTree(setL + 1,newTree2)
+          }
+        }
+      }
+      val u = createClusterTree(cls.size,cls)
+      u
+    }
   }
 
     def main(args: Array[String]): Unit = {
@@ -168,9 +176,9 @@ object Clustering {
       val p: Array[DVector] = g.toArray
       val m = createSimMatrix(p, cosine)
       val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
-      val o = HAC(m, t, single_link, p: _*)
+      val o = HAC(m, t, Single_Link, p: _*)
       println((((System.nanoTime - time) / 1E9) / 60) + " mins")
-      println(o)
+      println(o.getVectors.map(_.docId))
     }
 
 }
