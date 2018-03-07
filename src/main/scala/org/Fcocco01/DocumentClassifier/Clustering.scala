@@ -73,17 +73,14 @@ object Clustering {
       tree.find(_.hasVector(elToFind)).get
     }
 
-    def cutTrav(a: Traversable[MatrixEl]) = {
-        for(s <- a) {
-
-        }
-    }
+    def cutMatrix(m: SimMatrix): Array[MatrixEl] =
+      m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / 2 + 1)
 
     def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: (Either[SimMatrix,Traversable[MatrixEl]]) => MatrixEl, v: DVector*) = {
       val cls = init(v.toSeq)
       val l = cls.size
 
-      val p = scala.collection.mutable.PriorityQueue[MatrixEl](m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / 2 + 1): _*)(Ordering.by(_._1))
+      val p = scala.collection.mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
       @tailrec
       def createClusterTree(setL: Int, tree: List[Cluster]) : Cluster = {
         tree.size match {
@@ -118,14 +115,40 @@ object Clustering {
     }
 
 
+    trait linkage_strategy
+
+    object single_link extends linkage_strategy {
+      implicit def orderByMax[MatrixEl]: Ordering[MatrixEl] = {
+        Ordering.by(x => x)
+      }
+
+      def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
+        val matrix = m match {
+          case Left(x) => x.flatten.toList;
+          case Right(y) => y.toList
+        }
+
+        @tailrec
+        def find(a: List[MatrixEl]): MatrixEl = {
+          val mx = a.maxBy(_._1)
+          if (mx._2.docId == mx._3.docId) {
+            find(a diff List(mx))
+          } else mx
+        }
+
+        find(matrix)
+      }
+    }
+
+
     def createSimMatrix(v: Array[DVector], f: (DVector, DVector) => Double): SimMatrix = {
       val size = v.size
       val matrix = Array.ofDim[MatrixEl](size, size)
-      val active = Array.ofDim[Int](matrix.length,matrix.length)
+      //      val active = Array.ofDim[Int](matrix.length,matrix.length)
       for (i <- 0 until v.size) {
 //        val p = scala.collection.mutable.PriorityQueue.empty[MatrixEl](Ordering.by(_._1))
         for (j <- 0 until v.size) {
-          active(i)(j) = 1
+          //          active(i)(j) = 1
           matrix(i)(j) =
             (f(v(i), v(j)), v(i), v(j))
 //          if(!(v(i).docId == v(j).docId))
@@ -146,7 +169,7 @@ object Clustering {
       val m = createSimMatrix(p, cosine)
       val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
       val o = HAC(m, t, single_link, p: _*)
-      println((((time - System.nanoTime)/ 1E9) / 60) + " mins")
+      println((((System.nanoTime - time) / 1E9) / 60) + " mins")
       println(o)
     }
 
