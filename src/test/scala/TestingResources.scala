@@ -21,6 +21,10 @@ object TestingResources {
     "./src/test/resources/3/3.1/SampleDOCFile_100kb.doc"
   val testPath6 =
     "./src/test/resources/3/3.1/3.1.1/TestWordDoc.doc"
+  val testPath7 =
+    "./src/test/resources/1/Dfr.doc"
+  val testPath8 =
+    "./src/test/resources/2/a.docx"
 
   val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
 }

@@ -36,6 +36,7 @@ object Clustering {
     sealed trait Cluster {
       def getVectors : List[DVector]
       def getTitle : String
+      val n : String
       /*
       Merge two existing clusters
        */
@@ -48,6 +49,7 @@ object Clustering {
       override def getTitle = {
         v.vector.maxBy(_._2)._1
       }
+      override val n = getVectors.head.docId
     }
 
     final case class MultiCluster(childL: Cluster = null, childR: Cluster = null) extends Cluster{
@@ -65,6 +67,8 @@ object Clustering {
       private def getVectors(c: Cluster, a: List[DVector]) : List[DVector] =
         if(c.isInstanceOf[SingleCluster]) c.getVectors
         else c.asInstanceOf[MultiCluster].childL.getVectors ::: c.asInstanceOf[MultiCluster].childR.getVectors
+
+      override val n: String = scala.util.Random.alphanumeric.take(5).mkString
     }
 
     def getRightCluster(tree: List[Cluster], elToFind: DVector) : Cluster =
@@ -152,24 +156,38 @@ object Clustering {
         tree.size match {
           case 1 => tree.head
           case _ => {
+
+            // MAKE THIS MORE FUNCTIONAL
             val c = linkStrategy.getDistance(Right(p))
-            val cls1 = getRightCluster(tree,c._2)
-            val mergedCls = cls1.merge(getRightCluster(tree,c._3))
-            val newTree = tree.filterNot( x => x == mergedCls.childL || x == mergedCls.childR)
-            val newTree2 = newTree :+ mergedCls
-            println(setL)
-            p.dequeue()
-            createClusterTree(setL + 1,newTree2)
+            val cls1 = getRightCluster(tree, c._2)
+            val cls2 = getRightCluster(tree, c._3)
+            if (cls1 == cls2) {
+              p.dequeue()
+              createClusterTree(setL, tree)
+            } else {
+              val mergedCls = cls1.merge(cls2)
+              val newTree = tree.filterNot(x => x == mergedCls.childL || x == mergedCls.childR)
+              val newTree2 = newTree :+ mergedCls
+
+              /*****Only for testing******/
+              println(setL)
+              println("1 - " + cls1.n)
+              println("2 - " + cls2.n)
+              println("!!!New is: " + mergedCls.n)
+              /***************************/
+
+              p.dequeue()
+              createClusterTree(setL + 1, newTree2)
+            }
           }
         }
       }
-      val u = createClusterTree(cls.size,cls)
-      u
+      createClusterTree(cls.size,cls)
     }
   }
 
     def main(args: Array[String]): Unit = {
-      import Classify.g
+      import OnlyForTesting_ToBeRemoved.g
       import Clustering.Similarity.cosine
       import Clustering.HierarchicalClustering._
       val time = System.nanoTime
