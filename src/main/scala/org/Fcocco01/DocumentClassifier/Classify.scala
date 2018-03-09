@@ -16,15 +16,18 @@ object Classify {
     * @param docsPathsList Paths to the documents to be analysis.
     * @param tokenizer
     */
-  class Dictionary(docsPathsList: Paths, tokenizer: Tokenizer) {
+  class Dictionary(docsPathsList: Paths, tokenizer: => Tokenizer, d: Option[Traversable[DocumentVector]]) {
     def apply(tokenizer: Tokenizer) : Tokens = {
-      docsPathsList.flatMap(x => tokenizer(GetDocContent(x)))
-        .toVector.distinct
+      d match {
+        case Some(x) => x.toVector.flatMap(_.tokens).distinct
+        case None => docsPathsList.flatMap(x => tokenizer(GetDocContent(x))).toVector.distinct
+      }
+
     }
   }
   object Dictionary {
-    def apply(d: Paths, tokenizer: Tokenizer) : Tokens = {
-      val newInstance = new Dictionary(d,tokenizer)
+    def apply(paths: Paths, tokenizer: Tokenizer)(implicit d: Option[Traversable[DocumentVector]]): Tokens = {
+      val newInstance = new Dictionary(paths, tokenizer, d)
       newInstance(tokenizer)
     }
   }
@@ -52,7 +55,8 @@ object Classify {
       case Some(y) => tokens.toArray.distinct.map(x => y(x, tokens)).toMap
       case None => tokens.toArray.distinct.map(x => (x,0.0)).toMap
     }
-    def tokens = {
+
+    lazy val tokens = {
       extractor match {
         case Some(x) => tokenizer(x(docPath))
         case None => tokenizer("")

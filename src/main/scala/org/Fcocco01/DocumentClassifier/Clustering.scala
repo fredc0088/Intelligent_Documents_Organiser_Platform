@@ -2,7 +2,9 @@ package org.Fcocco01.DocumentClassifier
 
 import org.Fcocco01.DocumentClassifier.Classify.DocumentVector
 import Util.Operators.|>
+
 import scala.annotation.tailrec
+import scala.collection.parallel.mutable.ParArray
 
 object Clustering {
 
@@ -130,7 +132,8 @@ object Clustering {
     }
 
 
-    def createSimMatrix(v: Array[DVector], f: (DVector, DVector) => Double): SimMatrix = {
+    def createSimMatrix(vectors: Traversable[DVector], f: (DVector, DVector) => Double): SimMatrix = {
+      val v = vectors.toArray.par
       val size = v.size
       val matrix = Array.ofDim[MatrixEl](size, size)
       //      val active = Array.ofDim[Int](matrix.length,matrix.length)
@@ -186,17 +189,5 @@ object Clustering {
     }
   }
 
-    def main(args: Array[String]): Unit = {
-      import OnlyForTesting_ToBeRemoved.g
-      import Clustering.Similarity.cosine
-      import Clustering.HierarchicalClustering._
-      val time = System.nanoTime
-      val p: Array[DVector] = g.toArray
-      val m = createSimMatrix(p, cosine)
-      val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
-      val o = HAC(m, t, Single_Link, p: _*)
-      println((((System.nanoTime - time) / 1E9) / 60) + " mins")
-      println(o.getVectors.map(_.docId))
-    }
 
 }

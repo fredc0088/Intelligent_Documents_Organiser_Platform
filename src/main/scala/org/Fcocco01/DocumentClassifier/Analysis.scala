@@ -5,9 +5,12 @@ package object Analysis {
   object IDF {
 
     class IDFValue(val term: String, documents: Traversable[String],
-                   extractor: String => String) {
+                   extractor: String => String, d: Option[Traversable[String]]) {
       private val idf : Double = {
-        val docs = documents.map(extractor(_).replace("\n"," ").toLowerCase)
+        val docs = d match {
+          case Some(x) => x
+          case None => documents.map(extractor(_).replace("\n", " ").toLowerCase)
+        }
         val term = this.term
         var count = 0
         for (doc <- docs if(doc.contains(term))) {count = count + 1}
@@ -19,8 +22,8 @@ package object Analysis {
     }
     object IDFValue {
       def apply(term: String, documents: Traversable[String],
-                extractor: String => String): IDFValue =
-        new IDFValue(term, documents, extractor)
+                extractor: String => String)(implicit d: Option[Traversable[String]]): IDFValue =
+        new IDFValue(term, documents, extractor, d)
     }
   }
 
