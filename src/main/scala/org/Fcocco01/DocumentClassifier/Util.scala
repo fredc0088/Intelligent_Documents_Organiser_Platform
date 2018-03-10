@@ -65,7 +65,13 @@ package object Util {
     def GetDocContent(filePath: String): String = {
       readDocWithTry(filePath) match {
         case Success(lines) => lines.mkString(" ")
-        case Failure(t) => throw new Exception(t) {println(t.getStackTrace)}
+        case Failure(t) => t match {
+            case _ : org.apache.poi.EmptyFileException => ""
+            case x : IllegalArgumentException => {
+              if(x.getMessage.trim == "The document is really a UNKNOWN file") ""
+              else throw new IllegalArgumentException(t) {println(t.getStackTrace)}}
+            case _ => throw new Exception(t) {println(t.getStackTrace)}
+          }
       }
     }
   }

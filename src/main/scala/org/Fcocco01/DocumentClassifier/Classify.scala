@@ -33,9 +33,35 @@ object Classify {
   }
 
   /**
+    * Unified type for accepting EITHER a String of text representing a content
+    * or a function that takes a String, like a path to a document ad example,
+    * and produces text
+    */
+  type ExtractorOrText = Either[String,Extractor]
+//  class ExtractorOrText[T]()
+//  object ExtractorOrText {
+//    implicit object AText extends ExtractorOrText[String]
+//    implicit object AnExtractorFunction extends ExtractorOrText[Extractor]
+//  }
+
+  /**
+    * Usable to produce either a vector no-normalised or an empty vector,
+    * depending on whether the used document is empty/unreadble.
+    */
+  object VectorFactory {
+    def apply(tokenizer: Tokenizer, docPath: String,
+                extractor: String => String, modeller: Option[Scheme] = None) = {
+      val text = extractor(docPath)
+      if(text == "") EmptyVector
+      else SingleVector(tokenizer, docPath, extractor, modeller)
+    }
+  }
+
+  /**
     * Convert a document to a spatial vector.
     */
   abstract class DocumentVector {
+    def empty = EmptyVector
     def docId : String
     def size : Int
     def tokens : Tokens
@@ -43,34 +69,46 @@ object Classify {
   }
 
   /**
+    * An empty vector to be handled.
+    */
+  object EmptyVector extends DocumentVector {
+    override def docId: String = ""
+    override def size: Int = 0
+    override def tokens: Tokens = List.empty[Token]
+    override def vector: Map[Token, Double] = Map.empty[Token,Double]
+  }
+
+  /**
     * Vectorize a single document using a custom way of tokenization.
     *
     * @param tokenizer
     * @param docPath Path to document to be analysed.
-    * @param extractor Optional
+    * @param extractorOrText
     */
-  class SingleVector(private val tokenizer: Tokenizer, docPath: String, extractor: Option[String => String],
-                       modeller: Option[Scheme]) extends DocumentVector {
+  class SingleVector(private val tokenizer: Tokenizer, docPath: String,
+                     extractorOrText: ExtractorOrText, modeller: Option[Scheme] = None)
+    extends DocumentVector {
+
     def vector = modeller match {
       case Some(y) => tokens.toArray.distinct.map(x => y(x, tokens)).toMap
       case None => tokens.toArray.distinct.map(x => (x,0.0)).toMap
     }
 
-    lazy val tokens = {
-      extractor match {
-        case Some(x) => tokenizer(x(docPath))
-        case None => tokenizer("")
-      }
+    lazy val tokens = extractorOrText match {
+      case Left(x) => tokenizer(x)
+      case Right(y) => tokenizer(y(docPath))
     }
+
     def docId = docPath
     def size = vector.size
   }
-
   object SingleVector {
-    def apply(tokenizer: Tokenizer, docPath: String, extractor: Option[String => String],
-              modeller: Option[Scheme] = None) = {
-      new SingleVector(tokenizer, docPath, extractor, modeller)
-    }
+    def apply(tokenizer: Tokenizer, docPath: String,
+              extractor: Extractor, modeller: Option[Scheme] = None) =
+      new SingleVector(tokenizer, docPath, Right(extractor), modeller)
+    def apply(tokenizer: Tokenizer, docPath: String,
+              text: String, modeller: Option[Scheme]) =
+      new SingleVector(tokenizer, docPath, Left(text), modeller)
   }
 
   /**
@@ -103,13 +141,4 @@ object Classify {
       new NormalisedVector(dictionary, unNormalisedVector, modeller)
   }
 
-//  class Matrix_Normalised(v: Vector[NormalisedVector]) {
-//    val x = v.head.vector.map(_._1)
-//    val y = v.map(_.docId)
-//    val matrix = for (i <- v) {
-//      val x = for {
-//        y <- i.vector
-//      } yield y._2
-//    }
-//  }
 }

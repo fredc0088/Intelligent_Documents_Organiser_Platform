@@ -3,9 +3,10 @@ package org.Fcocco01.DocumentClassifier
 import Util.I_O.GetDocContent
 import org.Fcocco01.DocumentClassifier.Analysis.IDF
 import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.tfidf
-import org.Fcocco01.DocumentClassifier.Classify.{Dictionary, DocumentVector, NormalisedVector, SingleVector}
+import org.Fcocco01.DocumentClassifier.Classify._
 import org.Fcocco01.DocumentClassifier.Clustering.DVector
 import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{StopWords, TokenizedText}
+import org.Fcocco01.DocumentClassifier.Types.Extractor
 
 object OnlyForTesting_ToBeRemoved {
 
@@ -49,44 +50,63 @@ object OnlyForTesting_ToBeRemoved {
 
 
 
-    import TestingResources._
-    import Regexes.words1gram
+  import TestingResources._
+  import Regexes.words1gram
   import Clustering.Similarity.cosine
   import Clustering.HierarchicalClustering._
+  import DocGathering._
 
   def main(args: Array[String]): Unit = {
-    val time = System.nanoTime
-    println("Start initialisation after " + (((System.nanoTime - time) / 1E9) / 60) + " mins")
 
-    val tests = Array(testPath1, testPath2, testPath3
-      //,testPath4
-      , testPath5, testPath6, testPath7, testPath8, testPath9,
-      testPath10, testPath11, testPath12, testPath13
-    )
+    val time = System.nanoTime
+
+    val currentTimeMins = (t: Double) => (((System.nanoTime - t) / 1E9) / 60)  + " mins"
+
+    println("Start initialisation after " + currentTimeMins(time))
+
+    def getDefaultVectors(a : Traversable[String]) =
+      a.map(x => SingleVector(TokenizedText(words1gram,stopWords) _,x,GetDocContent _))
+    val tests = DocumentFinder(Array("./src","./Notes","C:/Users/USER/Documents/Important docs","C:/Users/USER/Desktop","C:/Users/USER"))
 
     implicit val vectorsSingle: Option[Traversable[DocumentVector]] =
-      Option(tests.toVector.map(x => SingleVector(TokenizedText(words1gram, stopWords), x, Option(GetDocContent))))
+      Option(tests.toVector
+        .map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent))
+        .filter(_.isInstanceOf[SingleVector]))
+
     implicit val documents: Option[Traversable[String]] =
       Option(tests.toVector.map(GetDocContent(_).replace("\n", " ").toLowerCase))
+
+    println("Vectors and docs obtained in " + currentTimeMins(time))
+
     val dictionary =
-      Dictionary(tests, TokenizedText(words1gram, stopWords))
+      Dictionary(tests, TokenizedText(words1gram, stopWords))(vectorsSingle)
+
+    println("Created dictionary in " + currentTimeMins(time))
+
     val idfWeightedTerms = for {
       s <- dictionary
-    } yield IDF.IDFValue(s, tests, GetDocContent)
-    val parVectorsSingle = vectorsSingle.getOrElse(
-      tests.map(SingleVector(TokenizedText(words1gram, stopWords), _, Option(GetDocContent))))
-      .asInstanceOf[Vector[SingleVector]].par
+    } yield IDF.IDFValue(s, tests, GetDocContent)(documents)
+
+    println("IDF values in " + currentTimeMins(time))
+
+    val parVectorsSingle = vectorsSingle
+      .getOrElse(getDefaultVectors(tests)).par
+
+    println("Start to normalise after " + currentTimeMins(time))
+
     val vectors = parVectorsSingle.map { a =>
       val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
-      NormalisedVector(dictionary, a, tfidfFun)
+      NormalisedVector(dictionary, a.asInstanceOf[SingleVector], tfidfFun)
     }(collection.breakOut)
     parVectorsSingle.foreach { e => Thread.sleep(100000); println(e) }
+
     val p: Array[DVector] = vectors.toArray
-    println("Clustering after  " + (((System.nanoTime - time) / 1E9) / 60) + " mins")
+
+    println("Clustering after  " + currentTimeMins(time))
     val m = createSimMatrix(p, cosine)
     val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
     val o = HAC(m, t, Single_Link, p: _*)
-    println((((System.nanoTime - time) / 1E9) / 60) + " mins")
+    println("Finished after " + currentTimeMins(time))
     o.getVectors.map(_.docId).foreach(println)
   }
 }

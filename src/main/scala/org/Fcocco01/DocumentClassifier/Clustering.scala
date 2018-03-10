@@ -44,6 +44,7 @@ object Clustering {
        */
       def merge(c: Cluster) : MultiCluster = MultiCluster(this, c)
       def hasVector(v: DVector) : Boolean = getVectors.exists(_ == v)
+      val sim : Double // only for testing - To Be Removed
     }
 
     final case class SingleCluster(private val v: DVector) extends Cluster {
@@ -52,6 +53,7 @@ object Clustering {
         v.vector.maxBy(_._2)._1
       }
       override val n = getVectors.head.docId
+      val sim = getVectors(0).vector.map(_._2).sum // only for testing - To Be Removed
     }
 
     final case class MultiCluster(childL: Cluster = null, childR: Cluster = null) extends Cluster{
@@ -61,6 +63,7 @@ object Clustering {
       def getPair = if(childL != null && childR != null)
         (childL,childR) else null
 
+      val sim = childR.sim + childL.sim // only for testing - To Be Removed
       // NOTE FOR ME: Use Either[A,B] to have different returns
 
       override def getVectors : List[DVector] =
@@ -174,8 +177,9 @@ object Clustering {
 
               /*****Only for testing******/
               println(setL)
-              println("1 - " + cls1.n)
-              println("2 - " + cls2.n)
+              println(c._1)
+              println("1 - " + cls1.n + "  " + cls1.sim)
+              println("2 - " + cls2.n + "  " + cls2.sim)
               println("!!!New is: " + mergedCls.n)
               /***************************/
 

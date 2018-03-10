@@ -16,13 +16,8 @@ package object Token {
 
     class TokenizedText(regex: String, stopWords: String)
       extends Types.Tokenizer {
-      def apply(text: String) = {
-        val i = text.toLowerCase
-          val f = i.replaceAll("\\p{P}\\u00a0", " ")
-          val o = f.split(regex)
-          val t = o.filterNot(onlyDigits(_))
+      def apply(text: String) =
         text.toLowerCase.replaceAll("\\p{P}\\u00a0", " ").split(regex).filterNot(onlyDigits(_)).filter(!stopWords.contains(_)).toVector
-      }
     }
     object TokenizedText {
       def apply(regex: String, stopWords: String) (text: String) = {

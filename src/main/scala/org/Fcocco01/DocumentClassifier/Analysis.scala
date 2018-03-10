@@ -8,8 +8,8 @@ package object Analysis {
                    extractor: String => String, d: Option[Traversable[String]]) {
       private val idf : Double = {
         val docs = d match {
-          case Some(x) => x
-          case None => documents.map(extractor(_).replace("\n", " ").toLowerCase)
+          case Some(x) => x.filterNot(_ == "")
+          case None => documents.map(extractor(_).replace("\n", " ").toLowerCase).filterNot(_ == "")
         }
         val term = this.term
         var count = 0
