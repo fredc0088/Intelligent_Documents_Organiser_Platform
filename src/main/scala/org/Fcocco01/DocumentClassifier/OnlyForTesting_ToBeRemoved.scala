@@ -65,16 +65,16 @@ object OnlyForTesting_ToBeRemoved {
     println("Start initialisation after " + currentTimeMins(time))
 
     def getDefaultVectors(a : Traversable[String]) =
-      a.map(x => SingleVector(TokenizedText(words1gram,stopWords) _,x,GetDocContent _))
-    val tests = DocumentFinder(Array("./src","./Notes","C:/Users/USER/Documents/Important docs","C:/Users/USER/Desktop","C:/Users/USER"))
+      a.par.map(x => SingleVector(TokenizedText(words1gram,stopWords) _,x,GetDocContent _)).toVector
+    val tests = DocumentFinder(Array("./src","./Notes","C:/Users/USER/Documents/Important docs","C:/Users/USER/Desktop"
+//      ,"C:/Users/USER"
+    ,"C:/Users/USER/Downloads"))
 
     implicit val vectorsSingle: Option[Traversable[DocumentVector]] =
-      Option(tests.toVector
-        .map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent))
-        .filter(_.isInstanceOf[SingleVector]))
+      Option(tests.par.map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent)).filter(_.isInstanceOf[SingleVector]).toVector)
 
     implicit val documents: Option[Traversable[String]] =
-      Option(tests.toVector.map(GetDocContent(_).replace("\n", " ").toLowerCase))
+      Option(tests.par.map(GetDocContent(_).replace("\n", " ").toLowerCase).toVector)
 
     println("Vectors and docs obtained in " + currentTimeMins(time))
 
@@ -83,9 +83,10 @@ object OnlyForTesting_ToBeRemoved {
 
     println("Created dictionary in " + currentTimeMins(time))
 
-    val idfWeightedTerms = for {
-      s <- dictionary
-    } yield IDF.IDFValue(s, tests, GetDocContent)(documents)
+    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_, tests, GetDocContent)(documents)).toVector
+//      for {
+//      s <- dictionary
+//    } yield IDF.IDFValue(s, tests, GetDocContent)(documents)
 
     println("IDF values in " + currentTimeMins(time))
 
