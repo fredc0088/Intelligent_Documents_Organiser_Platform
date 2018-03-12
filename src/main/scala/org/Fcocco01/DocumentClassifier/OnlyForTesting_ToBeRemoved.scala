@@ -7,6 +7,7 @@ import org.Fcocco01.DocumentClassifier.Classify._
 import org.Fcocco01.DocumentClassifier.Clustering.DVector
 import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{StopWords, TokenizedText}
 import org.Fcocco01.DocumentClassifier.Types.Extractor
+import org.apache.poi.poifs.filesystem.POIFSFileSystem
 
 object OnlyForTesting_ToBeRemoved {
 
@@ -66,9 +67,20 @@ object OnlyForTesting_ToBeRemoved {
 
     def getDefaultVectors(a : Traversable[String]) =
       a.par.map(x => SingleVector(TokenizedText(words1gram,stopWords) _,x,GetDocContent _)).toVector
-    val tests = DocumentFinder(Array("./src","./Notes","C:/Users/USER/Documents/Important docs","C:/Users/USER/Desktop"
+    val tests = DocumentFinder(Array(
+      "./src"
+      ,"./Notes"
+      ,"C:/Users/USER/Documents/Important docs"
+//      ,"C:/Users/USER/Desktop"
 //      ,"C:/Users/USER"
-    ,"C:/Users/USER/Downloads"))
+    ,"C:/Users/USER/Downloads"
+    ),Array("C:/Users/USER/Documents/Projects/Git_Repos/Intelligent_Documents_Classificator_Platform/./src/main/resources"))
+
+    import java.net.URL
+//    val classloader = classOf[POIFSFileSystem].getClassLoader
+//    val res = classloader.getResource("org/apache/poi/poifs/filesystem/POIFSFileSystem.class")
+//    val path = res.getPath
+//    System.out.println("Core POI came from " + path)
 
     implicit val vectorsSingle: Option[Traversable[DocumentVector]] =
       Option(tests.par.map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent)).filter(_.isInstanceOf[SingleVector]).toVector)
@@ -99,7 +111,7 @@ object OnlyForTesting_ToBeRemoved {
       val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
       NormalisedVector(dictionary, a.asInstanceOf[SingleVector], tfidfFun)
     }(collection.breakOut)
-    parVectorsSingle.foreach { e => Thread.sleep(100000); println(e) }
+    parVectorsSingle.foreach { e => Thread.sleep(10000); println(e.docId) }
 
     val p: Array[DVector] = vectors.toArray
 

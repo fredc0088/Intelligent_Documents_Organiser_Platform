@@ -1,4 +1,6 @@
 
+import org.apache.poi.UnsupportedFileFormatException
+
 import scala.util.{Failure, Success, Try}
 import scala.language.reflectiveCalls
 
@@ -62,15 +64,16 @@ package object Util {
       }
     }
 
+//    @throws( classOf[java.lang.NoSuchMethodException] )
     def GetDocContent(filePath: String): String = {
       readDocWithTry(filePath) match {
         case Success(lines) => lines.mkString(" ")
         case Failure(t) => t match {
-            case _ : org.apache.poi.EmptyFileException => ""
-            case x : IllegalArgumentException => {
-              if(x.getMessage.trim == "The document is really a UNKNOWN file") ""
-              else throw new IllegalArgumentException(t) {println(t.getStackTrace)}}
-            case _ => throw new Exception(t) {println(t.getStackTrace)}
+            case e : org.apache.poi.EmptyFileException => ""
+            case e : IllegalArgumentException =>
+              if(e.getMessage.trim == "The document is really a UNKNOWN file") ""
+              else throw new IllegalArgumentException(t) {println(t.getCause.getMessage)}
+            case _ => throw new Exception(t) {println(t.getCause.getMessage)}
           }
       }
     }

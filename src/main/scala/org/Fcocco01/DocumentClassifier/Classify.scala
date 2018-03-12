@@ -37,12 +37,7 @@ object Classify {
     * or a function that takes a String, like a path to a document ad example,
     * and produces text
     */
-  type ExtractorOrText = Either[String,Extractor]
-//  class ExtractorOrText[T]()
-//  object ExtractorOrText {
-//    implicit object AText extends ExtractorOrText[String]
-//    implicit object AnExtractorFunction extends ExtractorOrText[Extractor]
-//  }
+  type ExtractorOrText = Either[Tokens,Extractor]
 
   /**
     * Usable to produce either a vector no-normalised or an empty vector,
@@ -51,9 +46,9 @@ object Classify {
   object VectorFactory {
     def apply(tokenizer: Tokenizer, docPath: String,
                 extractor: String => String, modeller: Option[Scheme] = None) = {
-      val text = extractor(docPath)
-      if(text == "") EmptyVector
-      else SingleVector(tokenizer, docPath, extractor, modeller)
+      val tks = tokenizer(extractor(docPath))
+      if(tks.size == 0) EmptyVector
+      else SingleVector(tokenizer, docPath, tks, modeller)
     }
   }
 
@@ -95,7 +90,7 @@ object Classify {
     }
 
     lazy val tokens = extractorOrText match {
-      case Left(x) => tokenizer(x)
+      case Left(x) => x
       case Right(y) => tokenizer(y(docPath))
     }
 
@@ -107,8 +102,8 @@ object Classify {
               extractor: Extractor, modeller: Option[Scheme] = None) =
       new SingleVector(tokenizer, docPath, Right(extractor), modeller)
     def apply(tokenizer: Tokenizer, docPath: String,
-              text: String, modeller: Option[Scheme]) =
-      new SingleVector(tokenizer, docPath, Left(text), modeller)
+              tokensFromText: Tokens, modeller: Option[Scheme]) =
+      new SingleVector(tokenizer, docPath, Left(tokensFromText), modeller)
   }
 
   /**

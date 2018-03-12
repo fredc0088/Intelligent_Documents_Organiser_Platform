@@ -31,6 +31,8 @@ val poi = "org.apache.poi" % "poi" % "3.17"
 
 val poiDocX = "org.apache.poi" % "poi-ooxml" % "3.17"
 
+val poiSchema = "org.apache.poi" % "ooxml-schemas" % "1.3"
+
 val poiDoc = "org.apache.poi" % "poi-scratchpad" % "3.17"
 
 val pdfbox = "org.apache.pdfbox" % "pdfbox" % "2.0.8"
@@ -54,7 +56,7 @@ lazy val root = (project in file("."))
     //libraryDependencies ++= Seq(check(scalaVersion.value), scalactic(scalaVersion.value), testlib(scalaVersion.value))
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/releases",
     addCompilerPlugin(paradise cross CrossVersion.full),
-    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, pdfbox, speedTest, scalaFX, sclFXML),
+    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest, scalaFX, sclFXML),
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false
   )

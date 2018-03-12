@@ -193,5 +193,8 @@ object Clustering {
     }
   }
 
+  object FlatClustering {
+
+  }
 
 }

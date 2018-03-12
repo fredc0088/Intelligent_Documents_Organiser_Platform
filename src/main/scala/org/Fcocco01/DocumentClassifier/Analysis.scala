@@ -69,39 +69,4 @@ package object Analysis {
     }
   }
 
-  /************************OOP Style**************************************/
-  /**
-    trait Tf {
-
-      def tf(document: Traversable[String], term: String) = {
-        if (document.size > 0) {
-          val frequency = () => {
-            var f = 0
-            for (w <- document if term == w) {
-              f += 1
-            }
-            f
-          }
-          frequency().toDouble / document.size
-        } else 0.0
-      }
-    }
-
-      trait Idf {
-
-        type IDFValue = IDF.IDFValue
-
-        def getIdf(term: String, values: Traversable[IDFValue]) = {
-          values.filter(_.term == term).head.get
-        }
-
-      }
-
-      trait BagOfWords {
-
-        def makeBagTerm(term: String, document: Traversable[String]) =
-          (term, GetFrequency(document,term).toDouble)
-      }
-  */
-
 }
