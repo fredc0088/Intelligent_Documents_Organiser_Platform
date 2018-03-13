@@ -1,5 +1,8 @@
 package org.Fcocco01.DocumentClassifier
 
+import org.Fcocco01.DocumentClassifier.OnlyForTesting_ToBeRemoved.TestingResources.Regexes.words1gram
+import org.Fcocco01.DocumentClassifier.OnlyForTesting_ToBeRemoved.TestingResources.stopWords
+
 
 object Classify {
 
@@ -136,4 +139,6 @@ object Classify {
       new NormalisedVector(dictionary, unNormalisedVector, modeller)
   }
 
+  def getDefaultVectors(a: Traversable[String], defaultRegex: String, defaultStopWords: String) =
+    a.par.map(x => SingleVector(TokenizedText(defaultRegex, defaultStopWords) _, x, GetDocContent _)).toVector
 }

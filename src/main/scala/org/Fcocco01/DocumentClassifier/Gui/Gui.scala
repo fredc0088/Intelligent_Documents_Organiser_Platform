@@ -13,6 +13,7 @@ import scalafx.scene.layout.Pane
 import scalafxml.core.{FXMLView,NoDependencyResolver}
 import scalafxml.core.macros.{sfxml, sfxmlMacro}
 import scalafx.event.ActionEvent
+import scalafx.embed.swing.SwingNode
 
 import scalafx.scene.text.Text
 

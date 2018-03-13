@@ -113,4 +113,8 @@ package object Util {
       new java.math.BigDecimal(d).toPlainString
     }
   }
+
+  object Time {
+    def currentTimeMins(t: Double) = (((System.nanoTime - t) / 1E9) / 60) + " mins"
+  }
 }

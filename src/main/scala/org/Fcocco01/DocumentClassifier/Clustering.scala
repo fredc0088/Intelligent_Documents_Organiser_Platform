@@ -163,7 +163,7 @@ object Clustering {
           case 1 => tree.head
           case _ => {
 
-            // MAKE THIS MORE FUNCTIONAL
+            // NOTE FOR ME!!! MAKE THIS MORE FUNCTIONAL
             val c = linkStrategy.getDistance(Right(p))
             val cls1 = getRightCluster(tree, c._2)
             val cls2 = getRightCluster(tree, c._3)
@@ -191,6 +191,8 @@ object Clustering {
       }
       createClusterTree(cls.size,cls)
     }
+
+
   }
 
   object FlatClustering {

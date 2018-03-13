@@ -61,7 +61,7 @@ object OnlyForTesting_ToBeRemoved {
 
     val time = System.nanoTime
 
-    val currentTimeMins = (t: Double) => (((System.nanoTime - t) / 1E9) / 60)  + " mins"
+    def currentTimeMins(t: Double) = (((System.nanoTime - t) / 1E9) / 60) + " mins"
 
     println("Start initialisation after " + currentTimeMins(time))
 
@@ -70,11 +70,14 @@ object OnlyForTesting_ToBeRemoved {
     val tests = DocumentFinder(Array(
       "./src"
       ,"./Notes"
-      ,"C:/Users/USER/Documents/Important docs"
+      //      ,"C:/Users/USER/Documents/Important docs"
 //      ,"C:/Users/USER/Desktop"
 //      ,"C:/Users/USER"
-    ,"C:/Users/USER/Downloads"
-    ),Array("C:/Users/USER/Documents/Projects/Git_Repos/Intelligent_Documents_Classificator_Platform/./src/main/resources"))
+      //    ,"C:/Users/USER/Downloads"
+    ), Array(
+      //      "C:/Users/USER/Documents/Projects/Git_Repos/Intelligent_Documents_Classificator_Platform/./src/main/resources"
+    )
+    )
 
     import java.net.URL
 //    val classloader = classOf[POIFSFileSystem].getClassLoader
@@ -96,9 +99,6 @@ object OnlyForTesting_ToBeRemoved {
     println("Created dictionary in " + currentTimeMins(time))
 
     val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_, tests, GetDocContent)(documents)).toVector
-//      for {
-//      s <- dictionary
-//    } yield IDF.IDFValue(s, tests, GetDocContent)(documents)
 
     println("IDF values in " + currentTimeMins(time))
 
