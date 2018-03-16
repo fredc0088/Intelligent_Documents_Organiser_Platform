@@ -59,10 +59,11 @@ object Classify {
     * Convert a document to a spatial vector.
     */
   abstract class DocumentVector {
-    def empty = EmptyVector
+    def isEmpty: Boolean = false
     def docId : String
     def size : Int
-    def tokens : Tokens
+
+    val tokens: Tokens
     def vector : Map[Token,Double]
   }
 
@@ -70,10 +71,14 @@ object Classify {
     * An empty vector to be handled.
     */
   object EmptyVector extends DocumentVector {
-    override def docId: String = ""
-    override def size: Int = 0
-    override def tokens: Tokens = List.empty[Token]
-    override def vector: Map[Token, Double] = Map.empty[Token,Double]
+    override def isEmpty: Boolean = true
+
+    def docId: String = ""
+
+    def size: Int = 0
+
+    val tokens: Tokens = List.empty[Token]
+    val vector: Map[Token, Double] = Map.empty[Token, Double]
   }
 
   /**
@@ -83,8 +88,8 @@ object Classify {
     * @param docPath Path to document to be analysed.
     * @param extractorOrText
     */
-  class SingleVector(private val tokenizer: Tokenizer, docPath: String,
-                     extractorOrText: ExtractorOrText, modeller: Option[Scheme] = None)
+  class SingleVector private(private val tokenizer: Tokenizer, docPath: String,
+                             extractorOrText: ExtractorOrText, modeller: Option[Scheme] = None)
     extends DocumentVector {
 
     def vector = modeller match {
@@ -118,10 +123,10 @@ object Classify {
     * @param unNormalisedVector Vector that needs to be normalised.
     * @param modeller Function which models the vector after a chosen model data
     */
-  class NormalisedVector(dictionary: Tokens,
-                         unNormalisedVector: SingleVector,
-                         modeller: Scheme) extends DocumentVector {
-    def tokens = unNormalisedVector.tokens
+  class NormalisedVector private(dictionary: Tokens,
+                                 unNormalisedVector: SingleVector,
+                                 modeller: Scheme) extends DocumentVector {
+    val tokens = unNormalisedVector.tokens
     val vector = {
       var m = Array[(Token,Double)]()
       for(d <- dictionary) m = m :+ modeller(d,tokens)
@@ -130,7 +135,7 @@ object Classify {
     def docId = unNormalisedVector.docId
     def size = dictionary.size
     override def toString() =
-      (for ((k, v) <- vector) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)}").mkString
+      (for ((k, v) <- vector) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)} ").mkString
   }
   object NormalisedVector{
     def apply(dictionary: Tokens,

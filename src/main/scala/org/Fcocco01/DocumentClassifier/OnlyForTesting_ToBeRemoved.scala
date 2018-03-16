@@ -86,7 +86,7 @@ object OnlyForTesting_ToBeRemoved {
 //    System.out.println("Core POI came from " + path)
 
     implicit val vectorsSingle: Option[Traversable[DocumentVector]] =
-      Option(tests.par.map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent)).filter(_.isInstanceOf[SingleVector]).toVector)
+      Option(tests.par.map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent)).filter(!_.isEmpty).toVector)
 
     implicit val documents: Option[Traversable[String]] =
       Option(tests.par.map(GetDocContent(_).replace("\n", " ").toLowerCase).toVector)
