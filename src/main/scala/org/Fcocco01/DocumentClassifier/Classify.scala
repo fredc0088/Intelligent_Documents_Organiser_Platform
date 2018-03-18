@@ -2,143 +2,89 @@ package org.Fcocco01.DocumentClassifier
 
 object Classify {
 
-  import Util.I_O.GetDocContent
   import Types._
-  import Token.Tokenizer.TokenizedText
 
-
-  /**
-    * Dictionary of non-trivial words in the whole corpus.
-    *
-    * @param docsPathsList Paths to the documents to be analysis.
-    * @param tokenizer
-    */
-  class Dictionary(docsPathsList: Paths, tokenizer: => Tokenizer, d: Option[Traversable[DocumentVector]]) {
-    def apply(tokenizer: Tokenizer) : Tokens = {
-      d match {
-        case Some(x) => x.toVector.flatMap(_.tokens).distinct
-        case None => docsPathsList.flatMap(x => tokenizer(GetDocContent(x))).toVector.distinct
-      }
-
-    }
+  class Dictionary private(tokens: Tokens) {
+    def apply() : Tokens = tokens.toVector.distinct
   }
   object Dictionary {
-    def apply(paths: Paths, tokenizer: Tokenizer)(implicit d: Option[Traversable[DocumentVector]]): Tokens = {
-      val newInstance = new Dictionary(paths, tokenizer, d)
-      newInstance(tokenizer)
+    def apply(tokenizedText : Traversable[Option[Document]]): Tokens = {
+      val tokens = tokenizedText
+        .map(_.getOrElse(("",Vector.empty[Token])))
+        .filterNot(_._2.size == 0).map(_._2)
+        .reduce(_ ++ _)
+      val instance = new Dictionary(tokens)
+      instance()
+    }
+    def apply(paths: Paths, tokenizer: TokenSuite) : Tokens = {
+      val tokens = paths.flatMap(x => tokenizer._2(tokenizer._1(x)))
+      val instance = new Dictionary(tokens)
+      instance()
+    }
+    def apply(vectors: DocumentVector*) : Tokens = {
+      val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.apply.map(y => y._1)).toArray
+      val instance = new Dictionary(tokens)
+      instance()
     }
   }
 
-  /**
-    * Unified type for accepting EITHER a String of text representing a content
-    * or a function that takes a String, like a path to a document ad example,
-    * and produces text
-    */
-  type ExtractorOrText = Either[Tokens,TxtExtractor]
 
-  /**
-    * Usable to produce either a vector no-normalised or an empty vector,
-    * depending on whether the used document is empty/unreadble.
-    */
-  object VectorFactory {
-    def apply(tokenizer: Tokenizer, docPath: DocPath,
-                extractor: TxtExtractor, modeller: Option[Scheme] = None) = {
-      val tks = tokenizer(extractor(docPath))
-      if(tks.size == 0) EmptyVector
-      else SingleVector(tokenizer, docPath, tks, modeller)
+  def buildTokenSuite(tokenizer: Tokenizer)(extractor: TxtExtractor) : TokenSuite = (extractor,tokenizer)
+
+  def tokenizeDocument(t: TokenSuite) : DocPath => Option[Document] =
+    (docPath: DocPath) => {
+      val txt : Tokens = t._2(t._1(docPath))
+      if(txt.size == 0) None
+      else Some((docPath,txt))
+    }
+
+  def createVector(modeller: Scheme)(dictionary: Option[Tokens] = None) : Option[Document] => DocumentVector = {
+    (tokenizedText: Option[Document]) => {
+      tokenizedText match {
+        case Some(t) => {
+          var m = Array[(Token,Double)]()
+          dictionary match {
+            case Some(x) => {
+              for(d <- x) m = m :+ modeller(d,t._2)
+              DVector(t._1,m.toMap)
+            }
+            case None => {
+              var m = Array[(Token,Double)]()
+              for(y <- t._2) m = m :+ modeller(y,t._2)
+            }
+          }
+          DVector(t._1,m.toMap)
+        }
+        case None => EmptyV
+      }
     }
   }
 
-  /**
-    * Convert a document to a spatial vector.
-    */
-  abstract class DocumentVector {
-    def isEmpty: Boolean = false
-    def docId : String
+  def createVector(tokenizer: Tokenizer)(extractor: TxtExtractor)(docPath: DocPath)
+    : (Scheme,Option[Tokens]) => DocumentVector =
+    (modeller: Scheme, dictionary: Option[Tokens]) =>
+      (dictionary match {
+        case Some(_) => createVector(modeller)(dictionary)
+        case None => createVector(modeller)()
+      })(tokenizeDocument(buildTokenSuite(tokenizer)(extractor))(docPath))
+
+
+  abstract class DocumentVector(val id: String) {
     def size : Int
-
-    val tokens: Tokens
-    def vector : Map[Token,Double]
+    def isEmpty : Boolean
+    implicit def apply : Map[Token,Weight]
   }
-
-  /**
-    * An empty vector to be handled.
-    */
-  object EmptyVector extends DocumentVector {
-    override def isEmpty: Boolean = true
-
-    def docId: String = ""
-
-    def size: Int = 0
-
-    val tokens: Tokens = List.empty[Token]
-    val vector: Map[Token, Double] = Map.empty[Token, Double]
+  case class DVector(override val id: String, private val v: Map[Token,Weight])
+    extends DocumentVector(id) {
+    def isEmpty = false
+    def get = v
+    implicit def apply = v
+    def size = v.size
   }
-
-  /**
-    * Transform in vector a single document.
-    *
-    * @param tokenizer
-    * @param docPath Path to document to be analysed.
-    * @param extractorOrText
-    */
-  class SingleVector private(private val tokenizer: Tokenizer, docPath: DocPath,
-                             extractorOrText: ExtractorOrText, modeller: Option[Scheme] = None)
-    extends DocumentVector {
-
-    def vector = modeller match {
-      case Some(x) => tokens.toArray.distinct.map(y => x(y, tokens)).toMap
-      case None => tokens.toArray.distinct.map(x => (x,0.0)).toMap
-    }
-
-    lazy val tokens = extractorOrText match {
-      case Left(x) => x
-      case Right(y) => tokenizer(y(docPath))
-    }
-
-    def docId = docPath
-    def size = vector.size
+  case object EmptyV extends DocumentVector("") {
+    override def isEmpty = true
+    override def size = 0
+    implicit def apply = Map.empty[Token,Weight]
   }
-  object SingleVector {
-    def apply(tokenizer: Tokenizer, docPath: DocPath,
-              extractor: TxtExtractor, modeller: Option[Scheme] = None) =
-      new SingleVector(tokenizer, docPath, Right(extractor), modeller)
-    def apply(tokenizer: Tokenizer, docPath: String,
-              tokensFromText: Tokens, modeller: Option[Scheme]) =
-      new SingleVector(tokenizer, docPath, Left(tokensFromText), modeller)
-  }
-
-  /**
-    * A document vector needs to be normalised to the other vectors in the analysis using
-    * a uniformed dictionary.
-    *
-    * @constructor new vector using a dictionary and a not-normalised vector.
-    * @param dictionary Defined all non-trivial terms in the current analysis.
-    * @param unNormalisedVector Vector that needs to be normalised.
-    * @param modeller Function which models the vector after a chosen model data
-    */
-  class NormalisedVector private(dictionary: Tokens,
-                                 unNormalisedVector: SingleVector,
-                                 modeller: Scheme) extends DocumentVector {
-    val tokens = unNormalisedVector.tokens
-    val vector = {
-      var m = Array[(Token,Double)]()
-      for(d <- dictionary) m = m :+ modeller(d,tokens)
-      m.toMap
-    }
-    def docId = unNormalisedVector.docId
-    def size = dictionary.size
-    override def toString() =
-      (for ((k, v) <- vector) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)} ").mkString
-  }
-  object NormalisedVector{
-    def apply(dictionary: Tokens,
-              unNormalisedVector: SingleVector,
-              modeller: Scheme): NormalisedVector =
-      new NormalisedVector(dictionary, unNormalisedVector, modeller)
-  }
-
-  def getDefaultVectors(a: Paths, defaultRegex: String, defaultStopWords: String) =
-    a.par.map(x => SingleVector(TokenizedText(defaultRegex, defaultStopWords) _, x, GetDocContent _)).toVector
 
 }

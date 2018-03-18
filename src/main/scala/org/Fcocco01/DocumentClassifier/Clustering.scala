@@ -1,10 +1,9 @@
 package org.Fcocco01.DocumentClassifier
 
-import org.Fcocco01.DocumentClassifier.Classify.DocumentVector
 import Util.Operators.|>
+import Classify.DocumentVector
 
 import scala.annotation.tailrec
-import scala.collection.parallel.mutable.ParArray
 
 object Clustering {
 
@@ -19,10 +18,10 @@ object Clustering {
     }
 
     def getDocProduct(v1: DVector, v2: DVector) =
-      v1.vector.map { case (k, v) => k -> (v * v2.vector.getOrElse(k, 0.0)) }
+      v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, 0.0)) }
 
     def getAbsoluteValue(vector: DVector): Double = {
-      vector.vector.toVector.map(x => Math.pow(x._2, 2)).reduce(_ + _)
+      vector.apply.toVector.map(x => Math.pow(x._2, 2)).reduce(_ + _)
     }
   }
 
@@ -45,9 +44,9 @@ object Clustering {
 
     final case class SingleCluster(private val v: DVector) extends Cluster {
       override def getVectors : List[DVector] = List(v)
-      override def getTitle = v.vector.maxBy(_._2)._1
-      override val n = getVectors.head.docId
-      val sim = getVectors(0).vector.map(_._2).sum // only for testing - To Be Removed
+      override def getTitle = v.apply.maxBy(_._2)._1
+      override val n = getVectors.head.id
+      val sim = getVectors(0).apply.map(_._2).sum // only for testing - To Be Removed
       override def getHeight: Int = 0
     }
 
@@ -100,7 +99,7 @@ object Clustering {
         @tailrec
         def find(a: List[MatrixEl]): MatrixEl = {
           val mx = a.maxBy(_._1)
-          if (mx._2.docId == mx._3.docId) {
+          if (mx._2.id == mx._3.id) {
             find(a diff List(mx))
           } else mx
         }
@@ -122,7 +121,7 @@ object Clustering {
         @tailrec
         def find(a: List[MatrixEl]): MatrixEl = {
           val mx = a.minBy(_._1)
-          if (mx._2.docId == mx._3.docId) {
+          if (mx._2.id == mx._3.id) {
             find(a diff List(mx))
           } else mx
         }

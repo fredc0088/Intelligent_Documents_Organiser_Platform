@@ -2,11 +2,11 @@ package org.Fcocco01.DocumentClassifier
 
 import Util.I_O.GetDocContent
 import Util.Time.currentTimeMins
-import org.Fcocco01.DocumentClassifier.Classify.Dictionary
-import org.Fcocco01.DocumentClassifier.Analysis.IDF
+import org.Fcocco01.DocumentClassifier.OOP.Classify.Dictionary
+import org.Fcocco01.DocumentClassifier.OOP.Analysis.IDF
 import org.Fcocco01.DocumentClassifier.Token.Tokenizer.TokenizedText
-import Classify._
-import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.tfidf
+import org.Fcocco01.DocumentClassifier.OOP.Classify._
+import org.Fcocco01.DocumentClassifier.OOP.Analysis.ModelFunctions.tfidf
 import org.Fcocco01.DocumentClassifier.DocGathering.DocumentFinder
 
 class ClassifyTest extends UnitTest("Classify") {
@@ -41,7 +41,7 @@ class ClassifyTest extends UnitTest("Classify") {
 
     println("Created dictionary in " + currentTimeMins(timeTaken))
 
-    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_, tests, GetDocContent)(documents)).toVector
+    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_) (tests, GetDocContent)(documents)).toVector
 
     println("IDF values in " + currentTimeMins(timeTaken))
 

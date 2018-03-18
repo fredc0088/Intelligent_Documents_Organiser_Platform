@@ -6,29 +6,30 @@ package object Analysis {
 
   object IDF {
 
-    class IDFValue(val term: Term, documents: Paths,
-                   extractor: TxtExtractor, d: Option[Tokens] = None) {
+    class IDFValue(val term: Term, documentsAsTokens: Traversable[String]) {
       private val idf : Double = {
-        val docs = d match {
-          case Some(x) => x.filterNot(_ == "")
-          case None => documents.map(extractor(_).replace("\n", " ").toLowerCase).filterNot(_ == "")
-        }
         val term = this.term
         var count = 0
-        for (doc <- docs if(doc.contains(term))) {count = count + 1}
-        Math.log10(1 + (documents.size.toDouble / (count).toDouble))
+        for (doc <- documentsAsTokens if(doc.contains(term))) {count = count + 1}
+        Math.log10(1 + (documentsAsTokens.size.toDouble / (count).toDouble))
       }
-      def get() : Double = {
-        idf
-      }
+      def apply : Double = idf
     }
     object IDFValue {
-      def apply(term: Term)(documents: Paths,
-                extractor: TxtExtractor)(d: Option[Tokens] = None): IDFValue =
-        new IDFValue(term, documents, extractor, d)
+      def apply(term: Term,documents: Paths,
+                extractor: TxtExtractor): IDFValue = {
+        val tokens = documents.map(extractor(_).replace("\n", " ").toLowerCase).filterNot(_ == "")
+        new IDFValue(term, tokens)
+        }
+      def apply(term: Term)(implicit documentsAsTokens: Option[Traversable[Document]]) = {
+        val docs : Traversable[Document] = documentsAsTokens match {
+          case Some(x) => x.filterNot(_._2.isEmpty)
+          case None => Array.empty[Document]
+        }
+        new IDFValue(term,docs.map(_._2.mkString(" ")))
       }
-
     }
+  }
 
   def GetFrequency(document: Tokens, term: Term) = {
     var count = 0
@@ -54,7 +55,7 @@ package object Analysis {
     type IDFValue = IDF.IDFValue
 
     def idf(term: Term, values: Traversable[IDFValue]) = {
-      values.filter(_.term == term).head.get
+      values.filter(_.term == term).head.apply
     }
 
     def tfidf(idfValues: Traversable[IDFValue]) =

@@ -1,11 +1,15 @@
 package org.Fcocco01.DocumentClassifier
 
 import Util.I_O.GetDocContent
-import org.Fcocco01.DocumentClassifier.Analysis.IDF
-import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.tfidf
-import org.Fcocco01.DocumentClassifier.Classify._
-import org.Fcocco01.DocumentClassifier.Clustering.DVector
-import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{StopWords, TokenizedText}
+import Analysis.IDF
+import Analysis.ModelFunctions.tfidf
+import Classify._
+import Clustering.DVector
+import Token.Tokenizer.{StopWords, TokenizedText}
+import Clustering.HierarchicalClustering._
+import Clustering.Similarity.cosine
+import DocGathering._
+import Types.Token
 
 object OnlyForTesting_ToBeRemoved {
 
@@ -47,13 +51,8 @@ object OnlyForTesting_ToBeRemoved {
       val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
     }
 
-
-
   import TestingResources._
   import Regexes.words1gram
-  import Clustering.Similarity.cosine
-  import Clustering.HierarchicalClustering._
-  import DocGathering._
 
   def main(args: Array[String]): Unit = {
 
@@ -75,40 +74,35 @@ object OnlyForTesting_ToBeRemoved {
       )
     )
 
-    implicit val vectorsSingle: Option[Traversable[DocumentVector]] =
-      Option(tests.par.map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent)).filter(!_.isEmpty).toVector)
+    val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
 
-    implicit val documents: Option[Traversable[String]] =
-      Option(tests.par.map(GetDocContent(_).replace("\n", " ").toLowerCase).toVector)
+    val tknFun = tokenizeDocument(tknTool)
 
-    println("Vectors and docs obtained in " + currentTimeMins(time))
+    implicit val docs = tests.par.map(x => tknFun(x)).toArray
 
-    val dictionary =
-      Dictionary(tests, TokenizedText(words1gram, stopWords))(vectorsSingle)
+    println("Documents tokenised in " + currentTimeMins(time))
 
-    println("Created dictionary in " + currentTimeMins(time))
+    val dictionary = Dictionary(docs)
 
-    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(tests, GetDocContent)(documents)).toVector
+    println("Dictionary created in " + currentTimeMins(time))
 
-    println("IDF values in " + currentTimeMins(time))
+    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(Option(docs.map(_.getOrElse("", Vector.empty[Token]))))).toVector
 
-    val parVectorsSingle = vectorsSingle
-      .getOrElse(getDefaultVectors(tests,words1gram,stopWords)).par
+    println("Terns weighted to idf in " + currentTimeMins(time))
 
-    println("Start to normalise after " + currentTimeMins(time))
+    val tfidfFun = tfidf(idfWeightedTerms)
 
-    val vectors = parVectorsSingle.map { a =>
-      val tfidfFun = tfidf(idfWeightedTerms) // Assign idf results to tfidf function to be used as modeller
-      NormalisedVector(dictionary, a.asInstanceOf[SingleVector], tfidfFun)
-    }(collection.breakOut)
-    parVectorsSingle.foreach { e => Thread.sleep(10000); println(e.docId) }
+    val vectorFun = createVector(tfidfFun)(Some(dictionary))
 
-    val p: Array[DVector] = vectors.toArray
+    val vectors = docs.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toArray
+
+    println("Vectors obtained in " + currentTimeMins(time))
+
     println("Clustering after  " + currentTimeMins(time))
-    val m = createSimMatrix(p, cosine)
+    val m = createSimMatrix(vectors, cosine)
     val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
-    val o = HAC(m, t, Single_Link, p: _*)
+    val o = HAC(m, t, Single_Link, vectors: _*)
     println("Finished after " + currentTimeMins(time))
-    o.getVectors.map(_.docId).foreach(println)
+    o.getVectors.map(_.id).foreach(println)
   }
 }
