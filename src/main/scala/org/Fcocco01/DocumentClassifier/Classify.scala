@@ -69,19 +69,21 @@ object Classify {
       })(tokenizeDocument(buildTokenSuite(tokenizer)(extractor))(docPath))
 
 
-  abstract class DocumentVector(val id: String) {
+  trait DocumentVector {
+    val id: String
     def size : Int
     def isEmpty : Boolean
     implicit def apply : Map[Token,Weight]
   }
   case class DVector(override val id: String, private val v: Map[Token,Weight])
-    extends DocumentVector(id) {
+    extends DocumentVector {
     def isEmpty = false
     def get = v
     implicit def apply = v
     def size = v.size
   }
-  case object EmptyV extends DocumentVector("") {
+  case object EmptyV extends DocumentVector {
+    override val id: String = _
     override def isEmpty = true
     override def size = 0
     implicit def apply = Map.empty[Token,Weight]
