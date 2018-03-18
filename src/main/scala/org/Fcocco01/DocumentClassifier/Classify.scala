@@ -1,16 +1,10 @@
 package org.Fcocco01.DocumentClassifier
 
-import org.Fcocco01.DocumentClassifier.OnlyForTesting_ToBeRemoved.TestingResources.Regexes.words1gram
-import org.Fcocco01.DocumentClassifier.OnlyForTesting_ToBeRemoved.TestingResources.stopWords
-
-
 object Classify {
 
   import Util.I_O.GetDocContent
   import Types._
-  import Token.Tokenizer.{TokenizedText, StopWords}
-  import Analysis.{ModelFunctions,IDF}
-  import ModelFunctions._
+  import Token.Tokenizer.TokenizedText
 
 
   /**
@@ -40,15 +34,15 @@ object Classify {
     * or a function that takes a String, like a path to a document ad example,
     * and produces text
     */
-  type ExtractorOrText = Either[Tokens,Extractor]
+  type ExtractorOrText = Either[Tokens,TxtExtractor]
 
   /**
     * Usable to produce either a vector no-normalised or an empty vector,
     * depending on whether the used document is empty/unreadble.
     */
   object VectorFactory {
-    def apply(tokenizer: Tokenizer, docPath: String,
-                extractor: String => String, modeller: Option[Scheme] = None) = {
+    def apply(tokenizer: Tokenizer, docPath: DocPath,
+                extractor: TxtExtractor, modeller: Option[Scheme] = None) = {
       val tks = tokenizer(extractor(docPath))
       if(tks.size == 0) EmptyVector
       else SingleVector(tokenizer, docPath, tks, modeller)
@@ -82,18 +76,18 @@ object Classify {
   }
 
   /**
-    * Vectorize a single document using a custom way of tokenization.
+    * Transform in vector a single document.
     *
     * @param tokenizer
     * @param docPath Path to document to be analysed.
     * @param extractorOrText
     */
-  class SingleVector private(private val tokenizer: Tokenizer, docPath: String,
+  class SingleVector private(private val tokenizer: Tokenizer, docPath: DocPath,
                              extractorOrText: ExtractorOrText, modeller: Option[Scheme] = None)
     extends DocumentVector {
 
     def vector = modeller match {
-      case Some(y) => tokens.toArray.distinct.map(x => y(x, tokens)).toMap
+      case Some(x) => tokens.toArray.distinct.map(y => x(y, tokens)).toMap
       case None => tokens.toArray.distinct.map(x => (x,0.0)).toMap
     }
 
@@ -106,8 +100,8 @@ object Classify {
     def size = vector.size
   }
   object SingleVector {
-    def apply(tokenizer: Tokenizer, docPath: String,
-              extractor: Extractor, modeller: Option[Scheme] = None) =
+    def apply(tokenizer: Tokenizer, docPath: DocPath,
+              extractor: TxtExtractor, modeller: Option[Scheme] = None) =
       new SingleVector(tokenizer, docPath, Right(extractor), modeller)
     def apply(tokenizer: Tokenizer, docPath: String,
               tokensFromText: Tokens, modeller: Option[Scheme]) =
@@ -144,6 +138,7 @@ object Classify {
       new NormalisedVector(dictionary, unNormalisedVector, modeller)
   }
 
-  def getDefaultVectors(a: Traversable[String], defaultRegex: String, defaultStopWords: String) =
+  def getDefaultVectors(a: Paths, defaultRegex: String, defaultStopWords: String) =
     a.par.map(x => SingleVector(TokenizedText(defaultRegex, defaultStopWords) _, x, GetDocContent _)).toVector
+
 }

@@ -6,8 +6,6 @@ import org.Fcocco01.DocumentClassifier.Analysis.ModelFunctions.tfidf
 import org.Fcocco01.DocumentClassifier.Classify._
 import org.Fcocco01.DocumentClassifier.Clustering.DVector
 import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{StopWords, TokenizedText}
-import org.Fcocco01.DocumentClassifier.Types.Extractor
-import org.apache.poi.poifs.filesystem.POIFSFileSystem
 
 object OnlyForTesting_ToBeRemoved {
 
@@ -65,25 +63,17 @@ object OnlyForTesting_ToBeRemoved {
 
     println("Start initialisation after " + currentTimeMins(time))
 
-    def getDefaultVectors(a : Traversable[String]) =
-      a.par.map(x => SingleVector(TokenizedText(words1gram,stopWords) _,x,GetDocContent _)).toVector
     val tests = DocumentFinder(Array(
       "./src"
       ,"./Notes"
-      //      ,"C:/Users/USER/Documents/Important docs"
-//      ,"C:/Users/USER/Desktop"
+            ,"C:/Users/USER/Documents/Important docs"
+      ,"C:/Users/USER/Desktop"
 //      ,"C:/Users/USER"
-      //    ,"C:/Users/USER/Downloads"
-    ), Array(
-      //      "C:/Users/USER/Documents/Projects/Git_Repos/Intelligent_Documents_Classificator_Platform/./src/main/resources"
+          ,"C:/Users/USER/Downloads"
+      ), Array(
+            "./src/main/resources"
+      )
     )
-    )
-
-    import java.net.URL
-//    val classloader = classOf[POIFSFileSystem].getClassLoader
-//    val res = classloader.getResource("org/apache/poi/poifs/filesystem/POIFSFileSystem.class")
-//    val path = res.getPath
-//    System.out.println("Core POI came from " + path)
 
     implicit val vectorsSingle: Option[Traversable[DocumentVector]] =
       Option(tests.par.map(x => VectorFactory(TokenizedText(words1gram, stopWords), x, GetDocContent)).filter(!_.isEmpty).toVector)
@@ -98,12 +88,12 @@ object OnlyForTesting_ToBeRemoved {
 
     println("Created dictionary in " + currentTimeMins(time))
 
-    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_, tests, GetDocContent)(documents)).toVector
+    val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(tests, GetDocContent)(documents)).toVector
 
     println("IDF values in " + currentTimeMins(time))
 
     val parVectorsSingle = vectorsSingle
-      .getOrElse(getDefaultVectors(tests)).par
+      .getOrElse(getDefaultVectors(tests,words1gram,stopWords)).par
 
     println("Start to normalise after " + currentTimeMins(time))
 
@@ -114,7 +104,6 @@ object OnlyForTesting_ToBeRemoved {
     parVectorsSingle.foreach { e => Thread.sleep(10000); println(e.docId) }
 
     val p: Array[DVector] = vectors.toArray
-
     println("Clustering after  " + currentTimeMins(time))
     val m = createSimMatrix(p, cosine)
     val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList

@@ -1,11 +1,13 @@
 package org.Fcocco01.DocumentClassifier
 
+import Types._
+
 package object Analysis {
 
   object IDF {
 
-    class IDFValue(val term: String, documents: Traversable[String],
-                   extractor: String => String, d: Option[Traversable[String]]) {
+    class IDFValue(val term: Term, documents: Paths,
+                   extractor: TxtExtractor, d: Option[Tokens] = None) {
       private val idf : Double = {
         val docs = d match {
           case Some(x) => x.filterNot(_ == "")
@@ -21,13 +23,14 @@ package object Analysis {
       }
     }
     object IDFValue {
-      def apply(term: String, documents: Traversable[String],
-                extractor: String => String)(implicit d: Option[Traversable[String]]): IDFValue =
+      def apply(term: Term)(documents: Paths,
+                extractor: TxtExtractor)(d: Option[Tokens] = None): IDFValue =
         new IDFValue(term, documents, extractor, d)
-    }
-  }
+      }
 
-  def GetFrequency(document: Traversable[String], term: String) = {
+    }
+
+  def GetFrequency(document: Tokens, term: Term) = {
     var count = 0
     for (w <- document if term == w) count += 1
     count
@@ -35,37 +38,37 @@ package object Analysis {
 
   object ModelFunctions {
 
-    def tfLogNorm(term: String, document: Traversable[String]) = {
+    def tfLogNorm(term: Term, document: Tokens) = {
       (term, 1 + Math.log10(GetFrequency(document, term)))
     }
 
-    def tf(term: String, document: Traversable[String]) = {
+    def tf(term: Term, document: Tokens) = {
       (term, (GetFrequency(document, term).toDouble / document.size))
     }
 
-    def wdf(document: Traversable[String], term: String) = {
+    def wdf(term: Term, document: Tokens) = {
       (term, (Math.log10(GetFrequency(document, term).toDouble) /
         Math.log(document.size)))
     }
 
     type IDFValue = IDF.IDFValue
 
-    def idf(term: String, values: Traversable[IDFValue]) = {
+    def idf(term: Term, values: Traversable[IDFValue]) = {
       values.filter(_.term == term).head.get
     }
 
     def tfidf(idfValues: Traversable[IDFValue]) =
-      (term: String, document: Traversable[String]) => {
-        (term, tf(term,document)._2 * idf(term, idfValues))
+      (term: Term, document: Tokens) => {
+        (term, tf(term, document)._2 * idf(term, idfValues))
     }
 
     def wdfidf(idfValues: Traversable[IDFValue]) =
-      (term: String, document: Traversable[String]) => {
-        (term, wdf(document, term)._2 * idf(term, idfValues))
+      (term: Term, document: Tokens) => {
+        (term, wdf(term, document)._2 * idf(term, idfValues))
       }
 
-    def bag(term: String, document: Traversable[String]) = {
-      (term, GetFrequency(document,term).toDouble)
+    def bag(term: Term, document: Tokens) = {
+      (term, GetFrequency(document, term).toDouble)
     }
   }
 

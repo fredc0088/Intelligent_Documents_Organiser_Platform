@@ -11,8 +11,6 @@ object Clustering {
   type DVector = DocumentVector
 
   object Similarity {
-    type Vector = DocumentVector
-
 
     def cosine(vector1: DVector, vector2: DVector) = {
       val a: Double = getAbsoluteValue(vector1) |> Math.sqrt
@@ -39,21 +37,18 @@ object Clustering {
       def getVectors : List[DVector]
       def getTitle : String
       val n : String
-      /*
-      Merge two existing clusters
-       */
-      def merge(c: Cluster) : MultiCluster = MultiCluster(this, c)
+      def merge(c: Cluster) : MultiCluster = MultiCluster(this, c) // Merge two existing clusters
       def hasVector(v: DVector) : Boolean = getVectors.exists(_ == v)
+      def getHeight : Int
       val sim : Double // only for testing - To Be Removed
     }
 
     final case class SingleCluster(private val v: DVector) extends Cluster {
       override def getVectors : List[DVector] = List(v)
-      override def getTitle = {
-        v.vector.maxBy(_._2)._1
-      }
+      override def getTitle = v.vector.maxBy(_._2)._1
       override val n = getVectors.head.docId
       val sim = getVectors(0).vector.map(_._2).sum // only for testing - To Be Removed
+      override def getHeight: Int = 0
     }
 
     final case class MultiCluster(childL: Cluster = null, childR: Cluster = null) extends Cluster{
@@ -72,6 +67,9 @@ object Clustering {
       private def getVectors(c: Cluster, a: List[DVector]) : List[DVector] =
         if(c.isInstanceOf[SingleCluster]) c.getVectors
         else c.asInstanceOf[MultiCluster].childL.getVectors ::: c.asInstanceOf[MultiCluster].childR.getVectors
+
+      override def getHeight : Int =
+        Math.max(this.childL.getHeight + 1,this.childR.getHeight + 1)
 
       override val n: String = scala.util.Random.alphanumeric.take(5).mkString
     }
@@ -106,7 +104,6 @@ object Clustering {
             find(a diff List(mx))
           } else mx
         }
-
         find(matrix)
       }
     }

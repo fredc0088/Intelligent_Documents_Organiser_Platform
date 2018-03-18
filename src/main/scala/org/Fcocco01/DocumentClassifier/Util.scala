@@ -1,6 +1,7 @@
 
 import org.apache.poi.UnsupportedFileFormatException
 
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 import scala.language.reflectiveCalls
 
@@ -91,7 +92,7 @@ package object Util {
 //        }
 //      }
 
-    }
+  }
 
   object String_Manipulation {
     def onlyDigits(s: String) = {
