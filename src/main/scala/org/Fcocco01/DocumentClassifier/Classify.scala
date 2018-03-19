@@ -69,20 +69,25 @@ object Classify {
       })(tokenizeDocument(buildTokenSuite(tokenizer)(extractor))(docPath))
 
 
-  trait DocumentVector {
+  sealed trait DocumentVector {
     val id: String
     def size : Int
     def isEmpty : Boolean
     implicit def apply : Map[Token,Weight]
+
+    override def toString() =
+      (for ((k, v) <- this.apply) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)} ").mkString
   }
-  case class DVector(override val id: String, private val v: Map[Token,Weight])
+
+  final case class DVector(override val id: String, private val v: Map[Token, Weight])
     extends DocumentVector {
     def isEmpty = false
     def get = v
     implicit def apply = v
     def size = v.size
   }
-  case object EmptyV extends DocumentVector {
+
+  final case object EmptyV extends DocumentVector {
     override val id: String = _
     override def isEmpty = true
     override def size = 0
