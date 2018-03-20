@@ -88,7 +88,7 @@ object Classify {
   }
 
   final case object EmptyV extends DocumentVector {
-    override val id: String = _
+    override val id: String = ""
     override def isEmpty = true
     override def size = 0
     implicit def apply = Map.empty[Token,Weight]

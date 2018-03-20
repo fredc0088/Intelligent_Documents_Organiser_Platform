@@ -33,16 +33,28 @@ object Clustering {
     type SimMatrix = Array[Array[MatrixEl]]
 
     sealed trait Cluster {
+      def isLeaf: Boolean
       def getVectors : List[DVector]
       def getTitle : String
       val n : String
       def merge(c: Cluster) : MultiCluster = MultiCluster(this, c) // Merge two existing clusters
       def hasVector(v: DVector) : Boolean = getVectors.exists(_ == v)
       def getHeight : Int
+
+      def getChildren: Option[Either[(Cluster, Cluster), Cluster]] = {
+        if (this.isLeaf) None
+        else
+          (this.asInstanceOf[MultiCluster].childL, this.asInstanceOf[MultiCluster].childR) match {
+            case (null, child) => Some(Right(child))
+            case (child, null) => Some(Right(child))
+            case (childL, childR) => Some(Left(childL, childR))
+          }
+      }
       val sim : Double // only for testing - To Be Removed
     }
 
     final case class SingleCluster(private val v: DVector) extends Cluster {
+      override def isLeaf: Boolean = true
       override def getVectors : List[DVector] = List(v)
       override def getTitle = v.apply.maxBy(_._2)._1
       override val n = getVectors.head.id
@@ -71,6 +83,8 @@ object Clustering {
         Math.max(this.childL.getHeight + 1,this.childR.getHeight + 1)
 
       override val n: String = scala.util.Random.alphanumeric.take(5).mkString
+
+      override def isLeaf: Boolean = false
     }
 
     def getRightCluster(tree: List[Cluster], elToFind: DVector) : Cluster =
