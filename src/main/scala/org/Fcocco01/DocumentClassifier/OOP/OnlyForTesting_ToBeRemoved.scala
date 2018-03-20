@@ -4,6 +4,8 @@ import Util.I_O.GetDocContent
 import org.Fcocco01.DocumentClassifier.DocGathering
 import org.Fcocco01.DocumentClassifier.OOP.Classify._
 import org.Fcocco01.DocumentClassifier.OOP.Clustering.DVector
+import org.Fcocco01.DocumentClassifier.OOP.Analysis.IDF
+import org.Fcocco01.DocumentClassifier.OOP.Analysis.ModelFunctions.tfidf
 import org.Fcocco01.DocumentClassifier.Token.Tokenizer.{StopWords, TokenizedText}
 
 object OnlyForTesting_ToBeRemoved {
