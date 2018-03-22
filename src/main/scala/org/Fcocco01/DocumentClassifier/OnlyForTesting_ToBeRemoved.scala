@@ -65,10 +65,10 @@ object OnlyForTesting_ToBeRemoved {
     val tests = DocumentFinder(Array(
       "./src"
       ,"./Notes"
-            ,"C:/Users/USER/Documents/Important docs"
-      ,"C:/Users/USER/Desktop"
+//            ,"C:/Users/USER/Documents/Important docs"
+//      ,"C:/Users/USER/Desktop"
 //      ,"C:/Users/USER"
-          ,"C:/Users/USER/Downloads"
+//          ,"C:/Users/USER/Downloads"
       ), Array(
             "./src/main/resources"
       )

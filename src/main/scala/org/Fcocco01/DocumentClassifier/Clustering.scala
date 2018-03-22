@@ -2,27 +2,35 @@ package org.Fcocco01.DocumentClassifier
 
 import Util.Operators.|>
 import Classify.DocumentVector
-
 import scala.annotation.tailrec
 
 object Clustering {
 
   type DVector = DocumentVector
+  type DistanceORSimFun = (DVector, DVector) => Double
 
   object Similarity {
 
-    def cosine(vector1: DVector, vector2: DVector) = {
-      val a: Double = getAbsoluteValue(vector1) |> Math.sqrt
-      val b: Double = getAbsoluteValue(vector2) |> Math.sqrt
-      getDocProduct(vector1, vector2).map(_._2).reduce(_ + _) / (a * b)
+    def cosine(v1: DVector, v2: DVector) = {
+      val a: Double = getAbsoluteValue(v1) |> Math.sqrt
+      val b: Double = getAbsoluteValue(v2) |> Math.sqrt
+      getDocProduct(v1, v2).map(_._2).reduce(_ + _) / (a * b)
     }
 
     def getDocProduct(v1: DVector, v2: DVector) =
       v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, 0.0)) }
 
-    def getAbsoluteValue(vector: DVector): Double = {
-      vector.apply.toVector.map(x => Math.pow(x._2, 2)).reduce(_ + _)
+    def getAbsoluteValue(v: DVector): Double = {
+      v.apply.toVector.map(x => Math.pow(x._2, 2)).reduce(_ + _)
     }
+  }
+
+  object Distance {
+    def euclidean(v1: DVector, v2: DVector) =
+      v1.apply.map{ x => { val y = x._2 - v2.apply.a(x._1); y*y } }.reduce(_+_) |> Math.sqrt
+
+    def manhattan(v1: DVector, v2: DVector) =
+      v1.apply.map{ x => x._2 - v2.apply.a(x._1) }.reduce(_ + _)
   }
 
   object HierarchicalClustering {
@@ -145,7 +153,7 @@ object Clustering {
     }
 
 
-    def createSimMatrix(vectors: Traversable[DVector], f: (DVector, DVector) => Double): SimMatrix = {
+    def createSimMatrix(vectors: Traversable[DVector], f: DistanceORSimFun): SimMatrix = {
       val v = vectors.toArray.par
       val size = v.size
       val matrix = Array.ofDim[MatrixEl](size, size)
@@ -202,11 +210,26 @@ object Clustering {
       createClusterTree(cls.size,cls)
     }
 
-
   }
 
   object FlatClustering {
 
+    def K_Means_Enhanced(n: Int)(d: DVector*) = {
+
+    }
+
+    def chooseInitialSeeds(v: Array[DVector]) (d: DistanceORSimFun) = {
+      val randomSeed = scala.util.Random.shuffle(v).take(1)
+      val sumOfDistances = v.par.map{ x => d(x,randomSeed) }.toArray.reduce(_ + _)
+//      for{
+//
+//      }
+
+    }
+
+    case class Cluster(v: DVector *) {
+
+    }
   }
 
 }
