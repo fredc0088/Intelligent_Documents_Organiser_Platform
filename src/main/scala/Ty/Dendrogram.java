@@ -1,4 +1,4 @@
-package org.Fcocco01.DocumentClassifier;
+package Ty;
 
 import java.awt.Color;
 

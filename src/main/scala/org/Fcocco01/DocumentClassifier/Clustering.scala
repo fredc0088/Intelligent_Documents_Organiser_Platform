@@ -200,9 +200,9 @@ object Clustering {
 
               /*****Only for testing******/
               println(setL)
-              println("1 - " + cls1.name)
-              println("2 - " + cls2.name)
-              println("!!!New is: " + mergedCls.name)
+              //              println("1 - " + cls1.name)
+              //              println("2 - " + cls2.name)
+              //              println("!!!New is: " + mergedCls.name)
               println("Height: " + mergedCls.getHeight)
               /***************************/
 

@@ -65,10 +65,10 @@ object OnlyForTesting_ToBeRemoved {
     val tests = DocumentFinder(Array(
       "./src"
       ,"./Notes"
-            ,"C:/Users/USER/Documents/Important docs"
-      ,"C:/Users/USER/Desktop"
+      //            ,"C:/Users/USER/Documents/Important docs"
+      //      ,"C:/Users/USER/Desktop"
 //      ,"C:/Users/USER"
-          ,"C:/Users/USER/Downloads"
+      //          ,"C:/Users/USER/Downloads"
       ), Array(
             "./src/main/resources"
       )
@@ -100,9 +100,11 @@ object OnlyForTesting_ToBeRemoved {
 
     println("Clustering after  " + currentTimeMins(time))
     val m = createSimMatrix(vectors, cosine)
-    val t = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
-    val o = HAC(m, t, Single_Link, vectors: _*)
+    val te = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
+    val o = HAC(m, te, Single_Link, vectors: _*)
     println("Finished after " + currentTimeMins(time))
     o.vectors.map(_.id).foreach(println)
+    val t = HierarchicalGraphic.Tree(o)
+
   }
 }

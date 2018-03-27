@@ -1,13 +1,9 @@
-package org.Fcocco01.DocumentClassifier
+package Ty
 
 import java.awt.Color
 
-import smile.plot.Graphics
-import smile.plot.Plot
-import smile.plot.PlotCanvas
-
-import Clustering.HierarchicalClustering.Cluster
-import Util.Graphics._
+import org.Fcocco01.DocumentClassifier.Clustering.HierarchicalClustering.Cluster
+import smile.plot.{Graphics, Plot, PlotCanvas}
 
 
 class Dendrogram(p1: Array[Array[Double]], p2 : Array[Array[Double]])
