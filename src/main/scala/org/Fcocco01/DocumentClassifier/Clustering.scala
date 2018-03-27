@@ -2,6 +2,7 @@ package org.Fcocco01.DocumentClassifier
 
 import Util.Operators.|>
 import Classify.DocumentVector
+
 import scala.annotation.tailrec
 
 object Clustering {
@@ -36,61 +37,65 @@ object Clustering {
   object HierarchicalClustering {
 
     import scala.collection.mutable.PriorityQueue
+    import scala.collection.immutable.ListMap
 
     type MatrixEl = (Double, DVector, DVector)
     type SimMatrix = Array[Array[MatrixEl]]
 
     sealed trait Cluster {
       def isLeaf: Boolean
-      def getVectors : List[DVector]
-      def getTitle : String
-      val n : String
+      val vectors : List[DVector]
+      val name : String
       def merge(c: Cluster) : MultiCluster = MultiCluster(this, c) // Merge two existing clusters
-      def hasVector(v: DVector) : Boolean = getVectors.exists(_ == v)
-      def getHeight : Int
-
-      def getChildren: Option[Either[(Cluster, Cluster), Cluster]] = {
-        if (this.isLeaf) None
-        else
-          (this.asInstanceOf[MultiCluster].childL, this.asInstanceOf[MultiCluster].childR) match {
-            case (null, child) => Some(Right(child))
-            case (child, null) => Some(Right(child))
-            case (childL, childR) => Some(Left(childL, childR))
-          }
-      }
-      val sim : Double // only for testing - To Be Removed
+      def hasVector(v: DVector) : Boolean = vectors.exists(_ == v)
+      def getHeight : Double
+      def getChildren: Option[(Cluster, Cluster)]
     }
 
     final case class SingleCluster(private val v: DVector) extends Cluster {
+      override def getChildren = None
       override def isLeaf: Boolean = true
-      override def getVectors : List[DVector] = List(v)
-      override def getTitle = v.apply.maxBy(_._2)._1
-      override val n = getVectors.head.id
-      val sim = getVectors(0).apply.map(_._2).sum // only for testing - To Be Removed
-      override def getHeight: Int = 0
+      lazy val vectors : List[DVector] = List(v)
+      lazy val name = {v.apply.maxBy(_._2)._1
+                                vectors.head.id }
+      override def getHeight = 0
     }
 
-    final case class MultiCluster(childL: Cluster = null, childR: Cluster = null) extends Cluster{
 
-      override def getTitle: String = ???
+    final case class MultiCluster(childL: Cluster, childR: Cluster) extends Cluster{
 
-      def getPair = if(childL != null && childR != null)
-        (childL,childR) else null
+      override def getChildren = Some(childL,childR)
 
-      val sim = childR.sim + childL.sim // only for testing - To Be Removed
-      // NOTE FOR ME: Use Either[A,B] to have different returns
+      // It doe not work properly
+      lazy val name: String = {
+        val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2):_*))
+        val highestTerms = vectors.map(x => x.headOption)
+        val default = (scala.util.Random.alphanumeric.take(5).toString,0.0)
+        @tailrec
+        def constructTitle(string: String, n: Int, terms: List[Option[(String,Double)]] , default: (String,Double)) : String =
+          if(terms.isEmpty) string
+          else n match {
+          case 0 => string
+          case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1} ", n - 1, terms.tail,default)
+        }
+        val height = getHeight.toInt
+        if(height > 3 && highestTerms.length > 3)
+          constructTitle("", height / 3, highestTerms, default)
+        else constructTitle("", height, highestTerms, default)
+      }
 
-      override def getVectors : List[DVector] =
+      lazy val vectors : List[DVector] =
         getVectors(this,List.empty[DVector])
 
       private def getVectors(c: Cluster, a: List[DVector]) : List[DVector] =
-        if(c.isInstanceOf[SingleCluster]) c.getVectors
-        else c.asInstanceOf[MultiCluster].childL.getVectors ::: c.asInstanceOf[MultiCluster].childR.getVectors
+        if(c.isLeaf) c.vectors
+        else{
+          val multicluster = c.asInstanceOf[MultiCluster]
+          multicluster.childL.vectors ::: multicluster.childR.vectors
+        }
 
-      override def getHeight : Int =
+      override def getHeight =
         Math.max(this.childL.getHeight + 1,this.childR.getHeight + 1)
-
-      override val n: String = scala.util.Random.alphanumeric.take(5).mkString
 
       override def isLeaf: Boolean = false
     }
@@ -195,10 +200,10 @@ object Clustering {
 
               /*****Only for testing******/
               println(setL)
-              println(c._1)
-              println("1 - " + cls1.n + "  " + cls1.sim)
-              println("2 - " + cls2.n + "  " + cls2.sim)
-              println("!!!New is: " + mergedCls.n)
+              println("1 - " + cls1.name)
+              println("2 - " + cls2.name)
+              println("!!!New is: " + mergedCls.name)
+              println("Height: " + mergedCls.getHeight)
               /***************************/
 
               p.dequeue()
@@ -212,30 +217,59 @@ object Clustering {
 
   }
 
-  object FlatClustering {
-
-    def K_Means_Enhanced(n: Int)(d: DVector*) = {
-
-    }
-
-    def chooseInitialSeeds(v: Array[DVector]) (d: DistanceORSimFun) = {
-      val randomSeed = scala.util.Random.shuffle(v).take(1)
-
-      val distances = v.par.map { x => d(x, randomSeed) }.toArray
-
-      val sumDistances = distances.sum
-
-
-      for (i <- 1 to v.length) {
-
-      }
-
-
-    }
-
-    case class Cluster(v: DVector *) {
-
-    }
-  }
+//  object FlatClustering {
+//
+//    def K_Means(n: Int)(d: DVector*)(dist: DistanceORSimFun) = {
+//      (f: Option[(Array[DVector],DistanceORSimFun) => List[DVector]]) => {
+//        val initialSeeds = f match {
+//          case Some(x) => x.curried.apply(d.toArray)(dist)
+//          case None => scala.util.Random.shuffle(d).take(n)
+//        }
+//        while()
+//        for(i <- 1 to n) {
+//
+//        }
+//      }
+//    }
+//
+//    def `kmeans++`(v: Array[DVector]) (d: DistanceORSimFun) = {
+//      val randomSeed = scala.util.Random.shuffle(v).take(1)
+//
+//      val distances = v.par.map { x => d(x, randomSeed) }.toArray
+//
+//      val sumDistances = distances.sum
+//
+//
+//      for (i <- 1 to v.length) {
+//
+//      }
+//
+//
+//    }
+//
+//    def `kmeans||`(v: Array[DVector])(oversamplingFactor : Int) (d: DistanceORSimFun) = {
+//      var c = List[DVector]
+//      val randomSeed = scala.util.Random.shuffle(v).head
+//      def getDistances(seed : DVector, v: List[DVector]) =  v.par.filter(_ != randomSeed).map { x => Math.pow(d(x, randomSeed),2) }.toArray
+//      val iterations = Math.log(getDistances(randomSeed,v.toList).sum).round
+//
+//      for (0 <- iterations) {
+//        for(dp <- c){
+//          val distance = getDistances(dp,v.toList)
+//        }
+//      }
+//
+//
+//    }
+//
+//    case class Cluster(v: DVector *)(c: DVector) {
+//      val centroid = c
+//      def addPoints(v: DVector*): Cluster = {
+//        val vectors = this.v: _*
+//        new Cluster(vectors ++ v: _*)(c)
+//      }
+//
+//    }
+//  }
 
 }

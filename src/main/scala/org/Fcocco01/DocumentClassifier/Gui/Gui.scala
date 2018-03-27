@@ -47,7 +47,19 @@ class FXMLExampleController extends JFXApp{//Application{
   }
   val open = new DirectoryChooser(p, "Open directories")
   val exclude = new DirectoryChooser(p, "Exclude directories")
-
+//  open.dirChooser .setOnAction(new EventHandler<ActionEvent>() {
+//    @Override
+//    public void handle(ActionEvent event) {
+//      DirectoryChooser directoryChooser = new DirectoryChooser();
+//      File selectedDirectory =
+//        directoryChooser.showDialog(primaryStage);
+//
+//      if(selectedDirectory == null){
+//        labelSelectedDirectory.setText("No Directory selected");
+//      }else{
+//        labelSelectedDirectory.setText(selectedDirectory.getAbsolutePath());
+//      }
+//    }
 
   p.show()
 

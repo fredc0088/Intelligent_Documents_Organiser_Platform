@@ -1,3 +1,4 @@
+package org.Fcocco01.DocumentClassifier
 
 import org.apache.poi.UnsupportedFileFormatException
 
@@ -32,58 +33,54 @@ package object Util {
     import org.apache.pdfbox.text.PDFTextStripper
     import java.io.FileInputStream
 
-    def readDocWithTry(file: String) = {
-      file.split("\\.").last match {
-        case "pdf" => Try {
-          /**
-            * To decide whether to keep it.
-            * Mapping to unicode is not good and the process is way too slow
-            */
-          val document = PDDocument.load(new java.io.File(file))
-          val stripper = new PDFTextStripper().getText(document)
-          stripper.split(" ").toList
+    def readDocWithTry(file: String) = file.split("\\.").last match {
+      case "pdf" => Try {
+        /**
+          * To decide whether to keep it.
+          * Mapping to unicode is not good and the process is way too slow
+          */
+        val document = PDDocument.load(new java.io.File(file))
+        val stripper = new PDFTextStripper().getText(document)
+        stripper.split(" ").toList
+      }
+      case "docx" => Try {
+        val document = new XWPFDocument(new FileInputStream(file))
+        val extractor = new XWPFWordExtractor(document)
+        extractor.getText.split(" ").toList
+      }
+      case "doc" => Try {
+        val document = new HWPFDocument(new FileInputStream(file))
+        val extractor = new WordExtractor(document)
+        extractor.getText.split(" ").toList
+      }
+      case _ => Try {
+        val lines = Control.using(io.Source.fromFile(file, Codec.ISO8859.name)) {
+          source =>
+            (for (
+              line <- source.getLines
+            ) yield line.split(" ")).toList.flatten
         }
-        case "docx" => Try {
-          val document = new XWPFDocument(new FileInputStream(file))
-          val extractor = new XWPFWordExtractor(document)
-          extractor.getText.split(" ").toList
-        }
-        case "doc" => Try {
-          val document = new HWPFDocument(new FileInputStream(file))
-          val extractor = new WordExtractor(document)
-          extractor.getText.split(" ").toList
-        }
-        case _ => Try {
-          val lines = Control.using(io.Source.fromFile(file, Codec.ISO8859.name)) {
-            source =>
-              (for (
-                line <- source.getLines
-              ) yield line.split(" ")).toList.flatten
-          }
-          lines
-        }
+        lines
       }
     }
 
 //    @throws( classOf[java.lang.NoSuchMethodException] )
-    def GetDocContent(filePath: String): String = {
-      readDocWithTry(filePath) match {
-        case Success(lines) => lines.mkString(" ")
-        case Failure(t) => t match {
-            case e : org.apache.poi.EmptyFileException => ""
-            case e : IllegalArgumentException =>
-              if(e.getMessage.trim == "The document is really a UNKNOWN file") ""
-              else throw new IllegalArgumentException(t) {println(t.getCause.getMessage)}
-            case _ => throw new Exception(t) {println(t.getCause.getMessage)}
-          }
-      }
+    def GetDocContent(filePath: String): String = readDocWithTry(filePath) match {
+      case Success(lines) => lines.mkString(" ")
+      case Failure(t) => t match {
+          case e : org.apache.poi.EmptyFileException => ""
+          case e : IllegalArgumentException =>
+            if(e.getMessage.trim == "The document is really a UNKNOWN file") ""
+            else throw new IllegalArgumentException(t) {println(t.getCause.getMessage)}
+          case _ => throw new Exception(t) {println(t.getCause.getMessage)}
+        }
     }
   }
 
   object Operators {
 
     implicit class |>[A](val a: A) extends AnyVal {
-      def |>[B](op: A => B): B = op(a)
+      def |>[B](op: A => B) = op(a)
     }
 
 //      implicit class Semigroup[A,Double](val m1: Map[A,Double]) extends AnyVal {
@@ -110,12 +107,28 @@ package object Util {
 
   object Formatting {
 
-    def roundDecimals(d: Double) = {
-      new java.math.BigDecimal(d).toPlainString
-    }
+    def roundDecimals(d: Double) = new java.math.BigDecimal(d).toPlainString
   }
 
   object Time {
     def currentTimeMins(t: Double) = (((System.nanoTime - t) / 1E9) / 60) + " mins"
+  }
+
+  object Graphics {
+    class WrappedGraphics2D(g: java.awt.Graphics2D) {
+      def drawLine(x1: Double, y1: Double, x2: Double, y2: Double): Unit =
+        g.drawLine(x1.toInt, y1.toInt, x2.toInt, y2.toInt)
+
+      def drawString(str: String, x: Double, y: Double): Unit =
+        g.drawString(str, x.toInt, y.toInt)
+
+      def drawStringCenter(str: String, x: Double, y: Double): Unit = {
+        val width = g.getFontMetrics().stringWidth(str)
+        val height = g.getFontMetrics().getHeight()
+        drawString(str, x - width / 2.0, y - height / 2.0)
+      }
+    }
+
+    implicit def wrapGraphics2D(g: java.awt.Graphics2D): WrappedGraphics2D = new WrappedGraphics2D(g)
   }
 }
