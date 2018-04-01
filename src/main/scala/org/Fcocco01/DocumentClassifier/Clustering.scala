@@ -53,7 +53,7 @@ object Clustering {
       def hasVector(v: DVector) : Boolean = vectors.exists(_ == v)
       def getHeight : Double =
         this.getChildren match {
-          case None => 1.0
+          case None => 0.5
           case Some((left,right)) => left.getHeight + right.getHeight
         }
       def getChildren: Option[(Cluster, Cluster)]
