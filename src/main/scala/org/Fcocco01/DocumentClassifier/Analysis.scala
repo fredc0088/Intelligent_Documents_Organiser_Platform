@@ -50,7 +50,7 @@ package object Analysis {
     def wdf(term: Term, document: Tokens) = {
       (term, (Math.log10(GetFrequency(document, term).toDouble) /
         Math.log(document.size)))
-    }
+  }
 
     type IDFValue = IDF.IDFValue
 

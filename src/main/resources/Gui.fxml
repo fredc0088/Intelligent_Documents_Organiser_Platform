@@ -8,7 +8,10 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="280.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Fcocco01.DocumentClassifier.Gui.TestController">
+<AnchorPane prefHeight="280.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/8.0.121"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.Fcocco01.DocumentClassifier.Gui">
    <children>
       <Button id="getDirs" layoutX="77.0" layoutY="26.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Directories" />
       <Button id="excludeDirs" layoutX="370.0" layoutY="26.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />

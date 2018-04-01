@@ -13,9 +13,11 @@ object Clustering {
   object Similarity {
 
     def cosine(v1: DVector, v2: DVector) = {
-      val a: Double = getAbsoluteValue(v1) |> Math.sqrt
-      val b: Double = getAbsoluteValue(v2) |> Math.sqrt
-      getDocProduct(v1, v2).map(_._2).reduce(_ + _) / (a * b)
+      val a: Double = getAbsoluteValue(v1) //|> Math.sqrt
+      val b: Double = getAbsoluteValue(v2)  //|> Math.sqrt
+      val n = getDocProduct(v1, v2).map(_._2).reduce(_ + _)
+      //getDocProduct(v1, v2).map(_._2).reduce(_ + _) / Math.sqrt(a * b)
+      n
     }
 
     def getDocProduct(v1: DVector, v2: DVector) =
@@ -44,11 +46,16 @@ object Clustering {
 
     sealed trait Cluster {
       def isLeaf: Boolean
+      val distance: Option[Double]
       val vectors : List[DVector]
       val name : String
-      def merge(c: Cluster) : MultiCluster = MultiCluster(this, c) // Merge two existing clusters
+      def merge(c: Cluster)(d: Option[Double]) : MultiCluster = MultiCluster(this, c)(d) // Merge two existing clusters
       def hasVector(v: DVector) : Boolean = vectors.exists(_ == v)
-      def getHeight : Double
+      def getHeight : Double =
+        this.getChildren match {
+          case None => 1.0
+          case Some((left,right)) => left.getHeight + right.getHeight
+        }
       def getChildren: Option[(Cluster, Cluster)]
     }
 
@@ -58,11 +65,11 @@ object Clustering {
       lazy val vectors : List[DVector] = List(v)
       lazy val name = {v.apply.maxBy(_._2)._1
                                 vectors.head.id }
-      override def getHeight = 0
+      override val distance = None
     }
 
 
-    final case class MultiCluster(childL: Cluster, childR: Cluster) extends Cluster{
+    final case class MultiCluster(childL: Cluster, childR: Cluster) (val distance: Option[Double]) extends Cluster{
 
       override def getChildren = Some(childL,childR)
 
@@ -71,6 +78,7 @@ object Clustering {
         val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2):_*))
         val highestTerms = vectors.map(x => x.headOption)
         val default = (scala.util.Random.alphanumeric.take(5).toString,0.0)
+
         @tailrec
         def constructTitle(string: String, n: Int, terms: List[Option[(String,Double)]] , default: (String,Double)) : String =
           if(terms.isEmpty) string
@@ -94,7 +102,6 @@ object Clustering {
           multicluster.childL.vectors ::: multicluster.childR.vectors
         }
 
-      override def getHeight =
         Math.max(this.childL.getHeight + 1,this.childR.getHeight + 1)
 
       override def isLeaf: Boolean = false
@@ -129,7 +136,7 @@ object Clustering {
           if (mx._2.id == mx._3.id) {
             find(a diff List(mx))
           } else mx
-        }
+      }
         find(matrix)
       }
     }
@@ -194,19 +201,20 @@ object Clustering {
               p.dequeue()
               createClusterTree(setL, tree)
             } else {
-              val mergedCls = cls1.merge(cls2)
+              val mergedCls = cls1.merge(cls2)(Some(p.dequeue._1))
               val newTree = tree.filterNot(x => x == mergedCls.childL || x == mergedCls.childR)
               val newTree2 = newTree :+ mergedCls
 
               /*****Only for testing******/
               println(setL)
+              println("Distance: " + mergedCls.distance)
               //              println("1 - " + cls1.name)
               //              println("2 - " + cls2.name)
               //              println("!!!New is: " + mergedCls.name)
               println("Height: " + mergedCls.getHeight)
               /***************************/
 
-              p.dequeue()
+//              p.dequeue()
               createClusterTree(setL + 1, newTree2)
             }
           }
