@@ -45,7 +45,7 @@ val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
 
 val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
-val smile_plot = "com.github.haifengl" % "smile-plot" % "1.5.1"
+//val smile_plot = "com.github.haifengl" % "smile-plot" % "1.5.1"
 
 lazy val root = (project in file("."))
   .settings(
@@ -58,7 +58,7 @@ lazy val root = (project in file("."))
     //libraryDependencies ++= Seq(check(scalaVersion.value), scalactic(scalaVersion.value), testlib(scalaVersion.value))
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/releases",
     addCompilerPlugin(paradise cross CrossVersion.full),
-    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest, scalaFX, sclFXML, smile_plot),
+    libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest, scalaFX, sclFXML),
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false
   )

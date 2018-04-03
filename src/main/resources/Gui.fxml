@@ -1,33 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="280.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/8.0.121"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.Fcocco01.DocumentClassifier.Gui">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="390.0" prefWidth="898.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
-      <Button id="getDirs" layoutX="77.0" layoutY="26.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Directories" />
-      <Button id="excludeDirs" layoutX="370.0" layoutY="26.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />
-      <ScrollPane layoutX="38.0" layoutY="58.0" prefHeight="79.0" prefWidth="231.0" />
-      <ScrollPane layoutX="331.0" layoutY="58.0" prefHeight="79.0" prefWidth="231.0" />
-      <Button layoutX="357.0" layoutY="242.0" mnemonicParsing="false" text="Start" />
-      <Button layoutX="488.0" layoutY="242.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="73.0" text="Close" />
-      <ChoiceBox layoutX="38.0" layoutY="182.0" prefWidth="150.0" />
-      <Label layoutX="38.0" layoutY="165.0" text="Select type of Clustering" />
-      <ChoiceBox layoutX="248.0" layoutY="182.0" prefWidth="150.0" />
-      <Label layoutX="248.0" layoutY="165.0" text="Select weighting functions" />
-      <CheckBox layoutX="423.0" layoutY="186.0" mnemonicParsing="false" text="Independent vectors" />
-      <Button layoutX="406.0" layoutY="242.0" mnemonicParsing="false" text="Stop" />
-      <Button layoutX="38.0" layoutY="242.0" mnemonicParsing="false" text="View Results" />
-      <Button layoutX="147.0" layoutY="242.0" mnemonicParsing="false" text="Errors log" />
-      <TextField id="clsN" layoutX="423.0" layoutY="153.0" prefHeight="25.0" prefWidth="27.0" />
-      <Label layoutX="454.0" layoutY="157.0" text="Number of clusters" />
+      <AnchorPane layoutY="14.0" prefHeight="119.0" prefWidth="898.0">
+         <children>
+            <ScrollPane layoutX="112.0" layoutY="32.0" prefHeight="74.0" prefWidth="186.0">
+               <content>
+                  <ScrollBar orientation="VERTICAL" />
+               </content>
+            </ScrollPane>
+            <Button id="getDirs" layoutX="133.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Directories" />
+                  <Button id="excludeDirs" layoutX="581.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />
+                  <ScrollPane layoutX="565.0" layoutY="32.0" prefHeight="74.0" prefWidth="186.0">
+               <content>
+                  <ScrollBar orientation="VERTICAL" />
+               </content>
+            </ScrollPane>
+         </children>
+      </AnchorPane>
+      <Separator prefWidth="200.0" />
+      <AnchorPane layoutY="146.0">
+         <children>
+            <SplitPane dividerPositions="0.5" prefHeight="27.0" prefWidth="898.0">
+               <items>
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label text="Stopwords" />
+                        <RadioButton mnemonicParsing="false" text="Custom">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding></RadioButton>
+                        <RadioButton mnemonicParsing="false" text="Default" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="25.0" prefWidth="469.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="116.0" text="Regex (Optional)" />
+                        <TextField id="clsN" prefHeight="25.0" prefWidth="146.0" />
+                     </children>
+                  </HBox>
+               </items>
+            </SplitPane>
+         </children>
+      </AnchorPane>
+      <Separator prefWidth="200.0" />
+      <AnchorPane layoutY="195.0" prefHeight="25.0" prefWidth="898.0">
+         <children>
+            <GridPane prefHeight="25.0" prefWidth="898.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="326.0" minWidth="10.0" prefWidth="279.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="285.0" minWidth="10.0" prefWidth="285.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="293.0" minWidth="10.0" prefWidth="186.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <HBox alignment="CENTER" prefHeight="25.0" prefWidth="157.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="146.0" text="Select type of Clustering" />
+                        <ChoiceBox prefHeight="25.0" prefWidth="124.0" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" GridPane.columnIndex="1">
+                     <children>
+                        <Label prefHeight="25.0" prefWidth="76.0" text=" Weighting" />
+                        <ChoiceBox prefHeight="25.0" prefWidth="111.0" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="25.0" prefWidth="387.0" GridPane.columnIndex="2">
+                     <children>
+                        <Label prefHeight="25.0" prefWidth="116.0" text="Compare strategy" />
+                        <ChoiceBox prefHeight="25.0" prefWidth="96.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+      <Separator prefWidth="200.0" />
+      <AnchorPane layoutY="247.0" prefHeight="25.0" prefWidth="898.0">
+         <children>
+            <GridPane prefHeight="25.0" prefWidth="898.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="111.0" text="Linkage Function" />
+                        <ChoiceBox prefHeight="25.0" prefWidth="147.0" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="25.0" prefWidth="297.0" GridPane.columnIndex="1">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="128.0" text="Number of clusters" />
+                        <TextField id="clsN" prefHeight="25.0" prefWidth="169.0" />
+                     </children>
+                  </HBox>
+                  <HBox GridPane.columnIndex="2">
+                     <children>
+                        <CheckBox mnemonicParsing="false" prefHeight="17.0" prefWidth="158.0" text="Independent vectors" />
+                     </children>
+                  </HBox>
+               </children>
+            </GridPane>
+         </children>
+      </AnchorPane>
+      <Separator prefWidth="200.0" />
+      <AnchorPane layoutY="293.0" prefHeight="20.0" prefWidth="898.0">
+         <children>
+            <ProgressBar layoutX="245.0" prefHeight="18.0" prefWidth="412.0" progress="0.0" />
+         </children>
+      </AnchorPane>
+      <Separator orientation="VERTICAL" prefHeight="200.0" />
+      <AnchorPane layoutY="337.0" prefHeight="25.0" prefWidth="898.0">
+         <children>
+            <HBox />
+            <Button layoutX="800.0" layoutY="1.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="73.0" text="Close" />
+            <Button layoutX="575.0" layoutY="1.0" mnemonicParsing="false" text="Stop" />
+            <Button layoutX="510.0" layoutY="1.0" mnemonicParsing="false" text="Start" />
+            <Button layoutX="225.0" layoutY="1.0" mnemonicParsing="false" text="Errors log" />
+            <Button layoutX="97.0" layoutY="1.0" mnemonicParsing="false" text="View Results" />
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>

@@ -1,18 +1,15 @@
-package org.Fcocco01.DocumentClassifier
+package org.Fcocco01.DocumentClassifier.Visualisation
+
+import java.io.File
 
 import javafx.fxml.{FXML, FXMLLoader}
-import java.io.{File, IOException}
-
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.scene.Scene
-import scalafx.scene.layout.Pane
-import scalafxml.core.{FXMLView, NoDependencyResolver}
-import scalafxml.core.macros.{sfxml, sfxmlMacro}
 import scalafx.event.ActionEvent
+import scalafx.scene.Scene
 import scalafx.scene.control.Button
-import scalafx.scene.text.Text
+import scalafxml.core.{FXMLView, NoDependencyResolver}
 
 
 object Gui extends JFXApp {
@@ -28,9 +25,8 @@ object Gui extends JFXApp {
 
   @FXML
   var getDirs : Button = _
-
-  val p = new PrimaryStage() {
-    new Scene(root)
+  val p = new PrimaryStage {
+    scene = Scene(root)
   }
   var dirs : List[File] = _
   val open = new DirectoryChooser("Open directories")
@@ -58,6 +54,3 @@ object Gui extends JFXApp {
   }
 
 }
-
-
-

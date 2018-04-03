@@ -1,16 +1,20 @@
 package org.Fcocco01.DocumentClassifier
 
+import Utils._
 import Util.I_O.GetDocContent
 import Util.Time.currentTimeMins
-import Analysis.IDF
-import Analysis.ModelFunctions.tfidf
-import Classify._
-import Clustering.DVector
-import Token.Tokenizer.{StopWords, TokenizedText}
-import Clustering.HierarchicalClustering._
-import Clustering.Similarity.cosine
-import DocGathering._
 import Types.Token
+import Types.TypeClasses._
+import Core._
+import Clustering.Similarity.cosine
+import Clustering.HierarchicalClustering._
+import DocGathering.DocumentFinder
+import TokenPackage.Tokenizer.{StopWords, TokenizedText}
+import Classify.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
+import Analysis.{IDF, ModelFunctions}
+import ModelFunctions.tfidf
+import Clustering.DVector
+import Visualisation.HierarchicalGraphic
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 
@@ -19,6 +23,7 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
 
 
     object Test {
+
       def get() : Cluster  = {
         object TestingResources {
 
@@ -55,7 +60,7 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
           val testPath13 =
             "./Notes/Note On Developing.docx"
 
-          val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
+
         }
 
         import TestingResources._
@@ -71,15 +76,17 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
             ,
             "./src/test/resources/3"
             , "./Notes"
-            ,"C:/Users/USER/odrive"
-            ,"C:/Users/USER/Documents/Important docs"
-            ,"C:/Users/USER/Desktop"
+//            ,"C:/Users/USER/odrive"
+//            ,"C:/Users/USER/Documents/Important docs"
+//            ,"C:/Users/USER/Desktop"
 //            //      ,"C:/Users/USER"
-                      ,"C:/Users/USER/Downloads"
+//                      ,"C:/Users/USER/Downloads"
           ), Array(
             "./src/main/resources"
           )
           )
+
+          val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
 
           val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
 
@@ -93,7 +100,7 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
 
           println("Dictionary created in " + currentTimeMins(time))
 
-          val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(Option(docs.map(_.getOrElse("", Vector.empty[Token]))))).toVector
+          val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(Option(docs.map(_.getOrElse(Document( "", Vector.empty[Token])))))).toVector
 
           println("Terms weighted to idf in " + currentTimeMins(time))
 

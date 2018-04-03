@@ -1,21 +1,17 @@
-package org.Fcocco01.DocumentClassifier
+package org.Fcocco01.DocumentClassifier.Visualisation
 
-import scalafx.Includes._
 import java.awt.Toolkit
 
-import javafx.scene.transform.Rotate
-import org.Fcocco01.DocumentClassifier.Clustering.HierarchicalClustering.Cluster
-import scalafx.geometry.Pos
-import scalafx.scene._
+import org.Fcocco01.DocumentClassifier.Core.Clustering.HierarchicalClustering.Cluster
+import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.layout._
-import scalafx.scene.control.{Alert, Dialog, ScrollPane}
+import scalafx.scene.control.{Alert, ScrollPane}
 import scalafx.scene.input.MouseEvent
+import scalafx.scene.layout.{AnchorPane, Pane, StackPane}
 import scalafx.scene.paint.Color
-import scalafx.scene.shape.{Circle, Line, Polyline}
+import scalafx.scene.shape.{Circle, Polyline}
+import scalafx.scene.{Parent, Scene}
 import scalafx.stage.{Stage, WindowEvent}
-import scalafx.scene.text.Text
-
 
 object HierarchicalGraphic {
 
@@ -28,24 +24,24 @@ object HierarchicalGraphic {
         val root = new ScrollPane
         val center = new StackPane
         root.setContent(center)
-
-        DrawDendrogram(cluster, center,(w, h))
-        root.setFitToHeight(true);
+        val pane = DrawDendrogram(cluster,(w, h))
+        center.children.add(pane)
+//        root.setFitToHeight(true);
         val newP = new Tree(cluster)(root, w, h)
-        stage.setOnCloseRequest((t: WindowEvent) => println("Close"))
+        stage.setOnCloseRequest((event: WindowEvent) => println("Close"))
         stage.setScene(newP)
         stage
       }
     }
 
   object DrawDendrogram {
-    def apply(cluster: Cluster, n: Pane, measures: (Double, Double)): Unit = {
+    def apply(cluster: Cluster, measures: (Double, Double)): Pane = {
 
       val (width, height) = measures
       val h = cluster.getHeight + height
       val w = width
       val depth = getDepth(cluster)
-      val scaling = (w - 500) / depth
+      val scaling = (w - 800) / depth
 
       val anchorpane = new AnchorPane
       AnchorPane.setTopAnchor(anchorpane, 100.0)
@@ -53,22 +49,9 @@ object HierarchicalGraphic {
       AnchorPane.setRightAnchor(anchorpane, 10.0)
       AnchorPane.setBottomAnchor(anchorpane, 10.0)
 
-      //      anchorpane.setMaxSize(1000000000,1000000000)
-      //      anchorpane.setMinSize(measures._1,measures._2)
-      //      anchorpane.setPrefSize(measures._1,measures._2
-      //      val (newW,newH) = (measures._1 * 0.7, measures._2 * 0.5)
-
-
-      var it = 0
-
       def drawNode(node: Cluster, x: Double, y: Double): Unit = {
-        it += 1
-        println(s"Iteration ${it - 1}: For node ${node.hashCode} the x is ${x} and y is ${y} and ll is ${node.distance.getOrElse(0.0) * scaling}")
         if (node.isLeaf) {
           anchorpane.children.add({
-            //            val t = new Text(x+5,y-7,node.name)
-            println(s"It is a leaf for ${node.name}")
-            println("")
             val c = Circle(x, y, 3.5, Color.Red)
             c.onMouseClicked = (event: MouseEvent) => new Alert(AlertType.Information, node.name).showAndWait
             c
@@ -78,8 +61,6 @@ object HierarchicalGraphic {
           node.getChildren match {
             case None => {}
             case Some((left, right)) => {
-              println(s"Children are ${left.hashCode} and ${right.hashCode}")
-              println("")
               val (h1, h2) = (left.getHeight * 20, right.getHeight * 20)
               val (top, bottom) = (y - (h1 + h2) / 2, y + (h1 + h2) / 2)
               val ll = node.distance.getOrElse(0.0) * scaling + 10
@@ -101,11 +82,7 @@ object HierarchicalGraphic {
       }
 
       drawNode(cluster, 10, h / 2)
-
-      //      n.setMinHeight(anchorpane.minHeight.value)
-      //      n.setMaxWidth(anchorpane.minWidth.value)
-      n.children.add(anchorpane)
-      //      n.transforms.add(new Rotate(90, Rotate.X_AXIS))
+      anchorpane
     }
 
 
