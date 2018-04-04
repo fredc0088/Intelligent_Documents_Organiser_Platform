@@ -1,24 +1,14 @@
 package org.Fcocco01.DocumentClassifier
 
-import scalafx.application.JFXApp
 import scalafx.Includes._
 import scalafx.stage._
 import java.awt._
 import java.awt.geom._
 import javax.swing.{JFrame, JPanel}
 
-import scalafx.scene.canvas.Canvas
-import scalafx.scene.layout._
-import scalafx.scene.shape.Circle
-import scalafx.scene.shape.Line
-import javafx.geometry.Insets
-import javafx.scene.paint.{Color => JFXColor}
-import javafx.stage.Stage
-
 import org.Fcocco01.DocumentClassifier.Clustering.HierarchicalClustering.Cluster
 
-import scalafx.scene.Scene
-
+import scalafx.application.JFXApp
 
 object Graphic extends {
 
@@ -27,18 +17,6 @@ object Graphic extends {
 //    class Dendrogram extends JFXApp {
 //
 //    }
-
-
-    object Main extends JFXApp {
-      stage = new Stage {
-        title = "Akka Connect Four"
-        width = 800
-        height = 600
-
-        scene = new Scene(new javafx.scene.Scene(root))
-
-      }
-    }
 
     class Dendrogram extends JFrame {
 
@@ -58,18 +36,6 @@ object Graphic extends {
       }
 
       def paint(g: Graphics2D) : Unit = {
-
-      }
-
-
-      final case class Coord(x: Double, y: Double) {
-        override def equals(obj: Any): Boolean = obj.isInstanceOf[Coord] match {
-          case true => x == obj.asInstanceOf[Coord].x && y == obj.asInstanceOf[Coord].y
-          case false => false
-        }
-      }
-
-      case class MergePoint(override val radius: Double) extends Circle(radius) {
 
       }
 
