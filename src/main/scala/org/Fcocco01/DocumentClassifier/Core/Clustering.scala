@@ -228,16 +228,10 @@ object Clustering {
 
     def `kmeans++`(v: Array[DVector]) (d: DistanceORSimFun) = {
       val randomSeed = scala.util.Random.shuffle(v).take(1)
-
-      val distances = v.par.map { x => d(x, randomSeed) }.toArray
-
-      val sumDistances = distances.sum
-
-
-      for (i <- 1 to v.length) {
-
-      }
-
+      val sumOfDistances = v.par.map{ x => d(x,randomSeed) }.toArray.reduce(_ + _)
+//      for{
+//
+//      }
 
     }
 
