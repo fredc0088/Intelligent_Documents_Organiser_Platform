@@ -2,8 +2,7 @@ package org.Fcocco01.DocumentClassifier
 
 import Utils.Types.TypeClasses.Vectors.DVector
 
-public class DummyObjs {
-
+object DummyObjs {
 
     val vector1 = DVector("",Array(("breaks",0.000553463155315768516422092471174210004392080008983612060546875),
             ("embedded",0.0022138526212630740656883698846968400175683200359344482421875),
