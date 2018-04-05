@@ -1,6 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils.{Util,Types}
+import Util.Constants.{ZERO,ZEROF,ONE,TWO,HALF}
 import Util.Operators.|>
 
 import scala.annotation.tailrec
@@ -19,10 +20,10 @@ object Clustering {
     }
 
     def getDocProduct(v1: DVector, v2: DVector) =
-      v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, 0.0)) }
+      v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, ZEROF)) }
 
     def getAbsoluteValue(v: DVector): Double = {
-      v.apply.toVector.map(x => Math.pow(x._2, 2)).reduce(_ + _)
+      v.apply.toVector.map(x => Math.pow(x._2, TWO)).reduce(_ + _)
     }
   }
 
@@ -51,7 +52,7 @@ object Clustering {
       def hasVector(v: DVector) : Boolean = vectors.exists(_ == v)
       def getHeight : Double =
         this.getChildren match {
-          case None => 0.5
+          case None => HALF
           case Some((left,right)) => left.getHeight + right.getHeight
         }
       def getChildren: Option[(Cluster, Cluster)]
@@ -75,13 +76,13 @@ object Clustering {
       lazy val name: String = {
         val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2):_*))
         val highestTerms = vectors.map(x => x.headOption)
-        val default = (scala.util.Random.alphanumeric.take(5).toString,0.0)
+        val default = (scala.util.Random.alphanumeric.take(5).toString,ZEROF)
 
         @tailrec
         def constructTitle(string: String, n: Int, terms: List[Option[(String,Double)]] , default: (String,Double)) : String =
           if(terms.isEmpty) string
           else n match {
-          case 0 => string
+          case ZERO => string
           case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1} ", n - 1, terms.tail,default)
         }
         val height = getHeight.toInt
@@ -100,8 +101,6 @@ object Clustering {
           multicluster.childL.vectors ::: multicluster.childR.vectors
         }
 
-        Math.max(this.childL.getHeight + 1,this.childR.getHeight + 1)
-
       override def isLeaf: Boolean = false
     }
 
@@ -109,7 +108,7 @@ object Clustering {
       tree.find(_.hasVector(elToFind)).get
 
     def cutMatrix(m: SimMatrix): Array[MatrixEl] =
-      m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / 2 + 1)
+      m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / TWO + ONE)
 
 
     trait Linkage_Strategy {
@@ -166,8 +165,8 @@ object Clustering {
       val v = vectors.toArray.par
       val size = v.size
       val matrix = Array.ofDim[MatrixEl](size, size)
-      for (i <- 0 until v.size) {
-        for (j <- 0 until v.size) {
+      for (i <- ZERO until v.size) {
+        for (j <- ZERO until v.size) {
           matrix(i)(j) =
             (f(v(i), v(j)), v(i), v(j))
         }
@@ -201,7 +200,7 @@ object Clustering {
               println("Height: " + mergedCls.getHeight)
               /***************************/
 
-              createClusterTree(setL + 1, newTree2)
+              createClusterTree(setL + ONE, newTree2)
             }
           }
         }
@@ -211,53 +210,53 @@ object Clustering {
 
   }
 
-  object FlatClustering {
-
-    def K_Means(n: Int)(d: DVector*)(dist: DistanceORSimFun) = {
-      (f: Option[(Array[DVector],DistanceORSimFun) => List[DVector]]) => {
-        val initialSeeds = f match {
-          case Some(x) => x.curried.apply(d.toArray)(dist)
-          case None => scala.util.Random.shuffle(d).take(n)
-        }
-        while()
-        for(i <- 1 to n) {
-
-        }
-      }
-    }
-
-    def `kmeans++`(v: Array[DVector]) (d: DistanceORSimFun) = {
-      val randomSeed = scala.util.Random.shuffle(v).take(1)
-      val sumOfDistances = v.par.map{ x => d(x,randomSeed) }.toArray.reduce(_ + _)
-//      for{
+//  object FlatClustering {
 //
+//    def K_Means(n: Int)(d: DVector*)(dist: DistanceORSimFun) = {
+//      (f: Option[(Array[DVector],DistanceORSimFun) => List[DVector]]) => {
+//        val initialSeeds = f match {
+//          case Some(x) => x.curried.apply(d.toArray)(dist)
+//          case None => scala.util.Random.shuffle(d).take(n)
+//        }
+////        while()
+////        for(i <- 1 to n) {
+//
+//        }
 //      }
-
-    }
-
-    def `kmeans||`(v: Array[DVector])(oversamplingFactor : Int) (d: DistanceORSimFun) = {
-      var c = List[DVector]
-      val randomSeed = scala.util.Random.shuffle(v).head
-      def getDistances(seed : DVector, v: List[DVector]) =  v.par.filter(_ != randomSeed).map { x => Math.pow(d(x, randomSeed),2) }.toArray
-      val iterations = Math.log(getDistances(randomSeed,v.toList).sum).round
-
-      for (0 <- iterations) {
-        for(dp <- c){
-          val distance = getDistances(dp,v.toList)
-        }
-      }
-
-
-    }
-
-    case class Cluster(v: DVector *)(c: DVector) {
-      val centroid = c
-      def addPoints(v: DVector*): Cluster = {
-        val vectors = this.v: _*
-        new Cluster(vectors ++ v: _*)(c)
-      }
-
-    }
-  }
+//
+//    def `kmeans++`(v: Array[DVector]) (d: DistanceORSimFun) = {
+//      val randomSeed = scala.util.Random.shuffle(v).take(1)
+//      val sumOfDistances = v.par.map{ x => d(x,randomSeed) }.toArray.reduce(_ + _)
+////      for{
+////
+////      }
+//
+//    }
+//
+//    def `kmeans||`(v: Array[DVector])(oversamplingFactor : Int) (d: DistanceORSimFun) = {
+//      var c = List[DVector]
+//      val randomSeed = scala.util.Random.shuffle(v).head
+//      def getDistances(seed : DVector, v: List[DVector]) =  v.par.filter(_ != randomSeed)
+//        .map { x => Math.pow(d(x, randomSeed),2) }.toArray
+//      val iterations = Math.log(getDistances(randomSeed,v.toList).sum).round
+//
+//      for (0 <- iterations) {
+//        for(dp <- c){
+//          val distance = getDistances(dp,v.toList)
+//        }
+//      }
+//
+//
+//    }
+//
+//    case class Cluster(v: DVector *)(c: DVector) {
+//      val centroid = c
+//      def addPoints(v: DVector*): Cluster = {
+//        val vectors = this.v: _*
+//        new Cluster(vectors ++ v: _*)(c)
+//      }
+//
+//    }
+//  }
 
 }

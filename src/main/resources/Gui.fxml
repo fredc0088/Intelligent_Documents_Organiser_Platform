@@ -5,10 +5,9 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.ScrollBar?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
@@ -18,22 +17,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="390.0" prefWidth="898.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="390.0" prefWidth="898.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Fcocco01.DocumentClassifier.Visualisation.Controller">
    <children>
       <AnchorPane layoutY="14.0" prefHeight="119.0" prefWidth="898.0">
          <children>
-            <ScrollPane layoutX="112.0" layoutY="32.0" prefHeight="74.0" prefWidth="186.0">
-               <content>
-                  <ScrollBar orientation="VERTICAL" />
-               </content>
-            </ScrollPane>
-            <Button id="getDirs" layoutX="133.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Directories" />
-                  <Button id="excludeDirs" layoutX="581.0" layoutY="2.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />
-                  <ScrollPane layoutX="565.0" layoutY="32.0" prefHeight="74.0" prefWidth="186.0">
-               <content>
-                  <ScrollBar orientation="VERTICAL" />
-               </content>
-            </ScrollPane>
+            <Button fx:id="directoryFileChooser" layoutX="133.0" layoutY="2.0" mnemonicParsing="false" onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Directories" />
+            <Button fx:id="exclusionFileChooser" layoutX="581.0" layoutY="2.0" mnemonicParsing="false" onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />
+            <ListView fx:id="inclusionList" layoutX="60.0" layoutY="34.0" prefHeight="69.0" prefWidth="320.0" />
+            <ListView fx:id="exclusionList" layoutX="498.0" layoutY="34.0" prefHeight="69.0" prefWidth="320.0" />
          </children>
       </AnchorPane>
       <Separator prefWidth="200.0" />
@@ -44,17 +35,19 @@
                   <HBox alignment="CENTER">
                      <children>
                         <Label text="Stopwords" />
-                        <RadioButton mnemonicParsing="false" text="Custom">
+                        <RadioButton fx:id="customOption" mnemonicParsing="false" onAction="#radioOptionChange" text="Custom">
                            <padding>
                               <Insets left="20.0" right="20.0" />
-                           </padding></RadioButton>
-                        <RadioButton mnemonicParsing="false" text="Default" />
+                           </padding>
+                        </RadioButton>
+                        <RadioButton fx:id="defaultOption" mnemonicParsing="false" onAction="#radioOptionChange" prefHeight="17.0" prefWidth="78.0" text="Default">
+                        </RadioButton>
                      </children>
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="25.0" prefWidth="469.0">
                      <children>
                         <Label prefHeight="17.0" prefWidth="116.0" text="Regex (Optional)" />
-                        <TextField id="clsN" prefHeight="25.0" prefWidth="146.0" />
+                        <TextField id="clsN" fx:id="regexOption" prefHeight="25.0" prefWidth="146.0" />
                      </children>
                   </HBox>
                </items>
@@ -77,19 +70,19 @@
                   <HBox alignment="CENTER" prefHeight="25.0" prefWidth="157.0">
                      <children>
                         <Label prefHeight="17.0" prefWidth="146.0" text="Select type of Clustering" />
-                        <ChoiceBox prefHeight="25.0" prefWidth="124.0" />
+                        <ChoiceBox fx:id="clusteringType" prefHeight="25.0" prefWidth="124.0" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER" GridPane.columnIndex="1">
                      <children>
                         <Label prefHeight="25.0" prefWidth="76.0" text=" Weighting" />
-                        <ChoiceBox prefHeight="25.0" prefWidth="111.0" />
+                        <ChoiceBox fx:id="weightingList" prefHeight="25.0" prefWidth="111.0" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="25.0" prefWidth="387.0" GridPane.columnIndex="2">
                      <children>
                         <Label prefHeight="25.0" prefWidth="116.0" text="Compare strategy" />
-                        <ChoiceBox prefHeight="25.0" prefWidth="96.0" />
+                        <ChoiceBox fx:id="strategyList" prefHeight="25.0" prefWidth="96.0" />
                      </children>
                   </HBox>
                </children>
@@ -123,7 +116,7 @@
                   </HBox>
                   <HBox GridPane.columnIndex="2">
                      <children>
-                        <CheckBox mnemonicParsing="false" prefHeight="17.0" prefWidth="158.0" text="Independent vectors" />
+                        <CheckBox fx:id="independentVector" mnemonicParsing="false" prefHeight="17.0" prefWidth="158.0" text="Independent vectors" />
                      </children>
                   </HBox>
                </children>

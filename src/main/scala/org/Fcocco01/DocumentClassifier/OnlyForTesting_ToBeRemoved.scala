@@ -14,7 +14,7 @@ import Classify.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Analysis.{IDF, ModelFunctions}
 import ModelFunctions.tfidf
 import Clustering.DVector
-import Visualisation.HierarchicalGraphic
+import Visualisation.{HierarchicalGraphic, HierarchicalGraphic_Test}
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 
@@ -72,10 +72,11 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
           println("Start initialisation after " + currentTimeMins(time))
 
           val tests = DocumentFinder(Array(
-            "./src"
-            ,
-            "./src/test/resources/3"
-            , "./Notes"
+//            "./src"
+//            ,
+            "./src/test/resources/3/3.2"
+            ,"./src/test/resources/1/1.3"
+            , "C:/Users/USER/Documents/Projects/Git_Repos/Document_Clusterizer_Notes"
 //            ,"C:/Users/USER/odrive"
 //            ,"C:/Users/USER/Documents/Important docs"
 //            ,"C:/Users/USER/Desktop"
@@ -123,7 +124,7 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
     }
   stage = new PrimaryStage
   val o : Cluster= Test.get()
-  val newStage = HierarchicalGraphic.Tree(o)(stage)
+  val newStage = HierarchicalGraphic_Test.Tree(o)(stage)
   newStage.show()
 
 

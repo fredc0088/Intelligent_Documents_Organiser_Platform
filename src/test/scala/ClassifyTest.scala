@@ -1,4 +1,4 @@
-//package org.Fcocco01.DocumentClassifier
+//package org.Fcocco01.DocumentClassifier.Test
 //
 //import Util.I_O.GetDocContent
 //import Util.Time.currentTimeMins

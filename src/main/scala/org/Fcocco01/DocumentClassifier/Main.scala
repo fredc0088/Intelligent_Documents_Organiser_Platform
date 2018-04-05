@@ -1,107 +1,48 @@
-package org.Fcocco01.DocumentClassifier
-
-import Core.Classify.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
-import Core.Clustering.{DVector,HierarchicalClustering, Distance, Similarity}
-import HierarchicalClustering.{createSimMatrix, HAC, SingleCluster, Single_Link, Complete_Link}
-import Core.TokenPackage.Tokenizer.{StopWords, TokenizedText}
-import Core.DocGathering.DocumentFinder
-import Utils.Types.Token
-import Utils.Util.I_O.GetDocContent
-import Core.Analysis.{ModelFunctions,IDF}
-import ModelFunctions._
-import Utils.Types.TypeClasses.Document
+import javafx.fxml.FXMLLoader
+import javafx.stage.StageStyle
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.scene.Scene
+import scalafxml.core.{FXMLView, NoDependencyResolver}
 
-object Main {
-
-  val indipendentVectors : Boolean = false
-
-  val directoriesChosen : Array[String] = Array("")
-
-  val exclusions : Array[String] = Array("")
-
-  val stopwords : String = "./src/main/resources/stop-word-list.txt"
-
-  val regex : String = "[^a-z0-9]"
-
-  val clusteringMode = ""
-
-  val chooseFun = ""
-
-  val comparison = ""
-
-  val linkStrategy = ""
-
-  val tests = DocumentFinder(directoriesChosen, exclusions)
-
-  val stopWords = StopWords(stopwords)
-
-  val tknTool = buildTokenSuite(TokenizedText(regex, stopWords))(GetDocContent)
-
-  val tknFun = tokenizeDocument(tknTool)
-
-  implicit val docs = tests.par.map(x => tknFun(x)).toArray
-
-  val vectorFun = chooseFun match {
-    case "TfIdf" if(!indipendentVectors) => {
-      val dictionary = Dictionary(docs)
-      val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(Option(docs.map(_.getOrElse(Document("", Vector.empty[Token])))))).toVector
-      val weightFun = tfidf(idfWeightedTerms)
-      createVector(weightFun)(Some(dictionary))
-    }
-    case "WfIdf" if(!indipendentVectors) => {
-      val dictionary = Dictionary(docs)
-      val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(Option(docs.map(_.getOrElse(Document("", Vector.empty[Token])))))).toVector
-      val weightFun = wdfidf(idfWeightedTerms)
-      createVector(weightFun)(Some(dictionary))
-    }
-    case "Tf" => {
-      if(!indipendentVectors) {
-        val dictionary = Dictionary(docs)
-        createVector(tf(_,_))(Some(dictionary))
-      } else {
-        createVector(tf(_,_))()
-      }}
-    case "wdf" => {
-      if(!indipendentVectors) {
-        val dictionary = Dictionary(docs)
-        createVector(wdf(_,_))(Some(dictionary))
-      } else {
-        createVector(wdf(_,_))()
-      }}
-    case "Log Normalisation" => {
-      if(!indipendentVectors) {
-        val dictionary = Dictionary(docs)
-        createVector(tfLogNorm(_,_))(Some(dictionary))
-      } else {
-        createVector(tfLogNorm(_,_))()
-      }}
-    case "Bag-Of-Words" => {
-      if(!indipendentVectors) {
-        val dictionary = Dictionary(docs)
-        createVector(bag(_,_))(Some(dictionary))
-      } else {
-        createVector(bag(_,_))()
-      }}
+object Main extends JFXApp {
+  val primaryStage = new PrimaryStage
+  val resource = FXMLLoader.load(
+    this.getClass.getClassLoader.getResource("Gui.fxml"))
+  if (resource == null) {
+    println("Cannot load resource")
   }
 
-  val vectors = docs.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toArray
+  val root = FXMLView(resource, NoDependencyResolver)
+//  val scene = new Scene(root, 500, 500)
+//  primaryStage.setScene(scene)
+  primaryStage.title = "Document Clusterizer"
+  primaryStage.initStyle(StageStyle.DECORATED)
+  primaryStage.show()
+  class MainProcess(indipendentVectors : Boolean, directoriesChosen : Array[String] = Array(""),exclusions : Array[String] = Array(""),
+                    stopwords : String = "./src/main/resources/stop-word-list.txt", regex : String = "[^a-z0-9]",
+                    clusteringMode : String = "", chooseFun : String = "", comparison : String = "", linkStrategy : String= "") {
+    def getGraphic() = {
 
-  object View extends JFXApp {
-    stage = new PrimaryStage
-    if(clusteringMode == "Hierarchical") {
-      val matrix = comparison match {
-        case "Cosine Sim" => createSimMatrix(vectors, Similarity.cosine)
-        case "Euclidean Dist" => createSimMatrix(vectors, Distance.euclidean)
-        case "Manhattan Dist" => createSimMatrix(vectors, Distance.manhattan)
-      }
-      val docWrappedInCluster = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
-      val clusters = linkStrategy match {
-        case "Single Link" => HAC(matrix, docWrappedInCluster, Single_Link, vectors: _*)
-        case "Complete Link" => HAC(matrix, docWrappedInCluster, Complete_Link, vectors: _*)
-      }
-    } else {
+      var progress = 0.0
+
+
+      progress = 0.1
+
+
+      progress = 0.4
+
+      //    val vectorFun = chooseFun match {
+      //      case "TfIdf" if (!indipendentVectors) => {}
+      //      case "WfIdf" if (!indipendentVectors) => {}
+      //      case "Tf" => {}
+      //      case "wdf" => {}
+      //      case "Log Normalisation" => {}
+      //      case "Bag-Of-Words" => {}
+      //    }
+
+
+      progress = 0.7
 
 
     }

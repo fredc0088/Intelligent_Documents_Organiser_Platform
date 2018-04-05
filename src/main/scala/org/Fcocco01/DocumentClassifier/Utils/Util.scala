@@ -85,13 +85,14 @@ package object Util {
       */
     def GetDocContent(filePath: String): String = readDocWithTry(filePath) match {
       case Success(lines) => lines.mkString(" ")
-      case Failure(t) => t match {
-          case e : org.apache.poi.EmptyFileException => ""
-          case e : IllegalArgumentException =>
-            if(e.getMessage.trim == "The document is really a UNKNOWN file") ""
-            else throw new IllegalArgumentException(t) {println(t.getCause.getMessage)}
-          case _ => throw new Exception(t) {println(t.getCause.getMessage)}
-        }
+      case Failure(t) => ""
+//        t match {
+//          case e : org.apache.poi.EmptyFileException => ""
+//          case e : IllegalArgumentException if(e.getMessage.trim == "The document is really a UNKNOWN file") =>  ""
+//            if(e.getMessage.trim == "The document is really a UNKNOWN file") ""
+//            else throw new IllegalArgumentException(t) {println(t.getCause.getMessage)}
+//          case _ => throw new Exception(t) {println(t.getCause.getMessage)}
+//        }
     }
   }
 
@@ -132,6 +133,7 @@ package object Util {
   object Constants {
     val ZERO = 0
     val ZEROF = 0.0
+    val HALF = 0.5
     val ONE = 1
     val TWO = 2
   }

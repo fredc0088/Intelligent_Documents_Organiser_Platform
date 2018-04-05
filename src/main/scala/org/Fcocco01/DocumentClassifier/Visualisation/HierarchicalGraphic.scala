@@ -17,7 +17,7 @@ object HierarchicalGraphic {
 
     class Tree(cluster: Cluster)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
     object Tree {
-      def apply(cluster: Cluster)(stage: Stage): Stage = {
+      def apply(cluster: Cluster)(stage: Stage): Scene = {
         val screenSize = Toolkit.getDefaultToolkit.getScreenSize
         val (w, h) = ((screenSize.width * 0.9).toInt, (screenSize.height * 0.7).toInt)
 
@@ -27,10 +27,10 @@ object HierarchicalGraphic {
         val pane = DrawDendrogram(cluster,(w, h))
         center.children.add(pane)
 //        root.setFitToHeight(true);
-        val newP = new Tree(cluster)(root, w, h)
-        stage.setOnCloseRequest((event: WindowEvent) => println("Close"))
-        stage.setScene(newP)
-        stage
+        new Tree(cluster)(root, w, h)
+//        stage.setOnCloseRequest((event: WindowEvent) => println("Close"))
+//        stage.setScene(newP)
+//        stage
       }
     }
 
