@@ -15,9 +15,9 @@ import scalafx.stage.{Popup, Stage, WindowEvent}
 
 object HierarchicalGraphic_Test {
 
-  class Tree(cluster: Cluster)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
-  object Tree {
-    def apply(cluster: Cluster)(stage: Stage): Stage = {
+  class Dendrogram(cluster: Cluster)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
+  object Dendrogram {
+    def apply(cluster: Cluster)(stage: Stage) = {
       val screenSize = Toolkit.getDefaultToolkit.getScreenSize
       val (w, h) = ((screenSize.width * 0.9).toInt, (screenSize.height * 0.7).toInt)
 
@@ -26,10 +26,7 @@ object HierarchicalGraphic_Test {
       root.setContent(center)
       val pane = DrawDendrogram(cluster,(w, h))
       center.children.add(pane)
-      val newP = new Tree(cluster)(root, w, h)
-      stage.setOnCloseRequest((event: WindowEvent) => println("Close"))
-      stage.setScene(newP)
-      stage
+      new Dendrogram(cluster)(root, w, h)
     }
   }
 
