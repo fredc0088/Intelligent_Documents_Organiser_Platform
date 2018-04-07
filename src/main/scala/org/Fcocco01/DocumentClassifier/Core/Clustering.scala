@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Utils.{Util,Types}
-import Util.Constants.{ZERO,ZEROF,ONE,TWO,HALF}
+import org.Fcocco01.DocumentClassifier.Utils.{Util,Types,Constants}
+import Constants.{ZERO,ZEROF,ONE,TWO,HALF}
 import Util.Operators.|>
 
 import scala.annotation.tailrec

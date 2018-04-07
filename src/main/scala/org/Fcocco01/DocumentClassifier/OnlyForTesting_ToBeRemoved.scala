@@ -14,7 +14,7 @@ import Classify.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Analysis.{IDF, ModelFunctions}
 import ModelFunctions.tfidf
 import Clustering.DVector
-import Visualisation.{HierarchicalGraphic, HierarchicalGraphic_Test}
+import Visualisation.HierarchicalGraphic
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 
@@ -122,10 +122,11 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
           o
       }
     }
-  stage = new PrimaryStage
-  val o : Cluster= Test.get()
-  val newStage = HierarchicalGraphic_Test.Tree(o)(stage)
-  newStage.show()
+  stage = new PrimaryStage {
+    val o : Cluster= Test.get()
+    scene = HierarchicalGraphic.Dendrogram(o)
+  }
+  stage.show()
 
 
 }

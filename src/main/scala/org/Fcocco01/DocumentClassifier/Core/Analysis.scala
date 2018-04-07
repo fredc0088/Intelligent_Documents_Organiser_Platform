@@ -3,7 +3,7 @@ package org.Fcocco01.DocumentClassifier.Core
 import org.Fcocco01.DocumentClassifier.Utils
 import Utils.Types.TypeClasses.{Document,TermWeighted}
 import Utils.Types._
-import Utils.Util.Constants._
+import Utils.Constants._
 
 /**
   * Provide functions for analysis a [[Term]],

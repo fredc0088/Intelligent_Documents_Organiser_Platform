@@ -1,13 +1,13 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Utils.{Types,Util}
+import org.Fcocco01.DocumentClassifier.Utils.{Types,Constants}
 
 object Classify {
 
   import Types.TypeClasses.Vectors._
   import Types.TypeClasses._
   import Types._
-  import Util.Constants.ZERO
+  import Constants.ZERO
 
   /**
     * Create a dictionary of unique terms.
