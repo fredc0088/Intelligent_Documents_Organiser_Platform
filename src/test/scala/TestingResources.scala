@@ -1,6 +1,7 @@
-package org.Fcocco01.DocumentClassifier
+package org.Fcocco01.DocumentClassifier.Test
 
-import org.Fcocco01.DocumentClassifier.Token.Tokenizer.StopWords
+import org.Fcocco01.DocumentClassifier.Core._
+import TokenPackage.Tokenizer.StopWords
 
 object TestingResources {
 

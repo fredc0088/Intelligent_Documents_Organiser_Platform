@@ -1,4 +1,4 @@
-package org.Fcocco01.DocumentClassifier
+package org.Fcocco01.DocumentClassifier.Test
 
 
 class AnalysisTest extends UnitTest ("Analysis"){

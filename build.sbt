@@ -45,9 +45,11 @@ val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
 
 val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
+//val smile_plot = "com.github.haifengl" % "smile-plot" % "1.5.1"
+
 lazy val root = (project in file("."))
   .settings(
-    name := "Intelligent documents classicator",
+    name := "Documents_Clusterizer",
     version := "0.0.1",
     scalaVersion := "2.12.3",
     organization := name.value,

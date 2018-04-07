@@ -1,7 +1,8 @@
-package org.Fcocco01.DocumentClassifier
+package org.Fcocco01.DocumentClassifier.Core
 
 import java.io.File
-import collection.mutable
+
+import scala.collection.mutable
 
  object DocGathering {
 
@@ -11,7 +12,7 @@ import collection.mutable
 
      def recursiveTreeDocsSearch(dir: String): List[File] = {
        try {
-         val files = new File(dir).listFiles()
+         val files = new File(dir).listFiles
            .filterNot(x => directoriesToExclude.contains(x.getAbsolutePath.replaceAll("\\\\", "/"))).toList
          val list = mutable.ArrayBuffer[File]()
          files.filter { x => x.isDirectory }.foreach { j => list ++= recursiveTreeDocsSearch(j.getAbsolutePath) }
