@@ -66,8 +66,6 @@ gradle-app.setting
 
 #### java ####
 
-*.class
-
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -103,3 +101,8 @@ project/plugins/project/
 .ensime_cache/
 .ensime
 /src/test/Out/
+
+
+# My Project
+.Error Logs/*.log
+.Error Logs/*.txt

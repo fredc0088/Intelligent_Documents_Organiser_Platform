@@ -12,12 +12,12 @@ import scala.collection.mutable
 
      def recursiveTreeDocsSearch(dir: String): List[File] = {
        try {
-         val files = new File(dir).listFiles
-           .filterNot(x => directoriesToExclude.contains(x.getAbsolutePath.replaceAll("\\\\", "/"))).toList
+         val files = new File(dir).listFiles.filterNot(x => directoriesToExclude.contains(x.getCanonicalPath)).toList
          val list = mutable.ArrayBuffer[File]()
          files.filter { x => x.isDirectory }.foreach { j => list ++= recursiveTreeDocsSearch(j.getAbsolutePath) }
          list.toList ++ files.filter { x => x.isFile }.filter {
-           f => (f.getName endsWith ".docx") || (f.getName endsWith ".doc") || (f.getName endsWith ".txt")
+           f => (f.getName endsWith ".docx") || (f.getName endsWith ".doc") || (f.getName endsWith ".txt") ||
+             (f.getName endsWith ".log") || (f.getName endsWith ".pdf")
          }
        }
        catch {
@@ -25,7 +25,7 @@ import scala.collection.mutable
        }
      }
 
-     private def getPaths(docs: List[File]) = docs.map(_.getAbsolutePath)
+     private def getPaths(docs: List[File]) = docs.map(_.getCanonicalPath)
 
      def apply() = {
         val documents = (for {

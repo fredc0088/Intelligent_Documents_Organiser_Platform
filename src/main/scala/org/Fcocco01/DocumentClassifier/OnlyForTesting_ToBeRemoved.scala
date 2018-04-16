@@ -3,15 +3,13 @@ package org.Fcocco01.DocumentClassifier
 import Utils._
 import Util.I_O.GetDocContent
 import Util.Time.currentTimeMins
-import Types.Token
-import Types.TypeClasses._
 import Core._
 import Clustering.Similarity.cosine
 import Clustering.HierarchicalClustering._
 import DocGathering.DocumentFinder
 import TokenPackage.Tokenizer.{StopWords, TokenizedText}
-import Classify.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
-import Analysis.{IDF, ModelFunctions}
+import DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
+import Weight.{IDF, ModelFunctions}
 import ModelFunctions.tfidf
 import Clustering.DVector
 import Visualisation.HierarchicalGraphic
@@ -72,19 +70,21 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
           println("Start initialisation after " + currentTimeMins(time))
 
           val tests = DocumentFinder(Array(
-//            "./src"
-//            ,
+  //            "./src"
+  //            ,
+              "./src/test/resources/3/3.2"
+//              ,"./src/test/resources/1/1.3"
+              ,
+              "C:/Users/USER/Documents/Projects/Git_Repos/Document_Clusterizer_Notes"
+  //            ,"C:/Users/USER/odrive/"
+//              ,"C:/Users/USER/Documents/Important docs"
+//              ,"C:/Users/USER/Desktop"
+  //            //      ,"C:/Users/USER"
+  //                      ,"C:/Users/USER/Downloads"
+            ), Array(
+              "./src/main/resources",
             "./src/test/resources/3/3.2"
-            ,"./src/test/resources/1/1.3"
-            , "C:/Users/USER/Documents/Projects/Git_Repos/Document_Clusterizer_Notes"
-//            ,"C:/Users/USER/odrive"
-//            ,"C:/Users/USER/Documents/Important docs"
-//            ,"C:/Users/USER/Desktop"
-//            //      ,"C:/Users/USER"
-//                      ,"C:/Users/USER/Downloads"
-          ), Array(
-            "./src/main/resources"
-          )
+            )
           )
 
           val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
@@ -101,13 +101,13 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
 
           println("Dictionary created in " + currentTimeMins(time))
 
-          val idfWeightedTerms = dictionary.par.map(IDF.IDFValue(_)(Option(docs.map(_.getOrElse(Document( "", Vector.empty[Token])))))).toVector
+          val idfWeightedTerms = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(Option(docs))).toVector
 
           println("Terms weighted to idf in " + currentTimeMins(time))
 
           val tfidfFun = tfidf(idfWeightedTerms)
 
-          val vectorFun = createVector(tfidfFun)(Some(dictionary))
+          val vectorFun = createVector(tfidfFun, dictionary)
 
           val vectors = docs.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toArray
 

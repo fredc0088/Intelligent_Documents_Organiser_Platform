@@ -1,5 +1,9 @@
 package org.Fcocco01.DocumentClassifier.Utils
 
+import java.io.File
+import java.nio.file.{Files, Paths, StandardOpenOption}
+import java.util.Calendar
+
 import scala.language.reflectiveCalls
 import scala.util.{Failure, Success, Try}
 
@@ -10,7 +14,8 @@ package object Util {
 
   /**
     * Object's name: Control
-    * Note: From the book, Beginning Scala, by David Pollak.
+    *
+    * Reference: From the book, Beginning Scala, by David Pollak.
     * This makes use of the Loan Pattern ensuring the closing of
     * a resource after its use.
     */
@@ -20,9 +25,7 @@ package object Util {
       try f(param) finally param.close()
   }
 
-  /**
-    * Object containing functions for Input/Output
-    */
+  /** Object containing functions for Input/Output */
   object I_O {
 
     import java.io.FileInputStream
@@ -39,9 +42,11 @@ package object Util {
       * Handle relatively without problems:
       *   - txt
       *   - doc
-      *   -docx
+      *   - docx
+      *   - log
       *
-      *   pdf and md are subject to testing and improvement
+      *   pdf is implemented but can slow down and it is not always able to parse correctly.
+      *   md is subject of consideration.
       *
       * @param file Path to the file
       * @return A collection of [[String]] representing the text of the file
@@ -54,16 +59,19 @@ package object Util {
           */
         val document = PDDocument.load(new java.io.File(file))
         val stripper = new PDFTextStripper().getText(document)
+        document.close
         stripper.split(" ").toList
       }
       case "docx" => Try {
         val document = new XWPFDocument(new FileInputStream(file))
         val extractor = new XWPFWordExtractor(document)
+        document.close
         extractor.getText.split(" ").toList
       }
       case "doc" => Try {
         val document = new HWPFDocument(new FileInputStream(file))
         val extractor = new WordExtractor(document)
+        document.close
         extractor.getText.split(" ").toList
       }
       case _ => Try {
@@ -85,20 +93,21 @@ package object Util {
       */
     def GetDocContent(filePath: String): String = readDocWithTry(filePath) match {
       case Success(lines) => lines.mkString(" ")
-      case Failure(t) => ""
-//        t match {
-//          case e : org.apache.poi.EmptyFileException => ""
-//          case e : IllegalArgumentException if(e.getMessage.trim == "The document is really a UNKNOWN file") =>  ""
-//            if(e.getMessage.trim == "The document is really a UNKNOWN file") ""
-//            else throw new IllegalArgumentException(t) {println(t.getCause.getMessage)}
-//          case _ => throw new Exception(t) {println(t.getCause.getMessage)}
-//        }
+      case Failure(t) => {
+        errorHandling.logAwayErrorsAndExceptions(t)
+        ""
+      }
+    }
+
+    def log(file: File, message: String, append: Boolean) = {
+      append match {
+        case true => Files.write(Paths.get(file.getAbsolutePath), message.getBytes, StandardOpenOption.APPEND)
+        case false => Files.write(Paths.get(file.getAbsolutePath), message.getBytes)
+      }
     }
   }
 
-  /**
-    * Contains useful operators.
-    */
+  /** Contains useful operators */
   object Operators {
 
     /**
@@ -113,9 +122,7 @@ package object Util {
     }
   }
 
-  /**
-    * Methods to manipulate/checks/etc.. Strings
-    */
+  /** Methods to manipulate/checks/etc.. Strings */
   object String_Manipulation {
     /**
       * Check if the [[String]] contains only digits
@@ -130,17 +137,7 @@ package object Util {
     }
   }
 
-  object Constants {
-    val ZERO = 0
-    val ZEROF = 0.0
-    val HALF = 0.5
-    val ONE = 1
-    val TWO = 2
-  }
-
-  /**
-    * Contains methods to format values
-    */
+  /** Contains methods to format values */
   object Formatting {
 
     /**
@@ -152,9 +149,7 @@ package object Util {
     def roundDecimals(d: Double) = new java.math.BigDecimal(d).toPlainString
   }
 
-  /**
-    * Contains functions concerning time value manipulation, date, etc...
-    */
+  /** Contains functions concerning time value manipulation, date, etc... */
   object Time {
     /**
       * Show how many minutes have passed from a given time in nanoseconds.
@@ -163,7 +158,26 @@ package object Util {
       * @param t Initial time to compare, in nanoseconds
       * @return Time difference in minutes from that given time to current time
       */
-    def currentTimeMins(t: Double) = (((System.nanoTime - t) / 1E9) / 60) + " mins"
+    def currentTimeMins(t: Double) : String = (((System.nanoTime - t) / 1E9) / 60) + " mins"
+    def getCurrentDateString : String = {
+      val todayDate = Calendar.getInstance
+      s"${todayDate.get(Calendar.DAY_OF_MONTH)}-${todayDate.get(Calendar.MONTH)}-${todayDate.get(Calendar.YEAR)}"
+    }
+    def getCurrentTimeString : String = {
+      val todayDate = Calendar.getInstance
+      s"${todayDate.get(Calendar.HOUR_OF_DAY)}:${todayDate.get(Calendar.MINUTE)}:${todayDate.get(Calendar.SECOND)}"
+    }
+  }
+
+  object errorHandling {
+    def logAwayErrorsAndExceptions(e: Throwable) = {
+      val day = Time.getCurrentDateString
+      val file : File = (new File("./Error_Logs")).listFiles.find(_.getName.contains(day))
+        .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
+      val stackTrace = e.getStackTrace.map(s => s"      ${s.toString}\n").mkString
+      val error = s"${Time.getCurrentTimeString} - [ ${e.getMessage} ]\n    ${e.getCause}\n     ${e.getLocalizedMessage}\n$stackTrace"
+      I_O.log(file, error,true)
+    }
   }
 
 }

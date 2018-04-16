@@ -2,7 +2,7 @@ package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils.{Types,Constants}
 
-object Classify {
+object DocumentDataSetMorph {
 
   import Types.TypeClasses.Vectors._
   import Types.TypeClasses._
@@ -17,7 +17,11 @@ object Classify {
     * @param tokens
     */
   class Dictionary private(tokens: Tokens) {
-    def apply() : Tokens = tokens.toVector.distinct
+    def apply() : Option[Tokens] =
+      if (tokens == null || tokens.isEmpty ||
+        (tokens.size == 1 && tokens.head == "") || tokens.forall(_ == ""))
+        None
+      else Some(tokens.toVector.distinct)
   }
   /** Factory for [[Dictionary]] instances. */
   object Dictionary {
@@ -28,9 +32,9 @@ object Classify {
       * @param tokenizedText Set of tokenised documents
       * @return A collection of tokens that represent the dictionary
       */
-    def apply(tokenizedText : Traversable[Option[Document]]): Tokens = {
-      val tokens = tokenizedText
-        .map(_.getOrElse(Document("",Vector.empty[Token])))
+    def apply(tokenizedText : Traversable[Option[Document]]): Option[Tokens] = {
+      val tokens = tokenizedText.par
+        .map(_.getOrElse(Document("",Vector[Token](""))))
         .filterNot(_.tokens.size == ZERO).map(_.tokens)
         .reduce(_ ++ _)
       val instance = new Dictionary(tokens)
@@ -47,7 +51,7 @@ object Classify {
       *                  using the document's path and a tokenisation method.
       * @return A collection of tokens that represent the dictionary
       */
-    def apply(paths: Paths, tokenizer: TokenSuite) : Tokens = {
+    def apply(paths: Paths, tokenizer: TokenSuite) : Option[Tokens] = {
       val tokens = paths.flatMap(x => tokenizer.tokenizer(tokenizer.extract(x)))
       val instance = new Dictionary(tokens)
       instance()
@@ -59,7 +63,7 @@ object Classify {
       * @param vectors A set of Vectors created from the respective documents
       * @return A collection of tokens that represent the dictionary
       */
-    def apply(vectors: DocumentVector*) : Tokens = {
+    def apply(vectors: DocumentVector*) : Option[Tokens] = {
       val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.apply.map(y => y._1)).toArray
       val instance = new Dictionary(tokens)
       instance()
@@ -95,26 +99,30 @@ object Classify {
     * probably from a different chained function, it will produce a empty vector.
     * Optionally, a dictionary can be used as parameter as well, in order to normalise the vector produced.
     *
-    * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Analysis.ModelFunctions]]
+    * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Weight.ModelFunctions]]
     * @param dictionary A set of unique terms composing a dictionary (see [[Dictionary]])
     * @return [[DocumentVector]] instance, either [[DVector]] or [[EmptyV]]
     */
-  def createVector(modeller: Scheme)(dictionary: Option[Tokens] = None) : Option[Document] => DocumentVector = {
+  def createVector(modeller: Scheme, dictionary: Option[Tokens] = None) : Option[Document] => DocumentVector = {
     (tokenizedText: Option[Document]) => {
       tokenizedText match {
         case Some(t) => {
           var m = Array.empty[TermWeighted]
           dictionary match {
-            case Some(x) => {
-              for(d <- x) m = m :+ modeller(d,t.tokens)
-              DVector(t.path,m.map(z => (z.term,z.weight)).toMap)
-            }
-            case None => {
-              var m = Array.empty[TermWeighted]
-              for(y <- t.tokens) m = m :+ modeller(y,t.tokens)
-            }
+            case Some(x) => for(d <- x) m = m :+ modeller(d,t.tokens)
+            case None => for(y <- t.tokens) m = m :+ modeller(y,t.tokens)
           }
-          DVector(t.path,m.map(z => (z.term,z.weight)).toMap)
+          DVector(t.path,m.map(_.toTuple).toMap)
+          /*
+            Depending on whether the createVector function is called on a PARALLEL COLLECTION
+            should be good idea for the developer/maintainer to choose the above implementation,
+            while the below implementation offer slightly worse performance but more consistent
+            whether the collection is parallel or not.
+          */
+//          dictionary match {
+//            case Some(x) => DVector(t.path,x.par.map(d => modeller(d, t.tokens).toTuple).toVector.toMap)
+//            case None => DVector(t.path,t.tokens.par.map(d => modeller(d, t.tokens).toTuple).toVector.toMap)
+//          }
         }
         case None => EmptyV
       }
@@ -135,9 +143,8 @@ object Classify {
     : (Scheme,Option[Tokens]) => DocumentVector =
     (modeller: Scheme, dictionary: Option[Tokens]) =>
       (dictionary match {
-        case Some(_) => createVector(modeller)(dictionary)
-        case None => createVector(modeller)()
+        case Some(_) => createVector(modeller, dictionary)
+        case None => createVector(modeller)
       })(tokenizeDocument(tokenizer)(docPath))
-
 
 }

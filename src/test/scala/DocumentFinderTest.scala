@@ -1,15 +1,24 @@
 package org.Fcocco01.DocumentClassifier.Test
 
-class DocumentFinderTest(dirToTest: Traversable[String]) extends UnitTest("DocumentFinder") {
+import java.io.File
 
-  it should "Return a List of strings" in {
-    //DocGathering.DocumentFinder.apply(Array("C:\\Users\\USER\\odrive\\Google Drive (2)"),Array()).isInstanceOf[List[String]] shouldBe true
+import org.Fcocco01.DocumentClassifier._
+import Core.DocGathering.DocumentFinder
+import Test.TestingResources.Paths.{testDirPath1, testDirPath2, testDirPath3, testDirPath4}
+class DocumentFinderTest extends UnitTest("DocGathering.DocumentFinder") {
+
+  val testPaths = Array(testDirPath1,testDirPath2,testDirPath3)
+
+  it should "Return a List of paths" in {
+    val paths = DocumentFinder.apply(testPaths)
+    paths.isInstanceOf[List[String]] shouldBe true
+    paths.size shouldBe 7
   }
 
 
 
   it should "Return paths" in {
-    //DocGathering.DocumentFinder.apply(Array("C:\\Users\\USER\\odrive\\Google Drive (2)"))
-
+    val paths = DocumentFinder(Array(testDirPath3),Array(new File(testDirPath4).getCanonicalPath))
+    paths.length shouldBe 1
   }
 }

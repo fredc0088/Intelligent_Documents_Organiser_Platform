@@ -11,8 +11,8 @@ class XCell() extends jfxsc.ListCell[String] {
   var pane: jfxsl.Pane = new jfxsl.Pane
   var button: jfxsc.Button = new jfxsc.Button("Del")
 
-  hbox.getChildren.addAll(label, pane, button)
-  HBox.setHgrow(pane, Priority.ALWAYS)
+  hbox.getChildren.addAll(button, pane, label)
+//  HBox.setHgrow(pane, Priority.ALWAYS)
   button.setOnAction((event: ActionEvent) => getListView.getItems.remove(getItem))
 
   override protected def updateItem(item: String, empty: Boolean): Unit = {

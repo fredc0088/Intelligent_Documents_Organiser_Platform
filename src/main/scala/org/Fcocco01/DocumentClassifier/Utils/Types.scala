@@ -18,9 +18,13 @@ package object Types {
   object TypeClasses {
     case class TokenSuite(extract : TxtExtractor, tokenizer : Tokenizer)
     case class Document(path: DocPath, tokens: Tokens)
-    case class TermWeighted(term : Term, weight: Double)
+    case class TermWeighted(term : Term, weight: Double) {
+      def toTuple = (term,weight)
+    }
+
     /** Object wrapping Document Vectors Types */
     object Vectors {
+
       /** Commom property and behaviour for any type of document vector */
       sealed trait DocumentVector {
         val id: String
@@ -42,7 +46,6 @@ package object Types {
       final case class DVector(override val id: String, private val v: Map[Token, Weight])
         extends DocumentVector {
         def isEmpty = false
-        def get = v
         implicit def apply = v
         def size = v.size
       }
@@ -54,7 +57,7 @@ package object Types {
       final case object EmptyV extends DocumentVector {
         override val id: String = ""
         override def isEmpty = true
-        override def size = Util.Constants.ZERO
+        override def size = Constants.ZERO
         implicit def apply = Map.empty[Token,Weight]
       }
     }

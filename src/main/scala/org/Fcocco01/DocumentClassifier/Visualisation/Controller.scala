@@ -13,50 +13,54 @@ import javafx.scene.control._
 import javafx.scene.{control => jfxsc, layout => jfxsl}
 import javafx.stage.{DirectoryChooser, FileChooser, Stage}
 import javafx.{fxml => jfxf}
+import org.Fcocco01.DocumentClassifier.ProcessHub
 import scalafx.Includes._
 import scalafx.scene.Scene
+import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.layout.AnchorPane
 
 class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
-  private var anchorDelegate: jfxsl.AnchorPane = _
-  private var anchor: AnchorPane = _
+  var anchorDelegate: jfxsl.AnchorPane = _
+  var anchor: AnchorPane = _
   @jfxf.FXML
-  private var inclusionList: jfxsc.ListView[String] = _
+  var inclusionList: jfxsc.ListView[String] = _
   @jfxf.FXML
-  private var exclusionList: jfxsc.ListView[String] = _
-  private var group = new ToggleGroup
+  var exclusionList: jfxsc.ListView[String] = _
+  var group = new ToggleGroup
   @jfxf.FXML
-  private var customOption: jfxsc.RadioButton = _
+  var customOption: jfxsc.RadioButton = _
   @jfxf.FXML
-  private var defaultOption: jfxsc.RadioButton = _
+  var defaultOption: jfxsc.RadioButton = _
   @jfxf.FXML
-  private var regexOption: jfxsc.TextField = _
+  var regexOption: jfxsc.TextField = _
   @jfxf.FXML
-  private var clusteringType: jfxsc.ChoiceBox[String] = _
+  var clusteringType: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
-  private var weightingList: jfxsc.ChoiceBox[String] = _
+  var weightingList: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
-  private var strategyList: jfxsc.ChoiceBox[String] = _
+  var strategyList: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
-  private var independentVector: jfxsc.CheckBox = _
+  var independentVector: jfxsc.CheckBox = _
   @jfxf.FXML
-  private var linkageBox: jfxsl.HBox = _
+  var linkageBox: jfxsl.HBox = _
   @jfxf.FXML
-  private var linkageList: jfxsc.ChoiceBox[String] = _
+  var linkageList: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
   private var noOfClusterBox: jfxsl.HBox = _
   @jfxf.FXML
-  private var progressBar: jfxsc.ProgressBar = new ProgressBar()
+  var progressBar: jfxsc.ProgressBar = new ProgressBar()
   @jfxf.FXML
-  private var startButton: jfxsc.Button = _
+  var startButton: jfxsc.Button = _
   @jfxf.FXML
-  private var stopButton: jfxsc.Button = _
+  var stopButton: jfxsc.Button = _
   @jfxf.FXML
-  private var clsN: jfxsc.TextField = _
+  var noOfClusters: jfxsc.TextField = _
   @jfxf.FXML
-  private var viewResultButton: jfxsc.Button = _
+  var viewResultButton: jfxsc.Button = _
+  @jfxf.FXML
+  var viewError: jfxsc.Button = _
 
   protected var inclusionListProperty = new SimpleListProperty[String]
   protected var exclusionListProperty = new SimpleListProperty[String]
@@ -76,20 +80,20 @@ class Controller extends jfxf.Initializable {
         System.out.println("event = [" + event + "], selectedFile = [" + selectedDirectory.getAbsolutePath + "]")
         val inclusionDirItems = new util.ArrayList[String]
         if (inclusionListProperty.getValue != null && !inclusionListProperty.getValue.isEmpty) inclusionDirItems.addAll(inclusionListProperty.getValue)
-        inclusionDirItems.add(selectedDirectory.getAbsolutePath)
+        if(!inclusionDirItems.contains(selectedDirectory.getCanonicalPath)) inclusionDirItems.add(selectedDirectory.getCanonicalPath)
         inclusionListProperty.set(FXCollections.observableArrayList(inclusionDirItems))
       }
       else System.out.println("event = [" + event + "], selectedFile = [No Directory selected]")
     }
     else if (id == "exclusionFileChooser") {
-      val fileChooser = new FileChooser
-      fileChooser.setTitle("Open Resource File")
-      val selectedFile = fileChooser.showOpenDialog(null)
-      if (selectedFile != null) {
-        System.out.println("event = [" + event + "], selectedFile = [" + selectedFile + "]")
+      val dirChooser = new DirectoryChooser
+      dirChooser.setTitle("Open Resource File")
+      val selectedDir = dirChooser.showDialog(null)
+      if (selectedDir != null) {
+        System.out.println("event = [" + event + "], selectedFile = [" + selectedDir + "]")
         val exclusionItems = new util.ArrayList[String]
         if (exclusionListProperty.getValue != null && !exclusionListProperty.getValue.isEmpty) exclusionItems.addAll(exclusionListProperty.getValue)
-        exclusionItems.add(selectedFile.getAbsolutePath)
+        if(!exclusionItems.contains(selectedDir.getCanonicalPath))exclusionItems.add(selectedDir.getCanonicalPath)
         exclusionListProperty.set(FXCollections.observableArrayList(exclusionItems))
       }
       else System.out.println("event = [" + event + "], selectedFile = [ File selection cancelled. ]")
@@ -114,26 +118,26 @@ class Controller extends jfxf.Initializable {
   private def changeOnClustering(event: ActionEvent): Unit= {
     println("Called on Clustering change")
     println(clusteringType.selectionModel().getSelectedItem)
-    val clustringValue = clusteringType.selectionModel().getSelectedItem
-    if (clustringValue == "Flat") {
+    val clusteringValue = clusteringType.selectionModel().getSelectedItem
+    if (clusteringValue == "Flat") {
       linkageBox.setVisible(false)
       noOfClusterBox.setVisible(true)
+      strategyList.getItems.remove("Cosine Sim")
     }
     else {
       linkageBox.setVisible(true)
       noOfClusterBox.setVisible(false)
+      strategyList.getItems.add("Cosine Sim")
     }
   }
 
   @jfxf.FXML
   private def enterNumbers(event: ActionEvent): Unit= {
-    clsN.textProperty.addListener((observable, oldValue, newValue) => {
-      if (!newValue.matches("\\d*")) {
-        clsN.setText(newValue.replaceAll("[^\\d]", ""))
-      }
+    noOfClusters.textProperty.addListener((observable, oldValue, newValue) => {
+      if (!newValue.matches("\\d*"))
+        observable.asInstanceOf[TextField].setText(newValue.replaceAll("[^\\d]", ""))
     })
   }
-
 
   @jfxf.FXML
   private def changeOnWeighting(event: ActionEvent): Unit= {
@@ -158,61 +162,57 @@ class Controller extends jfxf.Initializable {
   }
 
   @jfxf.FXML
+  private def openLog(event: ActionEvent) : Unit =
+    java.awt.Desktop.getDesktop.open(new File("./Error_Logs"))
+
+  @jfxf.FXML
   private def onStartClick(event: ActionEvent): Unit = {
-    //startButton.setDisable(true)
-    //stopButton.setDisable(false)
-    copyWorker = createWorker
-    System.out.println("event = [" + event + "], inclusionListProperty [" + inclusionListProperty.getValue + "]")
-    progressBar.setVisible(true)
-    progressBar.progressProperty.unbind()
-    progressBar.progressProperty.bind(copyWorker.progressProperty)
-    new Thread(copyWorker).start()
-    val inclusions = if(inclusionListProperty.getValue != null) {
-      inclusionListProperty.getValue.map(_.toString).toArray
-    } else Array("")
-    val exclusions = if(exclusionListProperty.getValue != null) {
-      exclusionListProperty.getValue.map(_.toString).toArray
-    } else Array("")
-    val partialOutput = org.Fcocco01.DocumentClassifier.ProcessHub(
-      independentVector.isSelected, inclusions, exclusions, if(customFile != null) Some(customFile.getAbsolutePath) else None,
-      if(regexOption.getText != "") Some(regexOption.getText) else None , clusteringType.getValue, weightingList.getValue, strategyList.getValue)
-    val clustNum = if(clsN.getText != null && clsN.getText != "") clsN.getText.toInt else 1
-    currentOutput =
-      if(clusteringType.getValue == "Hierarchical") partialOutput(linkageList.getValue,0) else partialOutput("",clustNum)
-//    startButton.setDisable(false)
-//    stopButton.setDisable(true)
-    viewResultButton.setDisable(false)
+    if(inclusionList.getItems == null || inclusionList.getItems.size == 0) {
+      new Alert(AlertType.Error, "No directory was selected.").showAndWait
+    } else {
+      viewResultButton.setDisable(true)
+      startButton.setDisable(true)
+      stopButton.setDisable(false)
+      copyWorker = createWorker
+      System.out.println("event = [" + event + "], inclusionListProperty [" + inclusionListProperty.getValue + "]")
+      progressBar.setVisible(true)
+      progressBar.progressProperty.unbind
+      progressBar.progressProperty.bind(copyWorker.progressProperty)
+      new Thread(copyWorker).start
+    }
   }
 
   def createWorker: Task[_] = new Task[Boolean]() {
     @throws[Exception]
     override protected def call: Boolean = {
+      val inclusions = if(inclusionListProperty.getValue != null) {
+        inclusionListProperty.getValue.map(_.toString).toArray
+      } else Array("")
+      val exclusions = if(exclusionListProperty.getValue != null) {
+        exclusionListProperty.getValue.map(_.toString).toArray
+      } else Array("")
+      val partialOutput = org.Fcocco01.DocumentClassifier.ProcessHub(
+        independentVector.isSelected, inclusions, exclusions, if(customFile != null) Some(customFile.getAbsolutePath) else None,
+        if(regexOption.getText != "") Some(regexOption.getText) else None , clusteringType.getValue, weightingList.getValue, strategyList.getValue)
+      ProcessHub.progressProperty.addListener((observable, oldValue, newValue) =>
+        updateProgress(newValue.doubleValue(), 10.0))
+      val clustNum = if(noOfClusters.getText != null && noOfClusters.getText != "") noOfClusters.getText.toInt else 1
+      currentOutput =
+      if(clusteringType.getValue == "Hierarchical") partialOutput(linkageList.getValue,0) else partialOutput("",clustNum)
 
-      var i = 0
-      while ( {
-        i < 10
-      }) {
-        Thread.sleep(200)
-        updateMessage("200 milliseconds")
-        updateProgress(i + 1, 10)
-        System.out.println(progressBar.getProgress)
-
-        {
-          i += 1; i - 1
-        }
-      }
-      startButton.setDisable(true)
-      stopButton.setDisable(false)
+      startButton.setDisable(false)
+      stopButton.setDisable(true)
+      viewResultButton.setDisable(false)
       true
     }
   }
 
   @jfxf.FXML
   private def onStopClick(event: ActionEvent): Unit = {
-    /*startButton.setDisable(false)
-    stopButton.setDisable(true)*/
+    startButton.setDisable(false)
+    stopButton.setDisable(true)
     copyWorker.cancel(true)
-    progressBar.progressProperty.unbind()
+    progressBar.progressProperty.unbind
     progressBar.setProgress(0)
   }
 
@@ -223,13 +223,14 @@ class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
   def viewResults(event: ActionEvent): Unit = {
-    val window = new Stage()
+    val window = new Stage
     window.setScene(currentOutput)
-    window.show()
+    window.sizeToScene
+    window.setResizable(false)
+    window.show
   }
 
   def initialize(url: URL, rb: util.ResourceBundle) {
-    //grid = new GridPane(gridDelegate)
     anchor = new AnchorPane(anchorDelegate)
     inclusionList.itemsProperty.bind(inclusionListProperty)
     exclusionList.itemsProperty.bind(exclusionListProperty)

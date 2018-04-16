@@ -37,7 +37,8 @@ package object TokenPackage {
     class TokenizedText(regex: String, stopWords: String)
       extends Tokenizer {
       def apply(text: String) =
-        text.toLowerCase.replaceAll("\\p{P}\\u00a0", " ").split(regex).filterNot(onlyDigits(_)).filter(!stopWords.contains(_)).toVector
+        text.toLowerCase.replaceAll("\\p{P}\\u00a0", " ").split(regex).par
+          .filterNot(onlyDigits(_)).filter(!stopWords.contains(_)).toVector
     }
 
     /**

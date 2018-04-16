@@ -44,7 +44,7 @@
                   <HBox alignment="CENTER" prefHeight="25.0" prefWidth="469.0">
                      <children>
                         <Label prefHeight="17.0" prefWidth="116.0" text="Regex (Optional)" />
-                        <TextField id="clsN" fx:id="regexOption" prefHeight="25.0" prefWidth="146.0" />
+                        <TextField fx:id="regexOption" prefHeight="25.0" prefWidth="146.0" />
                      </children>
                   </HBox>
                </items>
@@ -131,7 +131,7 @@
                   <HBox fx:id="noOfClusterBox" alignment="CENTER" prefHeight="25.0" prefWidth="297.0" visible="false" GridPane.columnIndex="1">
                      <children>
                         <Label prefHeight="17.0" prefWidth="128.0" text="Number of clusters" />
-                        <TextField fx:id="clsN" onAction="#enterNumbers" prefHeight="25.0" prefWidth="169.0" />
+                        <TextField fx:id="noOfClusters" onAction="#enterNumbers" prefHeight="25.0" prefWidth="169.0"/>
                      </children>
                   </HBox>
                   <HBox GridPane.columnIndex="2">
@@ -141,12 +141,16 @@
                   </HBox>
                </children>
             </GridPane>
-            <ProgressBar fx:id="progressBar" layoutX="245.0" layoutY="293.0" prefHeight="18.0" prefWidth="412.0" progress="0.0" />
+            <HBox layoutX="245.0" layoutY="293.0">
+               <children>
+                  <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="412.0" progress="0.0" visible="true" />
+               </children>
+            </HBox>
             <Button fx:id="closeButton" layoutX="800.0" layoutY="338.0" mnemonicParsing="false" onAction="#onCloseButtonAction" prefHeight="25.0" prefWidth="73.0" text="Close" />
-            <Button fx:id="stopButton" disable="true" layoutX="575.0" layoutY="338.0" mnemonicParsing="false" onAction="#onStopClick" text="Stop" />
-            <Button fx:id="startButton" layoutX="510.0" layoutY="338.0" mnemonicParsing="false" onAction="#onStartClick" text="Start" />
-            <Button layoutX="225.0" layoutY="338.0" mnemonicParsing="false" text="Errors log" />
-            <Button fx:id="viewResultButton" disable="true" layoutX="97.0" layoutY="338.0" mnemonicParsing="false" onAction="#viewResults" text="View Results" />
+            <Button fx:id="stopButton" disable="true" layoutX="575.0" layoutY="338.0" mnemonicParsing="false" onAction="#onStopClick" prefHeight="25.0" prefWidth="73.0" text="Stop" />
+            <Button fx:id="startButton" layoutX="462.0" layoutY="338.0" mnemonicParsing="false" onAction="#onStartClick" prefHeight="25.0" prefWidth="73.0" text="Start" />
+            <Button fx:id="viewError" layoutX="225.0" layoutY="338.0" mnemonicParsing="false" prefHeight="25.0" onAction="#openLog" prefWidth="73.0" text="Errors log" />
+            <Button fx:id="viewResultButton" disable="true" layoutX="97.0" layoutY="338.0" mnemonicParsing="false" onAction="#viewResults" prefHeight="25.0" prefWidth="73.0" text="View Results" />
          </children>
       </AnchorPane>
    </children>
