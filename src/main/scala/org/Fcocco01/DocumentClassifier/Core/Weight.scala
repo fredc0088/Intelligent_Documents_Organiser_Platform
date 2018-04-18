@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils
-import Utils.Types.TypeClasses.{Document, TermWeighted}
+import Utils.Types.TypeClasses.{Document, TermWeighted, TokenSuite}
 import Utils.Types.{Paths, Scheme, Term, Token, Tokens, TxtExtractor, Weight}
 import Utils.Constants.{ONE, ZERO}
 
@@ -54,9 +54,10 @@ package object Weight {
         * @return instance of [[IDFValue]]
         */
       def apply(term: Term,documents: Paths,
-                extractor: TxtExtractor, idfFunc: IDFFun): IDFValue = {
-        val tokens = documents.par.map(extractor(_).replace("\n", " ").toLowerCase).filterNot(_ == "")
-        new IDFValue(term, tokens.toVector, idfFunc)
+                extractor: TokenSuite, idfFunc: IDFFun): IDFValue = {
+        val tokens = documents.par.map(x => extractor.tokenizer(extractor.extract(x)))
+          .filterNot(_.isEmpty).map(_.mkString(" ")).seq
+        new IDFValue(term, tokens, idfFunc)
       }
 
       /**
@@ -67,12 +68,13 @@ package object Weight {
         * @return instance of [[IDFValue]]
         */
       def apply(term: Term)(idfFunc: IDFFun)(implicit documentsAsTokens: Option[Traversable[Option[Document]]]) : IDFValue = {
-        val docs : Vector[Document] = documentsAsTokens match {
-          case Some(x) => x.map(_.getOrElse(Document("", Array.empty[Token]))).filterNot(_.tokens.isEmpty).toVector
+        val docs = documentsAsTokens match {
+          case Some(x) => x.par.map(_.getOrElse(Document("", Array.empty[Token])))
+            .filterNot(_.tokens.isEmpty)
           case None => Vector(Document("",Array("")))
         }
-        val checked = if(docs.isEmpty) Vector(Document("",Array(""))) else docs
-        new IDFValue(term,checked.map(_.tokens.mkString(" ")),idfFunc)
+        val checked = if(docs.isEmpty) Vector("") else docs.map(_.tokens.mkString(" ")).toVector
+        new IDFValue(term,checked,idfFunc)
       }
     }
   }

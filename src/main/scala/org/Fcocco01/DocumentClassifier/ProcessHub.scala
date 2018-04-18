@@ -72,6 +72,13 @@ object ProcessHub {
 
         progress.set(5.5)
 
+        import org.scalameter._
+        val timea = measure {
+          Some(dictionary.getOrElse(Vector("")).par
+            .map(IDFValue(_)(simpleIdf)((Option(docs)))).toVector)
+        }
+        println(s"$timea ms")
+
         val idfWeightedTerms =
           if(idfChoice == "" || dictionary == None)
             None
