@@ -10,9 +10,10 @@ import DocGathering.DocumentFinder
 import TokenPackage.Tokenizer.{StopWords, TokenizedText}
 import DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Weight.{IDF, ModelFunctions}
-import ModelFunctions.tfidf
+import ModelFunctions.{compose_weighting_Fun, tf}
 import Clustering.DVector
 import Visualisation.HierarchicalGraphic
+import org.Fcocco01.DocumentClassifier.Core.Weight.IDF.simpleIdf
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 
@@ -101,11 +102,12 @@ object OnlyForTesting_ToBeRemoved extends JFXApp{
 
           println("Dictionary created in " + currentTimeMins(time))
 
-          val idfWeightedTerms = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(Option(docs))).toVector
+        val idfWeightedTerms = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(simpleIdf)(Option(docs))).toVector
 
-          println("Terms weighted to idf in " + currentTimeMins(time))
+        println("Terms weighted to idf in " + currentTimeMins(time))
 
-          val tfidfFun = tfidf(idfWeightedTerms)
+        val tfidfFun = compose_weighting_Fun(tf(_,_))(Some(idfWeightedTerms))
+
 
           val vectorFun = createVector(tfidfFun, dictionary)
 

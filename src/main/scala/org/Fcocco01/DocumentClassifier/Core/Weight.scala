@@ -2,8 +2,8 @@ package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils
 import Utils.Types.TypeClasses.{Document, TermWeighted}
-import Utils.Types.{Term, Token, Tokens, TxtExtractor, Paths, Weight}
-import Utils.Constants.{ZERO, ONE}
+import Utils.Types.{Paths, Scheme, Term, Token, Tokens, TxtExtractor, Weight}
+import Utils.Constants.{ONE, ZERO}
 
 /**
   * Provide functions for analysis a [[Term]],
@@ -18,21 +18,25 @@ package object Weight {
     */
   object IDF {
 
+    type IDFFun = (Term, Traversable[String]) => Weight
+
+    def simpleIdf(term: Term, documents: Traversable[String]) : Weight = {
+      val count = documents.count(_.contains(term))
+      val denominator = if(count == ZERO) ZERO else documents.size.toDouble / count
+
+      //        println(s"DEBUG: Term: ${term} IDF: ${Math.log10(ONE + denominator)}")
+
+      Math.log10(ONE + denominator)
+    }
+
     /**
       * A term and its Inverse Document Frequency (see [[IDF]]) value.
       *
       * @param term The term being weighted
       * @param documentsAsTokens Contents of the documents
       */
-    class IDFValue(val term: Term, documentsAsTokens: Traversable[String]) {
-      private val idf : Double = {
-        val count = documentsAsTokens.count(_.contains(this.term))
-        val denominator = if(count == ZERO) ZERO else documentsAsTokens.size.toDouble / count
-
-//        println(s"DEBUG: Term: ${term} IDF: ${Math.log10(ONE + denominator)}")
-
-        Math.log10(ONE + denominator)
-      }
+    class IDFValue(val term: Term, documentsAsTokens: Traversable[String], idfFunc: IDFFun) {
+      private val idf : Double = idfFunc(term, documentsAsTokens)
       def apply : Double = idf
     }
 
@@ -50,9 +54,9 @@ package object Weight {
         * @return instance of [[IDFValue]]
         */
       def apply(term: Term,documents: Paths,
-                extractor: TxtExtractor): IDFValue = {
+                extractor: TxtExtractor, idfFunc: IDFFun): IDFValue = {
         val tokens = documents.par.map(extractor(_).replace("\n", " ").toLowerCase).filterNot(_ == "")
-        new IDFValue(term, tokens.toVector)
+        new IDFValue(term, tokens.toVector, idfFunc)
       }
 
       /**
@@ -62,13 +66,13 @@ package object Weight {
         * @param documentsAsTokens Optional set of already tokenised documents
         * @return instance of [[IDFValue]]
         */
-      def apply(term: Term)(implicit documentsAsTokens: Option[Traversable[Option[Document]]]) : IDFValue = {
+      def apply(term: Term)(idfFunc: IDFFun)(implicit documentsAsTokens: Option[Traversable[Option[Document]]]) : IDFValue = {
         val docs : Vector[Document] = documentsAsTokens match {
           case Some(x) => x.map(_.getOrElse(Document("", Array.empty[Token]))).filterNot(_.tokens.isEmpty).toVector
           case None => Vector(Document("",Array("")))
         }
         val checked = if(docs.isEmpty) Vector(Document("",Array(""))) else docs
-        new IDFValue(term,checked.map(_.tokens.mkString(" ")))
+        new IDFValue(term,checked.map(_.tokens.mkString(" ")),idfFunc)
       }
     }
   }
@@ -104,7 +108,7 @@ package object Weight {
       * @param document tokens from tokenised document
       * @return the term accordingly weighted, as 0 if document is empty
       */
-    def tfLogNorm(term: Term, document: Tokens) : TermWeighted =
+    def tfLog(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, 0.0)
       else TermWeighted(term, ONE + Math.log10(GetFrequency(document, term)))
 
@@ -142,28 +146,52 @@ package object Weight {
       */
     private def idf(term: Term, values: Traversable[IDFValue]) : Weight =
       if(values.isEmpty) 0.0
-      else values.find(_.term == term).getOrElse(IDF.IDFValue(term)(None)).apply
+      else
+        values.find(_.term == term) match {
+          case Some(x) => x.apply
+          case None => 0.0
+        }
+
+//    /**
+//      *
+//      *
+//      * @param idfValues
+//      * @return the term accordingly weighted, as 0 if document is empty
+//      */
+//    def tfidf(idfValues: Traversable[IDFValue]) : (Term,Tokens) => TermWeighted =
+//      (term: Term, document: Tokens) =>
+//        if(document.isEmpty) TermWeighted(term, 0.0)
+//        else TermWeighted(term, tf(term, document).weight * idf(term, idfValues))
+//
+//    /**
+//      *
+//      *
+//      * @param idfValues
+//      * @return the term accordingly weighted, as 0 if document is empty
+//      */
+//    def wdfidf(idfValues: Traversable[IDFValue]) : (Term,Tokens) => TermWeighted =
+//      (term: Term, document: Tokens) =>
+//        if(document.isEmpty) TermWeighted(term, 0.0)
+//        else TermWeighted(term, wdf(term, document).weight * idf(term, idfValues))
 
     /**
+      * This function is used as facade to obtain a [[TermWeighted]],
+      * it is made with the use of a modelling function and an optional
+      * set of value obtained with some kind of document frequency.
       *
-      *
-      * @param idfValues
+      * @param weightingFun
       * @return the term accordingly weighted, as 0 if document is empty
       */
-    def tfidf(idfValues: Traversable[IDFValue]) : (Term,Tokens) => TermWeighted =
-      (term: Term, document: Tokens) =>
-        if(document.isEmpty) TermWeighted(term, 0.0)
-        else TermWeighted(term, tf(term, document).weight * idf(term, idfValues))
+    def compose_weighting_Fun(weightingFun : Scheme) =
+      (idfValues: Option[Traversable[IDFValue]]) =>
+        (term: Term, document: Tokens) => {
+          val res = { if(document.isEmpty) 0.0
+                    else weightingFun(term,document).weight }
+          idfValues match {
+            case Some(x) => TermWeighted(term, res * idf(term, x))
+            case None => TermWeighted(term, res)
+          }
+        }
 
-    /**
-      *
-      *
-      * @param idfValues
-      * @return the term accordingly weighted, as 0 if document is empty
-      */
-    def wdfidf(idfValues: Traversable[IDFValue]) : (Term,Tokens) => TermWeighted =
-      (term: Term, document: Tokens) =>
-        if(document.isEmpty) TermWeighted(term, 0.0)
-        else TermWeighted(term, wdf(term, document).weight * idf(term, idfValues))
   }
 }

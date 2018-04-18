@@ -9,9 +9,10 @@ import Paths._
 import Regexes.words1gram
 import Utils.Types.TypeClasses.{Document, TokenSuite}
 import Utils.Types.TypeClasses.Vectors.{DVector, DocumentVector, EmptyV}
-import Core.Weight.ModelFunctions.{IDFValue, wdfidf, bag}
+import Core.Weight.ModelFunctions.{IDFValue, bag, tf, compose_weighting_Fun}
 import Utils.Types.Tokens
 import org.Fcocco01.DocumentClassifier.Core.Weight.IDF
+import org.Fcocco01.DocumentClassifier.Core.Weight.IDF.simpleIdf
 
 class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
 
@@ -30,8 +31,8 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
     tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
     tokens = tests.par.map(x => tokenizeDocument(tknTool)(x)).toArray
     dictionary = Dictionary(tokens)
-    idfValues = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(Option(tokens))).toArray
-    vectors = tokens.par.map(x => createVector(wdfidf(idfValues), dictionary)(x)).toArray
+    idfValues = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(simpleIdf)(Option(tokens))).toArray
+    vectors = tokens.par.map(x => createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(x)).toArray
 
     super.beforeAll()
   }
@@ -89,7 +90,7 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
   }
 
   "Providing a None as Document" should "produce an empty vector" in {
-    val v = createVector(wdfidf(idfValues), dictionary)(None)
+    val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(None)
     v shouldBe EmptyV
   }
 
@@ -100,7 +101,7 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
   }
 
   "Creating vectors non empty" should "have correct properties" in {
-    val v = createVector(wdfidf(idfValues))(tokens(0))
+    val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)))(tokens(0))
     assert(v.apply.isInstanceOf[Map[String,Double]])
     v.id shouldNot be(null)
     v.id shouldNot be("")
@@ -109,7 +110,7 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
   }
 
   "Non-empty vectors (normalised)" should "have the same terms of the dictionary used to normalise them" in {
-    val v = createVector(wdfidf(idfValues), dictionary)(tokens(0))
+    val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(tokens(0))
     assert(dictionary.get.size == v.size)
     assert(dictionary.get.forall(v.apply.map(_._1).toVector.contains(_)) == true)
   }

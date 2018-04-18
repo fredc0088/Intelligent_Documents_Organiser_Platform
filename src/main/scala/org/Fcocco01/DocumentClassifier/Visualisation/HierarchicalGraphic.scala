@@ -30,6 +30,7 @@ object HierarchicalGraphic {
       root.autosize
       root.setContent(center)
       val pane = DrawDendrogram(cluster,(w, h))
+      pane.setAutoSizeChildren(true)
       center.children.add(pane)
       val x = new Dendrogram(cluster)(root, w, h)
       x
@@ -70,7 +71,7 @@ object HierarchicalGraphic {
           }
         }
       }
-      drawNode(cluster, TEN, h / TWO)
+      drawNode(cluster, TWENTY, h / TWO)
       pane.autosize
       pane
     }

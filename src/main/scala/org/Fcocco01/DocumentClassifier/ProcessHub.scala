@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier
 
 import Core._
-import Weight.IDF
+import Weight.IDF.{simpleIdf, IDFValue}
 import Weight.ModelFunctions._
 import DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Clustering._
@@ -18,9 +18,9 @@ import scalafx.scene.Scene
 import scalafx.scene.layout.HBox
 
 
-class ProcessHub(indipendentVectors: Boolean, directoriesChosen: Array[String] = Array(""),
+class ProcessHub(directoriesChosen: Array[String] = Array(""),
                    exclusions: Array[String] = Array(""), stopwords: Option[String], regex: Option[String],
-                   clusteringMode: String = "", chooseFun: String = "", comparison: String = "",
+                   clusteringMode: String = "", weightFun: String = "", idfChoice: String, comparison: String = "",
                    linkStrategy: String = "", clustersNumber : Int)
 object ProcessHub {
 
@@ -30,9 +30,9 @@ object ProcessHub {
 
   def progressProperty: ReadOnlyDoubleProperty = progress
 
-  def apply(indipendentVectors: Boolean, directoriesChosen: Array[String] = Array(""),
+  def apply(directoriesChosen: Array[String] = Array(""),
              exclusions: Array[String] = Array(""), stopwords: Option[String], regex: Option[String],
-             clusteringMode: String, chooseFun: String, comparison: String): (String,Int) => Scene =
+             clusteringMode: String, weightFun: String, idfChoice: String, comparison: String) : (String,Int) => Scene =
 
     (linkStrategy: String, clustersNumber: Int) => {
       val time = System.nanoTime
@@ -68,27 +68,21 @@ object ProcessHub {
 
         progress.set(4.0)
 
-        val dictionary = if (!indipendentVectors) Dictionary(docs) else None
+        val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(docs)
 
         progress.set(5.5)
 
-        val vectorFun = chooseFun match {
-          case "TfIdf" if (!indipendentVectors) => {
-            val idfWeightedTerms = dictionary.getOrElse(Vector("")).par
-              .map(IDF.IDFValue(_)((Option(docs)))).toVector
-            val weightFun = tfidf(idfWeightedTerms)
-            createVector(weightFun, dictionary)
-          }
-          case "WfIdf" if (!indipendentVectors) => {
-            val idfWeightedTerms = dictionary.get.par
-              .map(IDF.IDFValue(_)(Option(docs))).toVector
-            val weightFun = wdfidf(idfWeightedTerms)
-            createVector(weightFun, dictionary)
-          }
-          case "Tf" => createVector(tf(_, _), dictionary)
-          case "wdf" => createVector(wdf(_, _), dictionary)
-          case "Log Normalisation" => createVector((tfLogNorm(_, _)), dictionary)
-          case "Bag-Of-Words" => createVector(bag(_, _), dictionary)
+        val idfWeightedTerms =
+          if(idfChoice == "" || dictionary == None)
+            None
+          else Some(dictionary.getOrElse(Vector("")).par
+                .map(IDFValue(_)(simpleIdf)((Option(docs)))).toVector)
+
+        val vectorFun = weightFun match {
+          case "Tf" => createVector(compose_weighting_Fun(tf(_,_))(idfWeightedTerms),dictionary)
+          case "wdf" => createVector(compose_weighting_Fun(wdf(_,_))(idfWeightedTerms),dictionary)
+          case "TFLog" => createVector(compose_weighting_Fun(tfLog(_,_))(idfWeightedTerms),dictionary)
+          case "Bag-Of-Words" => createVector(compose_weighting_Fun(bag(_,_))(idfWeightedTerms),dictionary)
         }
 
         println("Terms weighted to idf in " + currentTimeMins(time))

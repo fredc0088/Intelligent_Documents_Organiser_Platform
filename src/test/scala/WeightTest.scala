@@ -23,13 +23,13 @@ class WeightTest extends UnitTest ("Weight"){
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
     tokens = tests.par.map(x => tokenizeDocument(tknTool)(x)).toArray
     val dictionary = Dictionary(tokens)
-    idfValues = dictionary.getOrElse(Vector("")).par.map(IDFValue(_)(Option(tokens))).toArray
+    idfValues = dictionary.getOrElse(Vector("")).par.map(IDFValue(_)(simpleIdf)(Option(tokens))).toArray
   }
 
-  "A terms's idf value" should "be calculated correctly according to given documents" in {
+  "A terms's idf value (using simple IDF)" should "be calculated correctly according to given documents" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
     val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(x)).toArray
-    assertResult(0.47712125471966244){ (IDFValue("doc")(Some(tokens))).apply }
+    assertResult(0.47712125471966244){ (IDFValue("doc")(simpleIdf)(Some(tokens))).apply }
   }
 
 //  "idf weighting" should "accept any extractor function from path to text content" in {
@@ -40,7 +40,7 @@ class WeightTest extends UnitTest ("Weight"){
   //  }
 
   "Idf from a set of empty documents" should "return 0" in {
-    val x = IDFValue("doc")(Some(Array(None,None)))
+    val x = IDFValue("doc")(simpleIdf)(Some(Array(None,None)))
     x.apply shouldBe 0.0
   }
 
@@ -48,10 +48,8 @@ class WeightTest extends UnitTest ("Weight"){
     val a = bag("text",tokens(1).get.tokens)
     val b = tf("text",tokens(1).get.tokens)
     val c = wdf("text",tokens(1).get.tokens)
-    val d = tfLogNorm("text",tokens(1).get.tokens)
-    val e = tfidf(idfValues)("text",tokens(1).get.tokens)
-    val f = wdfidf(idfValues)("text",tokens(1).get.tokens)
-    assert(Array(a,b,c,d,e,f).forall(_.isInstanceOf[TermWeighted]))
+    val d = tfLog("text",tokens(1).get.tokens)
+    assert(Array(a,b,c,d).forall(_.isInstanceOf[TermWeighted]))
   }
 
   "Frequency of a term in a document" should "return expected count" in {
@@ -62,25 +60,25 @@ class WeightTest extends UnitTest ("Weight"){
     assertResult(0) { GetFrequency(tokens(1).get.tokens,"Asfeb")}
   }
 
-  "Tfidf" should "return right result" in {
-    val fun = tfidf(idfValues)
-    assertResult(0.0168945406) {
-      val x = fun("text",tokens(1).get.tokens)
-      BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
-    }
-  }
-
-  "Wdfidf" should "return right result" in {
-    val fun = wdfidf(idfValues)
-    assertResult(5.9001296574) {
-      val x = fun("text",tokens(1).get.tokens)
-      BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
-    }
-  }
+//  "Tfidf" should "return right result" in {
+//    val fun = tfidf(idfValues)
+//    assertResult(0.0168945406) {
+//      val x = fun("text",tokens(1).get.tokens)
+//      BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
+//    }
+//  }
+//
+//  "Wdfidf" should "return right result" in {
+//    val fun = wdfidf(idfValues)
+//    assertResult(5.9001296574) {
+//      val x = fun("text",tokens(1).get.tokens)
+//      BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
+//    }
+//  }
 
   "TfLogNorm" should "return right result" in
     assertResult(2.3424226808) {
-      val x = tfLogNorm("text",tokens(1).get.tokens)
+      val x = tfLog("text",tokens(1).get.tokens)
       BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
     }
 
@@ -106,9 +104,18 @@ class WeightTest extends UnitTest ("Weight"){
     val a = bag("example",Array.empty[String])
     val b = tf("example",Array.empty[String])
     val c = wdf("example",Array.empty[String])
-    val d = tfLogNorm("example",Array.empty[String])
-    val e = tfidf(idfValues)("example",Array.empty[String])
-    val f = wdfidf(idfValues)("example",Array.empty[String])
-    assert(Array(a,b,c,d,e,f).forall(_.weight == 0))
+    val d = tfLog("example",Array.empty[String])
+    assert(Array(a,b,c,d).forall(_.weight == 0))
+  }
+
+  "All functions" should "return the right result when composed with IDF values" in {
+    val a = compose_weighting_Fun(bag)(Some(idfValues))
+    val b = compose_weighting_Fun(tf)(Some(idfValues))
+    val c = compose_weighting_Fun(wdf)(Some(idfValues))
+    val d = compose_weighting_Fun(tfLog)(Some(idfValues))
+    assertResult(){a("example",Array.empty[String])}
+    assertResult(){b("example",Array.empty[String])}
+    assertResult(){c("example",Array.empty[String])}
+    assertResult(){d("example",Array.empty[String])}
   }
 }

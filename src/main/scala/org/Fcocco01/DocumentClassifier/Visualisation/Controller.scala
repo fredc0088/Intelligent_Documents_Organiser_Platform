@@ -40,15 +40,17 @@ class Controller extends jfxf.Initializable {
   @jfxf.FXML
   var weightingList: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
-  var strategyList: jfxsc.ChoiceBox[String] = _
+  var IDFlist: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
-  var independentVector: jfxsc.CheckBox = _
+  var strategyList: jfxsc.ChoiceBox[String] = _
+//  @jfxf.FXML
+//  var independentVector: jfxsc.CheckBox = _
   @jfxf.FXML
   var linkageBox: jfxsl.HBox = _
   @jfxf.FXML
   var linkageList: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
-  private var noOfClusterBox: jfxsl.HBox = _
+  var noOfClusterBox: jfxsl.HBox = _
   @jfxf.FXML
   var progressBar: jfxsc.ProgressBar = new ProgressBar()
   @jfxf.FXML
@@ -141,6 +143,18 @@ class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
   private def changeOnWeighting(event: ActionEvent): Unit= {
+    if(weightingList.getValue == "bag") {
+      IDFlist.setValue("")
+      IDFlist.getItems.removeAll("idf")
+    }
+    else {
+      IDFlist.getItems.addAll("idf")
+    }
+    println("Called on Weighting change")
+  }
+
+  @jfxf.FXML
+  private def changeOnIdf(event: ActionEvent): Unit= {
     println("Called on Weighting change")
   }
 
@@ -149,17 +163,17 @@ class Controller extends jfxf.Initializable {
     println("Called on Strategy change")
   }
 
-  @jfxf.FXML
-  private def changeOnIndependentVector(event: ActionEvent): Unit= {
-    println(independentVector.isSelected)
-    if (independentVector.isSelected) {
-      weightingList.getItems.remove("TfIdf")
-      weightingList.getItems.remove("WdIdf")
-    }
-    else {
-      weightingList.getItems.addAll("TfIdf", "WdIdf")
-    }
-  }
+//  @jfxf.FXML
+//  private def changeOnIndependentVector(event: ActionEvent): Unit= {
+//    println(independentVector.isSelected)
+//    if (independentVector.isSelected) {
+//      IDFlist.setValue("")
+//      IDFlist.isDisable
+//    }
+//    else {
+//      weightingList.getItems.addAll("Idf")
+//    }
+//  }
 
   @jfxf.FXML
   private def openLog(event: ActionEvent) : Unit =
@@ -192,8 +206,9 @@ class Controller extends jfxf.Initializable {
         exclusionListProperty.getValue.map(_.toString).toArray
       } else Array("")
       val partialOutput = org.Fcocco01.DocumentClassifier.ProcessHub(
-        independentVector.isSelected, inclusions, exclusions, if(customFile != null) Some(customFile.getAbsolutePath) else None,
-        if(regexOption.getText != "") Some(regexOption.getText) else None , clusteringType.getValue, weightingList.getValue, strategyList.getValue)
+        inclusions, exclusions, if(customFile != null) Some(customFile.getAbsolutePath) else None,
+        if(regexOption.getText != "") Some(regexOption.getText) else None , clusteringType.getValue,
+        weightingList.getValue, IDFlist.getValue, strategyList.getValue)
       ProcessHub.progressProperty.addListener((observable, oldValue, newValue) =>
         updateProgress(newValue.doubleValue(), 10.0))
       val clustNum = if(noOfClusters.getText != null && noOfClusters.getText != "") noOfClusters.getText.toInt else 1

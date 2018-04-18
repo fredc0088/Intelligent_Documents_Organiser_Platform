@@ -7,14 +7,13 @@ import Core.DocumentDataSetMorph.Dictionary
 import Utils.Util.Time.currentTimeMins
 import Core.DocGathering.DocumentFinder
 import Core.TokenPackage.Tokenizer.{StopWords, TokenizedText}
-import Utils.Types.Token
 import Core.DocumentDataSetMorph._
 import Core.Weight.{IDF, ModelFunctions}
-import ModelFunctions.tfidf
+import IDF._
+import ModelFunctions.{tf, compose_weighting_Fun}
 import Core.Clustering._
 import FlatClustering._
 import Core.Clustering.Distance._
-import Utils.Types.TypeClasses.Document
 
 object TestingFlat extends App {
   object TestingResources {
@@ -94,11 +93,11 @@ object TestingFlat extends App {
 
   println("Dictionary created in " + currentTimeMins(time))
 
-  val idfWeightedTerms = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(Option(docs))).toVector
+  val idfWeightedTerms = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(simpleIdf)(Option(docs))).toVector
 
   println("Terms weighted to idf in " + currentTimeMins(time))
 
-  val tfidfFun = tfidf(idfWeightedTerms)
+  val tfidfFun = compose_weighting_Fun(tf(_,_))(Some(idfWeightedTerms))
 
   val vectorFun = createVector(tfidfFun, dictionary)
 
