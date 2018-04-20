@@ -13,6 +13,9 @@ package object Constants {
   val FOUR = 4
   val FOUR_HALF = 4.5
   val FIVE = 5
+  val FIVE_HALF = 5.5
+  val SEVEN = 7
+  val NINE = 9
   val TEN = 10
   val TEN_F = 10.0
   val TWENTY = 20

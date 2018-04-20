@@ -16,7 +16,9 @@ package object Types {
   type Text = String
   type Weight = Double
   object TypeClasses {
-    case class TokenSuite(extract : TxtExtractor, tokenizer : Tokenizer)
+    case class TokenSuite(extract : TxtExtractor, tokenizer : Tokenizer) {
+      def getTokensFromFile(arg: String) = tokenizer(extract(arg))
+    }
     case class Document(path: DocPath, tokens: Tokens)
     case class TermWeighted(term : Term, weight: Double) {
       def toTuple = (term,weight)

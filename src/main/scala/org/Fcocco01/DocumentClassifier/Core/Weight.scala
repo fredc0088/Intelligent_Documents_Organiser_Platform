@@ -2,7 +2,7 @@ package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils
 import Utils.Types.TypeClasses.{Document, TermWeighted, TokenSuite}
-import Utils.Types.{Paths, Scheme, Term, Token, Tokens, TxtExtractor, Weight}
+import Utils.Types.{Paths, Scheme, Term, Token, Tokens, Weight}
 import Utils.Constants.{ONE, ZERO}
 
 /**
@@ -55,7 +55,7 @@ package object Weight {
         */
       def apply(term: Term,documents: Paths,
                 extractor: TokenSuite, idfFunc: IDFFun): IDFValue = {
-        val tokens = documents.par.map(x => extractor.tokenizer(extractor.extract(x)))
+        val tokens = documents.par.map(x => extractor.getTokensFromFile(x))
           .filterNot(_.isEmpty).map(_.mkString(" ")).seq
         new IDFValue(term, tokens, idfFunc)
       }

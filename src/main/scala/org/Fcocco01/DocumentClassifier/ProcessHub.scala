@@ -9,9 +9,10 @@ import HierarchicalClustering._
 import FlatClustering._
 import DocGathering.DocumentFinder
 import TokenPackage.Tokenizer.{StopWords, TokenizedText}
-import org.Fcocco01.DocumentClassifier.Utils._
+import Utils._
 import Util.I_O.GetDocContent
 import Util.Time.currentTimeMins
+import Constants._
 import Visualisation.HierarchicalGraphic.Dendrogram
 import javafx.beans.property.{ReadOnlyDoubleProperty, ReadOnlyDoubleWrapper}
 import scalafx.scene.Scene
@@ -40,8 +41,8 @@ object ProcessHub {
       println("Start initialisation after " + currentTimeMins(time))
 
       val paths = DocumentFinder(directoriesChosen, exclusions)
-      if (paths.size == 0) {
-        progress.set(10.0)
+      if (paths.size == ZERO) {
+        progress.set(TEN)
         println("No document found")
         new Scene
       }
@@ -60,17 +61,17 @@ object ProcessHub {
 
         val tknFun = tokenizeDocument(tknTool)
 
-        progress.set(1.0)
+        progress.set(ONE)
 
         implicit val docs = paths.par.map(x => tknFun(x)).toArray
 
         println("Documents tokenised in " + currentTimeMins(time))
 
-        progress.set(4.0)
+        progress.set(FOUR)
 
         val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(docs)
 
-        progress.set(5.5)
+        progress.set(FIVE_HALF)
 
         import org.scalameter._
         val timea = measure {
@@ -98,7 +99,7 @@ object ProcessHub {
 
         println("Vectors obtained in " + currentTimeMins(time))
 
-        progress.set(7.0)
+        progress.set(SEVEN)
 
         val compareFun = comparison match {
           case "Cosine Sim" => Similarity.cosine(_, _)
@@ -116,7 +117,7 @@ object ProcessHub {
           }
           println("Clustering after  " + currentTimeMins(time))
 
-          progress.set(9.0)
+          progress.set(NINE)
 
           Dendrogram(clusters)
 
@@ -132,7 +133,7 @@ object ProcessHub {
 
           new Scene(new HBox)
         }
-        progress.set(10.0)
+        progress.set(TEN)
         result
       }
     }

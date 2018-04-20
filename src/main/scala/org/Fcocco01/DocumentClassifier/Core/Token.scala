@@ -6,13 +6,13 @@ import Utils.Util.String_Manipulation.onlyDigits
 import Utils.Types.Tokenizer
 
 /**
-  * Provides objects and classes for dealing with tokenisation of text.
-  * It also allows to create a dictionary of stopwords to be escaped during tokenisation process.
+  * Provides objects and classes for dealing with tokenization of text.
+  * It also allows to create a dictionary of stopwords to be escaped during tokenization process.
   */
 package object TokenPackage {
 
   /**
-    * Wrapper object for tokenisation procedures.
+    * Wrapper object for tokenization procedures.
     */
   object Tokenizer {
 

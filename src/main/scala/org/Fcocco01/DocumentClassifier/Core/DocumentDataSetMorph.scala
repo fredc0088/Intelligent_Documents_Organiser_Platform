@@ -29,7 +29,7 @@ object DocumentDataSetMorph {
       * Creates a Dictionary from a group of 1 or more already
       * processed documents.
       *
-      * @param tokenizedText Set of tokenised documents
+      * @param tokenizedText Set of tokenized documents
       * @return A collection of tokens that represent the dictionary
       */
     def apply(tokenizedText : Traversable[Option[Document]]): Option[Tokens] = {
@@ -52,7 +52,7 @@ object DocumentDataSetMorph {
       * @return A collection of tokens that represent the dictionary
       */
     def apply(paths: Paths, tokenizer: TokenSuite) : Option[Tokens] = {
-      val tokens = paths.flatMap(x => tokenizer.tokenizer(tokenizer.extract(x)))
+      val tokens = paths.flatMap(x => tokenizer.getTokensFromFile(x))
       val instance = new Dictionary(tokens)
       instance()
     }
@@ -71,31 +71,31 @@ object DocumentDataSetMorph {
   }
 
   /**
-    * This method combine a tokenisation method with an extractor function to create a single tool
-    * to be used elsewhere in order to tokenise a document.
+    * This method combines a tokenization method with an extractor function to create a single tool
+    * to be used elsewhere in order to tokenize a document.
     *
-    * @param tokenizer Tokenisation method
+    * @param tokenizer Tokenization method
     * @param extractor Text extracting function
-    * @return A tuple composed as (1: Extracting function, 2: Tokenising method)
+    * @return A tuple composed as (1: Extracting function, 2: Tokenizing method)
     */
   def buildTokenSuite(tokenizer: Tokenizer)(extractor: TxtExtractor) : TokenSuite = TokenSuite(extractor,tokenizer)
 
   /**
     * Using a Tokensuite tool, it can tokenise a document from its path in the file system.
     *
-    * @param t Tokenisation suite as (1: Extracting function, 2: Tokenising method)
-    * @return Tokenised document if the said doc would not result empty after the process
+    * @param t Tokenization suite as (1: Extracting function, 2: Tokenizing method)
+    * @return Tokenized document if the said doc would not result empty after the process
     */
   def tokenizeDocument(t: TokenSuite) : DocPath => Option[Document] =
     (docPath: DocPath) => {
-      val txt : Tokens = t.tokenizer(t.extract(docPath))
+      val txt : Tokens = t.getTokensFromFile(docPath)
       if(txt.size == ZERO) None
       else Some(Document(docPath,txt))
     }
 
   /**
     * This function can produce a Document Vector using a modelling function (to weight the terms in
-    * the vector) and a Tokenised document as final input. If a None option is passed as document,
+    * the vector) and a tokenized document as final input. If a None option is passed as document,
     * probably from a different chained function, it will produce a empty vector.
     * Optionally, a dictionary can be used as parameter as well, in order to normalise the vector produced.
     *
