@@ -110,7 +110,7 @@ object DocumentDataSetMorph {
           var m = Array.empty[TermWeighted]
           dictionary match {
             case Some(x) => for(d <- x) m = m :+ modeller(d,t.tokens)
-            case None => for(y <- t.tokens) m = m :+ modeller(y,t.tokens)
+            case None => for(y <- t.tokens.toVector.distinct) m = m :+ modeller(y,t.tokens)
           }
           DVector(t.path,m.map(_.toTuple).toMap)
           /*

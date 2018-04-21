@@ -27,6 +27,9 @@ val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
 
 val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
+val jFreeCHartForFlatPlot = Seq("org.jfree" % "jfreechart" % "1.5.0", "org.jfree" % "jfreechart-fx" % "1.0.1",
+  "org.jfree" % "jcommon" % "1.0.24")
+
 lazy val root = (project in file("."))
   .settings(
     name := "Documents_Clusterizer",
@@ -39,7 +42,7 @@ lazy val root = (project in file("."))
       resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
       addCompilerPlugin(paradise cross CrossVersion.full),
     libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest,
-      scalaFX, sclFXML, mockTest),
+      scalaFX, sclFXML, mockTest) ++ jFreeCHartForFlatPlot,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false,
     mainClass in Compile := Some("org.Fcocco01.DocumentClassifier.Main")
@@ -47,6 +50,5 @@ lazy val root = (project in file("."))
   .enablePlugins(
       SbtProguard,
       JavaServerAppPackaging,
-      DockerPlugin//,
-//      ensime
+      DockerPlugin
   )
