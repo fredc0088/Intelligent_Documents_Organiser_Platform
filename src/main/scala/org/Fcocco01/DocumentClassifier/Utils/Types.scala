@@ -27,7 +27,7 @@ package object Types {
     /** Object wrapping Document Vectors Types */
     object Vectors {
 
-      /** Commom property and behaviour for any type of document vector */
+      /** Common property and behaviour for any type of document vector */
       sealed trait DocumentVector {
         val id: String
         def size : Int
@@ -62,6 +62,7 @@ package object Types {
         override def size = Constants.ZERO
         implicit def apply = Map.empty[Token,Weight]
       }
+
     }
 
   }

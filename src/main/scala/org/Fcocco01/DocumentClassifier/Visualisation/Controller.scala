@@ -17,6 +17,7 @@ import org.Fcocco01.DocumentClassifier.ProcessHub
 import scalafx.Includes._
 import scalafx.scene.Scene
 import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.AnchorPane
 
 class Controller extends jfxf.Initializable {
@@ -43,8 +44,6 @@ class Controller extends jfxf.Initializable {
   var IDFlist: jfxsc.ChoiceBox[String] = _
   @jfxf.FXML
   var strategyList: jfxsc.ChoiceBox[String] = _
-//  @jfxf.FXML
-//  var independentVector: jfxsc.CheckBox = _
   @jfxf.FXML
   var linkageBox: jfxsl.HBox = _
   @jfxf.FXML
@@ -125,6 +124,7 @@ class Controller extends jfxf.Initializable {
       linkageBox.setVisible(false)
       noOfClusterBox.setVisible(true)
       strategyList.getItems.remove("Cosine Sim")
+      strategyList.setValue("Euclidean Dist")
     }
     else {
       linkageBox.setVisible(true)
@@ -133,13 +133,6 @@ class Controller extends jfxf.Initializable {
     }
   }
 
-  @jfxf.FXML
-  private def enterNumbers(event: ActionEvent): Unit= {
-    noOfClusters.textProperty.addListener((observable, oldValue, newValue) => {
-      if (!newValue.matches("\\d*"))
-        observable.asInstanceOf[TextField].setText(newValue.replaceAll("[^\\d]", ""))
-    })
-  }
 
   @jfxf.FXML
   private def changeOnWeighting(event: ActionEvent): Unit= {
@@ -163,21 +156,11 @@ class Controller extends jfxf.Initializable {
     println("Called on Strategy change")
   }
 
-//  @jfxf.FXML
-//  private def changeOnIndependentVector(event: ActionEvent): Unit= {
-//    println(independentVector.isSelected)
-//    if (independentVector.isSelected) {
-//      IDFlist.setValue("")
-//      IDFlist.isDisable
-//    }
-//    else {
-//      weightingList.getItems.addAll("Idf")
-//    }
-//  }
-
   @jfxf.FXML
-  private def openLog(event: ActionEvent) : Unit =
+  private def openLog(event: ActionEvent) : Unit = {
+    println("Called on Strategy change")
     java.awt.Desktop.getDesktop.open(new File("./Error_Logs"))
+  }
 
   @jfxf.FXML
   private def onStartClick(event: ActionEvent): Unit = {
@@ -259,5 +242,10 @@ class Controller extends jfxf.Initializable {
     defaultOption.setSelected(true)
     regexOption.setDisable(false)
 
+    noOfClusters.setTextFormatter(new TextFormatter[String]((change) => {
+      val text = change.getText
+      if (text.matches("[0-9]*")) change
+      else null
+    }))
   }
 }
