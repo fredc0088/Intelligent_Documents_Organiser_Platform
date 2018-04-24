@@ -1,14 +1,14 @@
 package org.Fcocco01.DocumentClassifier
 
 import Core._
-import Weight.IDF.{simpleIdf, IDFValue}
-import Weight.ModelFunctions._
+import Features.IDF.{simpleIdf, smootherIdf, IDFValue}
+import Features.Bag_Of_Words_Models._
 import DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Clustering._
 import HierarchicalClustering._
 import FlatClustering._
 import DocGathering.DocumentFinder
-import TokenPackage.Tokenizer.{StopWords, TokenizedText}
+import Tokenization.{StopWords, TokenizedText}
 import Utils._
 import Util.I_O.GetDocContent
 import Util.Time.currentTimeMins
@@ -63,32 +63,37 @@ object ProcessHub {
 
         progress.set(ONE)
 
-        implicit val docs = paths.par.map(x => tknFun(x)).toArray
+        implicit val corpus = paths.par.map(x => tknFun(x)).toArray
 
         println("Documents tokenised in " + currentTimeMins(time))
 
         progress.set(FOUR)
 
-        val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(docs)
+        val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(corpus)
 
         progress.set(FIVE_HALF)
 
         val idfWeightedTerms =
           if(idfChoice == "" || dictionary == None)
             None
-          else Some(dictionary.getOrElse(Vector("")).par
-                .map(IDFValue(_)(simpleIdf)((Option(docs)))).toVector)
+          else idfChoice match {
+            case "Idf" => Some(dictionary.getOrElse(Vector("")).par
+              .map(IDFValue(_)(simpleIdf)((Option(corpus)))).toVector)
+            case "Smooth Idf" => Some(dictionary.getOrElse(Vector("")).par
+              .map(IDFValue(_)(smootherIdf)((Option(corpus)))).toVector)
+          }
+
 
         val vectorFun = weightFun match {
           case "Tf" => createVector(compose_weighting_Fun(tf(_,_))(idfWeightedTerms),dictionary)
           case "wdf" => createVector(compose_weighting_Fun(wdf(_,_))(idfWeightedTerms),dictionary)
           case "TFLog" => createVector(compose_weighting_Fun(tfLog(_,_))(idfWeightedTerms),dictionary)
-          case "Bag-Of-Words" => createVector(compose_weighting_Fun(bag(_,_))(idfWeightedTerms),dictionary)
+          case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag(_,_))(idfWeightedTerms),dictionary)
         }
 
         println("Terms weighted to idf in " + currentTimeMins(time))
 
-        val vectors = docs.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toArray
+        val vectors = corpus.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toArray
 
         println("Vectors obtained in " + currentTimeMins(time))
 

@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Test
 
 import org.Fcocco01.DocumentClassifier._
-import Core.TokenPackage.Tokenizer.StopWords
+import Core.Tokenization.StopWords
 import Utils.Types.TypeClasses.Vectors.DVector
 
 object TestingResources {
@@ -24,10 +24,17 @@ object TestingResources {
       "./src/test/resources/1/Dfr.doc"
     val testPath7 =
       "./src/test/resources/2/a.docx"
+    val testPath8 =
+      "./src/test/resources/4/1.txt"
+    val testPath9 =
+      "./src/test/resources/4/2.txt"
+    val testPath10 =
+      "./src/test/resources/4/3.txt"
     val testDirPath1 = "./src/test/resources/1/1.1"
     val testDirPath2 = "./src/test/resources/1/1.2"
     val testDirPath3 = "./src/test/resources/3"
     val testDirPath4 = "./src/test/resources/3/3.1"
+    val testDirPath5 = "./src/test/resources/4"
   }
 
   val stopWords = StopWords("./src/main/resources/stop-word-list.txt")

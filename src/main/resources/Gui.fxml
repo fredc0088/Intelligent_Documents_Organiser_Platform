@@ -48,10 +48,10 @@
                   </HBox>
                </items>
             </SplitPane>
-            <HBox alignment="CENTER" layoutX="38.0" layoutY="195.0" prefHeight="25.0" prefWidth="254.0">
+            <HBox alignment="CENTER" layoutX="20.0" layoutY="195.0" prefHeight="25.0" prefWidth="181.0">
                <children>
-                  <Label prefHeight="17.0" prefWidth="146.0" text="Select type of Clustering" />
-                  <ChoiceBox fx:id="clusteringType" onAction="#changeOnClustering" prefHeight="25.0" prefWidth="124.0">
+                  <Label prefHeight="17.0" prefWidth="146.0" text="Clustering type" />
+                  <ChoiceBox fx:id="clusteringType" onAction="#changeOnClustering" prefHeight="25.0" prefWidth="140.0">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
                            <String fx:value="Flat" />
@@ -64,9 +64,9 @@
                   </ChoiceBox>
                </children>
             </HBox>
-            <HBox alignment="CENTER" layoutX="315.0" layoutY="196.0" prefHeight="25.0" prefWidth="308.0">
+            <HBox alignment="CENTER" layoutX="211.0" layoutY="196.0" prefHeight="25.0" prefWidth="412.0">
                <children>
-                  <Label prefHeight="25.0" prefWidth="76.0" text=" Weighting" />
+                  <Label prefHeight="25.0" prefWidth="117.0" text=" Features Modelling" />
                   <ChoiceBox fx:id="weightingList" onAction="#changeOnWeighting" prefHeight="25.0" prefWidth="111.0">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
@@ -86,6 +86,7 @@
                            <String fx:value="" />
                             <String fx:value="No Dictionary" />
                            <String fx:value="Idf" />
+                            <String fx:value="Smooth Idf" />
                         </FXCollections>
                      </items>
                      <value>

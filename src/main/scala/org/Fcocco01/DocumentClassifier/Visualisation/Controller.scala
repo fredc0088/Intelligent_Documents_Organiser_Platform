@@ -78,6 +78,7 @@ class Controller extends jfxf.Initializable {
       val directoryChooser = new DirectoryChooser
       val selectedDirectory = directoryChooser.showDialog(null)
       if (selectedDirectory != null) {
+        // debug and test
         System.out.println("event = [" + event + "], selectedFile = [" + selectedDirectory.getAbsolutePath + "]")
         val inclusionDirItems = new util.ArrayList[String]
         if (inclusionListProperty.getValue != null && !inclusionListProperty.getValue.isEmpty) inclusionDirItems.addAll(inclusionListProperty.getValue)
@@ -97,13 +98,14 @@ class Controller extends jfxf.Initializable {
         if(!exclusionItems.contains(selectedDir.getCanonicalPath))exclusionItems.add(selectedDir.getCanonicalPath)
         exclusionListProperty.set(FXCollections.observableArrayList(exclusionItems))
       }
+      // debug and test
       else System.out.println("event = [" + event + "], selectedFile = [ File selection cancelled. ]")
     }
   }
 
   @jfxf.FXML
   private def radioOptionChange(event: ActionEvent): Unit = {
-    System.out.println("event = [" + event + "]")
+    System.out.println("event = [" + event + "]") // debug and test
     val btn = event.getSource.asInstanceOf[RadioButton]
     val id = btn.getId
     if (id == "customOption") {
@@ -117,7 +119,7 @@ class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
   private def changeOnClustering(event: ActionEvent): Unit= {
-    println("Called on Clustering change")
+    println("Called on Clustering change") // debug and test
     println(clusteringType.selectionModel().getSelectedItem)
     val clusteringValue = clusteringType.selectionModel().getSelectedItem
     if (clusteringValue == "Flat") {
@@ -136,29 +138,29 @@ class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
   private def changeOnWeighting(event: ActionEvent): Unit= {
-    if(weightingList.getValue == "bag") {
+    if(weightingList.getValue == "Bag-Of-Words") {
+      if(IDFlist.getItems.size > 2)IDFlist.getItems.removeAll("Idf","Smooth Idf")
       IDFlist.setValue("")
-      IDFlist.getItems.removeAll("idf")
     }
     else {
-      IDFlist.getItems.addAll("idf")
+      if(IDFlist.getItems.size <= 2) IDFlist.getItems.addAll("Idf","Smooth Idf")
     }
-    println("Called on Weighting change")
+    println("Called on Weighting change") // debug and test
   }
 
   @jfxf.FXML
   private def changeOnIdf(event: ActionEvent): Unit= {
-    println("Called on Weighting change")
+    println("Called on Weighting change") // debug and test
   }
 
   @jfxf.FXML
   private def changeOnStrategy(event: ActionEvent): Unit= {
-    println("Called on Strategy change")
+    println("Called on Strategy change") // debug and test
   }
 
   @jfxf.FXML
   private def openLog(event: ActionEvent) : Unit = {
-    println("Called on Strategy change")
+    println("Called on Strategy change") // debug and test
     java.awt.Desktop.getDesktop.open(new File("./Error_Logs"))
   }
 
@@ -171,6 +173,7 @@ class Controller extends jfxf.Initializable {
       startButton.setDisable(true)
       stopButton.setDisable(false)
       copyWorker = createWorker
+      // debug and test
       System.out.println("event = [" + event + "], inclusionListProperty [" + inclusionListProperty.getValue + "]")
       progressBar.setVisible(true)
       progressBar.progressProperty.unbind
@@ -179,6 +182,7 @@ class Controller extends jfxf.Initializable {
     }
   }
 
+  /* Start a different thread for the main process */
   def createWorker: Task[_] = new Task[Boolean]() {
     @throws[Exception]
     override protected def call: Boolean = {
@@ -242,6 +246,7 @@ class Controller extends jfxf.Initializable {
     defaultOption.setSelected(true)
     regexOption.setDisable(false)
 
+    /* Filter for number of cluster field to accept only whole numbers*/
     noOfClusters.setTextFormatter(new TextFormatter[String]((change) => {
       val text = change.getText
       if (text.matches("[0-9]*")) change

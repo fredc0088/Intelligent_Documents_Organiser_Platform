@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils.{Util,Types,Constants}
-import Constants.{ZERO,ZERO_F,ONE,TWO,HALF}
+import Constants.{ZERO,ONE,TWO,HALF}
 import Util.Operators.|>
 
 import scala.annotation.tailrec
@@ -32,7 +32,7 @@ object Clustering {
     }
 
     def getDocProduct(v1: DVector, v2: DVector) =
-      v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, ZERO_F)) }
+      v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, ZERO.toDouble)) }
 
     def getAbsoluteValue(v: DVector): Double = {
       v.apply.toVector.map(x => Math.pow(x._2, TWO)).reduce(_ + _)
@@ -113,7 +113,7 @@ object Clustering {
       lazy val name: String = {
         val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2): _*))
         val highestTerms = vectors.map(x => x.headOption)
-        val default = (scala.util.Random.alphanumeric.take(5).toString, ZERO_F)
+        val default = (scala.util.Random.alphanumeric.take(5).toString, ZERO.toDouble)
 
         @tailrec
         def constructTitle(string: String, n: Int, terms: List[Option[(String, Double)]], default: (String, Double)): String =

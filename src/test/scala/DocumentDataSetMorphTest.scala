@@ -2,17 +2,17 @@ package org.Fcocco01.DocumentClassifier.Test
 
 import org.Fcocco01.DocumentClassifier._
 import Core.DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
-import Core.TokenPackage.Tokenizer.TokenizedText
+import Core.Tokenization.TokenizedText
 import Utils.Util.I_O.GetDocContent
 import TestingResources.{Paths, Regexes, stopWords}
 import Paths._
 import Regexes.words1gram
 import Utils.Types.TypeClasses.{Document, TokenSuite}
 import Utils.Types.TypeClasses.Vectors.{DVector, DocumentVector, EmptyV}
-import Core.Weight.ModelFunctions.{IDFValue, bag, tf, compose_weighting_Fun}
+import Core.Features.{IDF,Bag_Of_Words_Models}
+import Bag_Of_Words_Models.{IDFValue, rawBag, tf, compose_weighting_Fun}
 import Utils.Types.Tokens
-import org.Fcocco01.DocumentClassifier.Core.Weight.IDF
-import org.Fcocco01.DocumentClassifier.Core.Weight.IDF.simpleIdf
+import IDF.simpleIdf
 
 class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
 
@@ -46,7 +46,7 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
 
   "Creating a dictionary using vectors" should "produce same as a base dictionary (but not same order) if that dictionary was used to create the vectors" in {
     val dictionary1 = Dictionary(tokens.take(3))
-    val dictionary3 = Dictionary(tokens.take(3).map(d => createVector(bag(_,_), dictionary1)(d)): _*)
+    val dictionary3 = Dictionary(tokens.take(3).map(d => createVector(rawBag(_,_), dictionary1)(d)): _*)
     assert(dictionary1.get.size == dictionary3.get.size)
     assert(dictionary3.get.forall(dictionary1.get.toList.contains(_)) == true)
   }
@@ -79,9 +79,9 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
 
   /********************* Test Vector creation *****************/
   "Creating new vectors" should "create non-normalised vectors when dictionary is not provided" in {
-    val vector1 = createVector(bag(_,_))(tokens(0))
-    val vector2 = createVector(bag(_,_))(tokens(1))
-    val vector3 = createVector(bag(_,_), dictionary)(tokens(1))
+    val vector1 = createVector(rawBag(_,_))(tokens(0))
+    val vector2 = createVector(rawBag(_,_))(tokens(1))
+    val vector3 = createVector(rawBag(_,_), dictionary)(tokens(1))
     assert(vector1.size !== vector2.size)
     assert(vector2.size !== vector3.size)
     assert(vector1.size !== vector3.size)
@@ -116,8 +116,8 @@ class DocumentDataSetMorphTest extends UnitTest("DocumentDataSetMorph") {
   }
 
   "Vectors created from the same base dictionary" should "contain same terms in same order" in {
-    val vector1 = createVector(bag(_,_), dictionary)(tokens(1)).apply.map(_._1)
-    val vector2 = createVector(bag(_,_), dictionary)(tokens(3)).apply.map(_._1)
+    val vector1 = createVector(rawBag(_,_), dictionary)(tokens(1)).apply.map(_._1)
+    val vector2 = createVector(rawBag(_,_), dictionary)(tokens(3)).apply.map(_._1)
     assert(vector1 == vector2)
   }
 }

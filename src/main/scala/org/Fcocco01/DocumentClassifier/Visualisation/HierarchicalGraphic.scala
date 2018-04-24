@@ -49,7 +49,7 @@ object HierarchicalGraphic {
       val pane = new Group()
       pane.setAutoSizeChildren(true)
 
-//      AnchorPane.setAnchors(anchorpane, TENF ,TENF ,TENF ,TENF)
+//      AnchorPane.setAnchors(anchorpane, TEN ,TEN ,TEN ,TEN)
 
       def drawNode(node: Cluster, x: Double, y: Double): Unit = {
         node.getChildren match {
@@ -59,7 +59,7 @@ object HierarchicalGraphic {
           case Some((left,right)) => {
             val (h1, h2) = (left.getHeight * THIRTY, right.getHeight * THIRTY)
             val (top, bottom) = (y - (h1 + h2) / TWO, y + (h1 + h2) / TWO)
-            val ll = node.distance.getOrElse(ZERO_F) * scaling + TWENTY
+            val ll = node.distance.getOrElse(ZERO.toDouble) * scaling + TWENTY
             val mergePoint =
               CircleNode(node, x, y, FOUR, (event: MouseEvent) => focus(node).showAndWait(), Color.BlueViolet)
             pane.children.addAll(mergePoint, Polyline(

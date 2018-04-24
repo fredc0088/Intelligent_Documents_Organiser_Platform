@@ -2,7 +2,6 @@ package org.Fcocco01.DocumentClassifier.Utils
 
 package object Constants {
   val ZERO = 0
-  val ZERO_F = 0.0
   val HALF = 0.5
   val ZERO_SEVEN = 0.7
   val ZERO_NINE = 0.9
@@ -17,7 +16,6 @@ package object Constants {
   val SEVEN = 7
   val NINE = 9
   val TEN = 10
-  val TEN_F = 10.0
   val TWENTY = 20
   val THIRTY = 30
   val FIFTY = 50

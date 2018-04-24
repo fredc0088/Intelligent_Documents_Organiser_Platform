@@ -10,7 +10,7 @@ import Utils.Constants.{ONE, ZERO}
   * under prove Natural Language Processing methodologies
   * and newly created.
   */
-package object Weight {
+package object Features {
 
   /**
     * Analyses the Inverse Document Frequency of a [[Term]] against a collection of documents.
@@ -20,10 +20,30 @@ package object Weight {
 
     type IDFFun = (Term, Traversable[String]) => Weight
 
+    /**
+      * Simplest idf calculation formula. It count how many times a term appears in the corpus
+      * in proportion to the number of documents. If the word does not appear in any document,
+      * it will be 1. Then finds the logarithm based 10 of the result.
+      *
+      * @param term the term being weighted
+      * @param documents corpus of documents
+      * @return the weight of the term in relation to the corpus
+      */
     def simpleIdf(term: Term, documents: Traversable[String]) : Weight = {
       val count = documents.count(_.contains(term))
-      val denominator = if(count == ZERO) ZERO else documents.size.toDouble / count
-      Math.log10(ONE + denominator)
+      Math.log10(documents.size.toDouble / {if(count == 0) ONE else count})
+    }
+
+    /**
+      * Like [[simpleIdf()]] but 1 is added to the result
+      *
+      * @param term the term being weighted
+      * @param documents corpus of documents
+      * @return the weight of the term in relation to the corpus
+      */
+    def smootherIdf(term: Term, documents: Traversable[String]) : Weight = {
+      val count = documents.count(_.contains(term))
+      ONE + Math.log10(documents.size.toDouble / {if(count == 0) ONE else count})
     }
 
     /**
@@ -53,7 +73,7 @@ package object Weight {
       def apply(term: Term,documents: Paths,
                 extractor: TokenSuite, idfFunc: IDFFun): IDFValue = {
         val tokens = documents.par.map(x => extractor.getTokensFromFile(x))
-          .filterNot(_.isEmpty).map(_.mkString(" ")).seq
+          .filterNot(_.isEmpty).map(_.mkString(" ").toLowerCase).seq
         new IDFValue(term, tokens, idfFunc)
       }
 
@@ -70,7 +90,7 @@ package object Weight {
             .filterNot(_.tokens.isEmpty)
           case None => Vector(Document("",Array("")))
         }
-        val checked = if(docs.isEmpty) Vector("") else docs.map(_.tokens.mkString(" ")).toVector
+        val checked = if(docs.isEmpty) Vector("") else docs.map(_.tokens.mkString(" ").toLowerCase).toVector
         new IDFValue(term,checked,idfFunc)
       }
     }
@@ -83,11 +103,12 @@ package object Weight {
     * @param term checked term
     * @return number of times the term appear in the document, 0 if document is empty
     */
-  def GetFrequency(document: Tokens, term: Term) : Int =
+  private def GetFrequency(document: Tokens, term: Term) : Int =
     if(document.isEmpty) ZERO else document.count(_ == term)
 
-  /** Contains function for modelling a document vector, weighting the terms in relation to the document. */
-  object ModelFunctions {
+  /** Contains function for modelling a document vector into a Bag-Of-Words model,
+    * weighting in each terms in relation to the document used to create the vector. */
+  object Bag_Of_Words_Models {
 
     /**
       *
@@ -96,7 +117,7 @@ package object Weight {
       * @param document tokens from tokenised document
       * @return the term accordingly weighted, as 0 if document is empty
       */
-    def bag(term: Term, document: Tokens) : TermWeighted =
+    def rawBag(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
       else TermWeighted(term, GetFrequency(document, term).toDouble)
 
@@ -109,7 +130,7 @@ package object Weight {
       */
     def tfLog(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, ONE + Math.log10(GetFrequency(document, term)))
+      else TermWeighted(term, Math.log(ONE + tf(term,document).weight))
 
     /**
       *

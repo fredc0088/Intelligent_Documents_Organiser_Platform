@@ -99,6 +99,13 @@ package object Util {
       }
     }
 
+    /**
+      * Log a message into some file
+      *
+      * @param file file that will contain the log
+      * @param message the message to be logged
+      * @param append false if the message overwrites the existing file content
+      */
     def log(file: File, message: String, append: Boolean) = {
       append match {
         case true => Files.write(Paths.get(file.getAbsolutePath), message.getBytes, StandardOpenOption.APPEND)
@@ -169,7 +176,14 @@ package object Util {
     }
   }
 
+  /** Contains means for handling errors and exceptions, and to perform logging */
   object errorHandling {
+    /**
+      * This function acts as a most simple way to log errors an exceptions
+      * for debugging
+      *
+      * @param e a throwable error
+      */
     def logAwayErrorsAndExceptions(e: Throwable) = {
       val day = Time.getCurrentDateString
       val file : File = (new File("./Error_Logs")).listFiles.find(_.getName.contains(day))

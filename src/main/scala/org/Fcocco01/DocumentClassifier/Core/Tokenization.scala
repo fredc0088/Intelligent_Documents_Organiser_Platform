@@ -9,12 +9,7 @@ import Utils.Types.Tokenizer
   * Provides objects and classes for dealing with tokenization of text.
   * It also allows to create a dictionary of stopwords to be escaped during tokenization process.
   */
-package object TokenPackage {
-
-  /**
-    * Wrapper object for tokenization procedures.
-    */
-  object Tokenizer {
+package object Tokenization {
 
     /**
       * Creates a [[String]] of words from a file to be used as stopwords.
@@ -51,6 +46,5 @@ package object TokenPackage {
       }
     }
 
-}
 
 }
