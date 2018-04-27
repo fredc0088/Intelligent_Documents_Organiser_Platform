@@ -13,12 +13,13 @@ import javafx.scene.control._
 import javafx.scene.{control => jfxsc, layout => jfxsl}
 import javafx.stage.{DirectoryChooser, FileChooser, Stage}
 import javafx.{fxml => jfxf}
-import org.Fcocco01.DocumentClassifier.ProcessHub
+import org.Fcocco01.DocumentClassifier.Processes._
 import scalafx.Includes._
 import scalafx.scene.Scene
 import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout.AnchorPane
+
+import scala.collection.immutable.HashMap
 
 class Controller extends jfxf.Initializable {
 
@@ -196,19 +197,32 @@ class Controller extends jfxf.Initializable {
         val exclusions = if (exclusionListProperty.getValue != null) {
           exclusionListProperty.getValue.map(_.toString).toArray
         } else Array("")
-        val partialOutput = org.Fcocco01.DocumentClassifier.ProcessHub(
-          inclusions, exclusions, if (customFile != null) Some(customFile.getAbsolutePath) else None,
-          if (regexOption.getText != "") Some(regexOption.getText) else None, clusteringType.getValue,
-          weightingList.getValue, IDFlist.getValue, strategyList.getValue)
-        ProcessHub.progressProperty.addListener((observable, oldValue, newValue) =>
-          updateProgress(newValue.doubleValue(), 10.0))
+
+        val processes: Map[String,BaseProcess] = HashMap(
+          "Corpus" -> CorpusPreparation(inclusions,exclusions,if (customFile != null) Some(customFile.getAbsolutePath) else None,
+            if (regexOption.getText != "") Some(regexOption.getText) else None),
+          "DataSet" -> DataSetPreparation(weightingList.getValue, IDFlist.getValue),
+          "Clustering" -> ClusteringProcess(clusteringType.getValue, strategyList.getValue),
+          "View" -> GraphicalResult()
+        )
+        processes.foreach(x => x._2.setExternalHandler((observable, oldValue, newValue) =>
+          updateProgress(newValue.doubleValue(), 10.0)))
+
+        val corpus = processes("Corpus").asInstanceOf[CorpusPreparation].start
+        val vectors = processes("DataSet").asInstanceOf[DataSetPreparation].start(corpus)
+        val clusteringProcess = processes("Clustering").asInstanceOf[ClusteringProcess]
         val clustNum = if (noOfClusters.getText != null && noOfClusters.getText != "") noOfClusters.getText.toInt else 1
-        currentOutput =
-          if (clusteringType.getValue == "Hierarchical") partialOutput(linkageList.getValue, 0) else partialOutput("", clustNum)
-      startButton.setDisable(false)
-      stopButton.setDisable(true)
-      viewResultButton.setDisable(false)
-      true
+        val clusteringReady = clusteringType.getValue match {
+          case "Hierarchical" => clusteringProcess.start(linkageList.getValue, 0)
+          case _ => clusteringProcess.start("", clustNum)
+        }
+        val clusters = clusteringReady(vectors)
+
+        currentOutput = processes("View").asInstanceOf[GraphicalResult].start(clusters)
+        startButton.setDisable(false)
+        stopButton.setDisable(true)
+        viewResultButton.setDisable(false)
+        true
     }
   }
 

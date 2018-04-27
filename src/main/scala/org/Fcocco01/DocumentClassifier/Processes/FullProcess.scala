@@ -1,30 +1,29 @@
-package org.Fcocco01.DocumentClassifier
+package org.Fcocco01.DocumentClassifier.Processes
 
-import Core._
-import Features.IDF.{simpleIdf, smootherIdf, IDFValue}
-import Features.Bag_Of_Words_Models._
-import DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
-import Clustering._
-import HierarchicalClustering._
-import FlatClustering._
-import DocGathering.DocumentFinder
-import Tokenization.{StopWords, TokenizedText}
-import Utils._
-import Util.I_O.GetDocContent
-import Util.Time.currentTimeMins
-import Constants._
-import Visualisation.HierarchicalGraphic.Dendrogram
-import Visualisation.FlatGraphic.SparseGraph
+import org.Fcocco01.DocumentClassifier.{Core,Utils,Visualisation}
 import javafx.beans.property.{ReadOnlyDoubleProperty, ReadOnlyDoubleWrapper}
+import Core.Clustering.FlatClustering.{K_Means, printClusters}
+import Core.Clustering.HierarchicalClustering._
+import Core.Clustering.{DVector, Distance, FlatClustering, Similarity}
+import Core.DocGathering.DocumentFinder
+import Core.DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
+import Core.Features.Bag_Of_Words_Models._
+import Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
+import Core.Tokenization.{StopWords, TokenizedText}
+import Utils.Constants._
+import Utils.Util.I_O.GetDocContent
+import Utils.Util.Time.currentTimeMins
+import Visualisation.FlatGraphic.SparseGraph
+import Visualisation.HierarchicalGraphic.Dendrogram
 import scalafx.scene.Scene
 
 
 
-class ProcessHub(directoriesChosen: Array[String] = Array(""),
+class FullProcess(directoriesChosen: Array[String] = Array(""),
                    exclusions: Array[String] = Array(""), stopwords: Option[String], regex: Option[String],
                    clusteringMode: String = "", weightFun: String = "", idfChoice: String, comparison: String = "",
                    linkStrategy: String = "", clustersNumber : Int)
-object ProcessHub {
+object FullProcess {
 
   private val progress:ReadOnlyDoubleWrapper = new ReadOnlyDoubleWrapper()
 
