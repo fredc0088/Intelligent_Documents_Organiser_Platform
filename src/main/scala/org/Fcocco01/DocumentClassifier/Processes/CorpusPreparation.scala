@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
 import org.Fcocco01.DocumentClassifier.Core.DocGathering.DocumentFinder
-import org.Fcocco01.DocumentClassifier.Core.DocumentDataSetMorph.{buildTokenSuite, tokenizeDocument}
+import org.Fcocco01.DocumentClassifier.Core.DataSetMorph.{buildTokenSuite, tokenizeDocument}
 import org.Fcocco01.DocumentClassifier.Core.Tokenization.{StopWords, TokenizedText}
 import org.Fcocco01.DocumentClassifier.Utils
 import org.Fcocco01.DocumentClassifier.Utils.Constants.{FOUR, ONE, TEN, ZERO}

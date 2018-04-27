@@ -6,7 +6,7 @@ import Core.Clustering.FlatClustering.{K_Means, printClusters}
 import Core.Clustering.HierarchicalClustering._
 import Core.Clustering.{DVector, Distance, FlatClustering, Similarity}
 import Core.DocGathering.DocumentFinder
-import Core.DocumentDataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
+import Core.DataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Core.Features.Bag_Of_Words_Models._
 import Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
 import Core.Tokenization.{StopWords, TokenizedText}

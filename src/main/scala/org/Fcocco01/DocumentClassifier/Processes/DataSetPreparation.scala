@@ -1,6 +1,6 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
-import org.Fcocco01.DocumentClassifier.Core.DocumentDataSetMorph.{Dictionary, createVector}
+import org.Fcocco01.DocumentClassifier.Core.DataSetMorph.{Dictionary, createVector}
 import org.Fcocco01.DocumentClassifier.Core.Features.Bag_Of_Words_Models._
 import org.Fcocco01.DocumentClassifier.Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
 import org.Fcocco01.DocumentClassifier.Utils.Constants.{FIVE_HALF, SEVEN}
