@@ -323,14 +323,14 @@ object Clustering {
     }
 
     /* Possible method for future implementation of K-Medoids */
-//    def findBestCenter(value: Double, elements: Vector[Comparison]) = {
-//      var current = elements(0)
-//      for(el <- elements){
-//        if(Math.abs(value - el.distance) < (Math.abs(value - current.distance)))
-//          current = el
-//      }
-//      current
-//    }
+    //    def findBestCenter(value: Double, elements: Vector[Comparison]) = {
+    //      var current = elements(0)
+    //      for(el <- elements){
+    //        if(Math.abs(value - el.distance) < (Math.abs(value - current.distance)))
+    //          current = el
+    //      }
+    //      current
+    //    }
 
     def computeNewCentroid(vectors: DVector*) = {
       val vector = vectors.head.apply.map(x => (x._1, valueMean(vectors.map(y => y.apply(x._1)).toVector)))
