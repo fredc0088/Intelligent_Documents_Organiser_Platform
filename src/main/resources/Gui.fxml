@@ -83,14 +83,14 @@
                   <ChoiceBox fx:id="IDFlist" onAction="#changeOnIdf" prefHeight="25.0" prefWidth="111.0">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
-                           <String fx:value="" />
+                           <String fx:value="Normal" />
                             <String fx:value="No Dictionary" />
                            <String fx:value="Idf" />
                             <String fx:value="Smooth Idf" />
                         </FXCollections>
                      </items>
                      <value>
-                        <String fx:value="" />
+                        <String fx:value="Normal" />
                      </value>
                   </ChoiceBox>
                </children>

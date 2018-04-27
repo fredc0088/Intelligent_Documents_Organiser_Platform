@@ -69,6 +69,7 @@ class Controller extends jfxf.Initializable {
   private var copyWorker: Task[_] = null
 
   private var currentOutput : Scene = null
+  private var running: Thread = null
 
   @jfxf.FXML
   private def loadDirectories(event: ActionEvent): Unit = {
@@ -127,11 +128,14 @@ class Controller extends jfxf.Initializable {
       noOfClusterBox.setVisible(true)
       strategyList.getItems.remove("Cosine Sim")
       strategyList.setValue("Euclidean Dist")
+      IDFlist.getItems.remove("No Dictionary")
+      IDFlist.setValue("Normal")
     }
     else {
       linkageBox.setVisible(true)
       noOfClusterBox.setVisible(false)
       strategyList.getItems.add("Cosine Sim")
+      IDFlist.getItems.add("No Dictionary")
     }
   }
 
@@ -140,7 +144,7 @@ class Controller extends jfxf.Initializable {
   private def changeOnWeighting(event: ActionEvent): Unit= {
     if(weightingList.getValue == "Bag-Of-Words") {
       if(IDFlist.getItems.size > 2)IDFlist.getItems.removeAll("Idf","Smooth Idf")
-      IDFlist.setValue("")
+      IDFlist.setValue("Normal")
     }
     else {
       if(IDFlist.getItems.size <= 2) IDFlist.getItems.addAll("Idf","Smooth Idf")
@@ -161,7 +165,7 @@ class Controller extends jfxf.Initializable {
   @jfxf.FXML
   private def openLog(event: ActionEvent) : Unit = {
     println("Called on Strategy change") // debug and test
-    java.awt.Desktop.getDesktop.open(new File("./Error_Logs"))
+    org.Fcocco01.DocumentClassifier.Utils.Util.I_O.openFromPath("./Error_Logs")
   }
 
   @jfxf.FXML
@@ -186,22 +190,21 @@ class Controller extends jfxf.Initializable {
   def createWorker: Task[_] = new Task[Boolean]() {
     @throws[Exception]
     override protected def call: Boolean = {
-      val inclusions = if(inclusionListProperty.getValue != null) {
-        inclusionListProperty.getValue.map(_.toString).toArray
-      } else Array("")
-      val exclusions = if(exclusionListProperty.getValue != null) {
-        exclusionListProperty.getValue.map(_.toString).toArray
-      } else Array("")
-      val partialOutput = org.Fcocco01.DocumentClassifier.ProcessHub(
-        inclusions, exclusions, if(customFile != null) Some(customFile.getAbsolutePath) else None,
-        if(regexOption.getText != "") Some(regexOption.getText) else None , clusteringType.getValue,
-        weightingList.getValue, IDFlist.getValue, strategyList.getValue)
-      ProcessHub.progressProperty.addListener((observable, oldValue, newValue) =>
-        updateProgress(newValue.doubleValue(), 10.0))
-      val clustNum = if(noOfClusters.getText != null && noOfClusters.getText != "") noOfClusters.getText.toInt else 1
-      currentOutput =
-      if(clusteringType.getValue == "Hierarchical") partialOutput(linkageList.getValue,0) else partialOutput("",clustNum)
-
+        val inclusions = if (inclusionListProperty.getValue != null) {
+          inclusionListProperty.getValue.map(_.toString).toArray
+        } else Array("")
+        val exclusions = if (exclusionListProperty.getValue != null) {
+          exclusionListProperty.getValue.map(_.toString).toArray
+        } else Array("")
+        val partialOutput = org.Fcocco01.DocumentClassifier.ProcessHub(
+          inclusions, exclusions, if (customFile != null) Some(customFile.getAbsolutePath) else None,
+          if (regexOption.getText != "") Some(regexOption.getText) else None, clusteringType.getValue,
+          weightingList.getValue, IDFlist.getValue, strategyList.getValue)
+        ProcessHub.progressProperty.addListener((observable, oldValue, newValue) =>
+          updateProgress(newValue.doubleValue(), 10.0))
+        val clustNum = if (noOfClusters.getText != null && noOfClusters.getText != "") noOfClusters.getText.toInt else 1
+        currentOutput =
+          if (clusteringType.getValue == "Hierarchical") partialOutput(linkageList.getValue, 0) else partialOutput("", clustNum)
       startButton.setDisable(false)
       stopButton.setDisable(true)
       viewResultButton.setDisable(false)
@@ -228,7 +231,6 @@ class Controller extends jfxf.Initializable {
     val window = new Stage
     window.setScene(currentOutput)
     window.sizeToScene
-    window.setResizable(false)
     window.show
   }
 

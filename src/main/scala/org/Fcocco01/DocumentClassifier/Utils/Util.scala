@@ -29,6 +29,8 @@ package object Util {
   object I_O {
 
     import java.io.FileInputStream
+    import java.awt.Desktop
+    import ErrorHandling.{logAwayMessage, logAwayErrorsAndExceptions}
 
     import org.apache.pdfbox.pdmodel.PDDocument
     import org.apache.pdfbox.text.PDFTextStripper
@@ -94,7 +96,7 @@ package object Util {
     def GetDocContent(filePath: String): String = readDocWithTry(filePath) match {
       case Success(lines) => lines.mkString(" ")
       case Failure(t) => {
-        errorHandling.logAwayErrorsAndExceptions(t)
+        logAwayErrorsAndExceptions(t)
         ""
       }
     }
@@ -111,6 +113,18 @@ package object Util {
         case true => Files.write(Paths.get(file.getAbsolutePath), message.getBytes, StandardOpenOption.APPEND)
         case false => Files.write(Paths.get(file.getAbsolutePath), message.getBytes)
       }
+    }
+
+    /**
+      * Open a file or directory given its path.
+      *
+      * @param path path to the file/directory
+      */
+    def openFromPath(path: String): Unit = {
+      val target = new File(path)
+      if (!Desktop.isDesktopSupported) logAwayMessage("Desktop is not supported")
+      else if(!target.exists) logAwayMessage(s"File $path does not exists.")
+      else Desktop.getDesktop.open(target)
     }
   }
 
@@ -177,7 +191,7 @@ package object Util {
   }
 
   /** Contains means for handling errors and exceptions, and to perform logging */
-  object errorHandling {
+  object ErrorHandling {
     /**
       * This function acts as a most simple way to log errors an exceptions
       * for debugging
@@ -189,8 +203,22 @@ package object Util {
       val file : File = (new File("./Error_Logs")).listFiles.find(_.getName.contains(day))
         .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
       val stackTrace = e.getStackTrace.map(s => s"      ${s.toString}\n").mkString
-      val error = s"${Time.getCurrentTimeString} - [ ${e.getMessage} ]\n    ${e.getCause}\n     ${e.getLocalizedMessage}\n$stackTrace"
+      val error = s"[${Time.getCurrentTimeString}] - [ ${e.getMessage} ]\n    ${e.getCause}\n     ${e.getLocalizedMessage}\n$stackTrace"
       I_O.log(file, error,true)
+    }
+
+    /**
+      * Logs custom error messages
+      *
+      * @param m
+      * @return
+      */
+    def logAwayMessage(m: String) = {
+      val day = Time.getCurrentDateString
+      val file : File = (new File("./Error_Logs")).listFiles.find(_.getName.contains(day))
+        .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
+      val error = s"[${Time.getCurrentTimeString}] - $m"
+      I_O.log(file, error, true)
     }
   }
 

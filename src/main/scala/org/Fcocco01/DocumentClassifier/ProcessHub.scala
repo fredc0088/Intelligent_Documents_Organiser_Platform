@@ -14,9 +14,10 @@ import Util.I_O.GetDocContent
 import Util.Time.currentTimeMins
 import Constants._
 import Visualisation.HierarchicalGraphic.Dendrogram
+import Visualisation.FlatGraphic.SparseGraph
 import javafx.beans.property.{ReadOnlyDoubleProperty, ReadOnlyDoubleWrapper}
 import scalafx.scene.Scene
-import scalafx.scene.layout.HBox
+
 
 
 class ProcessHub(directoriesChosen: Array[String] = Array(""),
@@ -74,7 +75,7 @@ object ProcessHub {
         progress.set(FIVE_HALF)
 
         val idfWeightedTerms =
-          if(idfChoice == "" || dictionary == None)
+          if(idfChoice == "Normal" || dictionary == None)
             None
           else idfChoice match {
             case "Idf" => Some(dictionary.getOrElse(Vector("")).par
@@ -123,13 +124,14 @@ object ProcessHub {
 
           val numberOfClusters = clustersNumber
 
-          val clustering: Vector[FlatClustering.Cluster] = K_Means(numberOfClusters)(compareFun)(vectors: _*)
+          val clusters: Vector[FlatClustering.Cluster] = K_Means(numberOfClusters)(compareFun)(vectors: _*)
 
           println("Clustering after  " + currentTimeMins(time))
 
-          printClusters(clustering: _*)
+          printClusters(clusters: _*)
 
-          new Scene(new HBox)
+          SparseGraph(clusters: _*)
+
         }
         progress.set(TEN)
         result

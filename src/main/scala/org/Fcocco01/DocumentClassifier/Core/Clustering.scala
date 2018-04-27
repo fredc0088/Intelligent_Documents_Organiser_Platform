@@ -28,7 +28,7 @@ object Clustering {
     def cosine(v1: DVector, v2: DVector) = {
       val a: Double = getAbsoluteValue(v1) |> Math.sqrt
       val b: Double = getAbsoluteValue(v2) |> Math.sqrt
-      getDocProduct(v1, v2).map(_._2).reduce(_ + _) / Math.sqrt(a * b)
+      getDocProduct(v1, v2).map(_._2).reduce(_ + _) / (a * b)
     }
 
     def getDocProduct(v1: DVector, v2: DVector) =
@@ -75,6 +75,9 @@ object Clustering {
     type MatrixEl = (Double, DVector, DVector)
     type SimMatrix = Array[Array[MatrixEl]]
 
+    /**
+      *
+      */
     sealed trait Cluster {
 
       val distance: Option[Double]
@@ -93,6 +96,10 @@ object Clustering {
       def getChildren: Option[(Cluster, Cluster)]
     }
 
+    /**
+      *
+      * @param v
+      */
     final case class SingleCluster(private val v: DVector) extends Cluster {
       override def getChildren = None
 
@@ -104,7 +111,12 @@ object Clustering {
       override val distance = None
     }
 
-
+    /**
+      *
+      * @param childL
+      * @param childR
+      * @param distance
+      */
     final case class MultiCluster(childL: Cluster, childR: Cluster)(val distance: Option[Double]) extends Cluster {
 
       override def getChildren = Some(childL, childR)
@@ -154,6 +166,9 @@ object Clustering {
       def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl]
     }
 
+    /**
+      *
+      */
     object Single_Link extends Linkage_Strategy {
 
       override def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl] =
@@ -177,6 +192,9 @@ object Clustering {
       }
     }
 
+    /**
+      *
+      */
     object Complete_Link extends Linkage_Strategy {
 
       override def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl] =
@@ -200,6 +218,12 @@ object Clustering {
       }
     }
 
+    /**
+      *
+      * @param vectors
+      * @param f
+      * @return
+      */
     def createSimMatrix(vectors: Traversable[DVector], f: DistanceORSimFun): SimMatrix = {
       val v = vectors.toArray.par
       val size = v.size
@@ -213,6 +237,14 @@ object Clustering {
       matrix
     }
 
+    /**
+      *
+      * @param m
+      * @param init
+      * @param linkStrategy
+      * @param v
+      * @return
+      */
     def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Linkage_Strategy, v: DVector*) = {
       val cls = init(v.toSeq)
       val p: PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
@@ -250,17 +282,18 @@ object Clustering {
     case class Comparison(vector: DVector, vectorComparedTo: DVector, distance: Double)
 
     case class Cluster(center: DVector, elements: DVector*){
-      val p = elements.map(_.id)
+      val vectorsID = elements.map(_.id)
     }
 
     def K_Means(k: Int) (dist: DistanceORSimFun) (vectors: DVector*) : Vector[Cluster] = {
       var count = 0
+      val n = if(k <= vectors.size && k > ZERO) k else ONE
       //      (f: Option[(Array[DVector], DistanceORSimFun) => List[DVector]]) => {
       //        val initialSeeds = f match {
       //          case Some(x) => x.curried.apply(vectors.toArray)(dist)
       //          case None => scala.util.Random.shuffle(vectors).take(k)
       //        }
-      val initialSeeds = scala.util.Random.shuffle(vectors).take(k)
+      val initialSeeds = scala.util.Random.shuffle(vectors).take(n)
 
       def help(oldCentroids: Vector[DVector]): Vector[Cluster] = {
         count += 1
@@ -270,24 +303,16 @@ object Clustering {
           .map(x => x._2.map(y => y._1).toList.minBy(z => z.distance)).toVector
 
         val newClusters = clustersDistances.groupBy(_.vectorComparedTo)
-          .map(x => {
-            val bestCandidateCenter = findBestCenter(x._2.map(_.distance).sum / x._2.size,x._2)
-            Cluster(bestCandidateCenter.vector, x._2.map(_.vector): _*)
-          }).toVector
+          .map(x => Cluster(computeNewCentroid(x._2.map(_.vector): _*), x._2.map(_.vector): _*)
+          ).toVector
 
         val newCentroids = newClusters.map(x => x.center)
 
         println(s"Iterations: $count")
 
-
-        println("old:\n " + oldCentroids.map(_.id).mkString(",\n    "))
-        println("new:\n " + newCentroids.map(_.id).mkString(",\n    "))
-
         println("Clusters:\n " + newClusters.map(_.elements).mkString(",\n     "))
         println(newCentroids.forall(oldCentroids.contains(_)))
         println("")
-
-
 
         newCentroids == oldCentroids match {
           case true => newClusters
@@ -297,13 +322,23 @@ object Clustering {
       help(initialSeeds.toVector)
     }
 
-    def findBestCenter(value: Double, elements: Vector[Comparison]) = {
-      var current = elements(0)
-      for(el <- elements){
-        if(Math.abs(value - el.distance) < (Math.abs(value - current.distance)))
-          current = el
-      }
-      current
+    /* Possible method for future implementation of K-Medoids */
+//    def findBestCenter(value: Double, elements: Vector[Comparison]) = {
+//      var current = elements(0)
+//      for(el <- elements){
+//        if(Math.abs(value - el.distance) < (Math.abs(value - current.distance)))
+//          current = el
+//      }
+//      current
+//    }
+
+    def computeNewCentroid(vectors: DVector*) = {
+      val vector = vectors.head.apply.map(x => (x._1, valueMean(vectors.map(y => y.apply(x._1)).toVector)))
+      Types.TypeClasses.Vectors.DVector(vector.hashCode.toString,vector)
+    }
+
+    private def valueMean(values: Vector[Double]) = {
+      values.reduce(_ + _) / values.size
     }
 
     def printClusters(clusters: Cluster*) : Unit = {

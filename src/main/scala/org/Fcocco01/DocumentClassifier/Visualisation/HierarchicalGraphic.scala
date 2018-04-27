@@ -1,10 +1,12 @@
 package org.Fcocco01.DocumentClassifier.Visualisation
 
-import java.awt.Toolkit
+import java.awt.{Toolkit, Desktop}
+import java.io.File
 
 import org.Fcocco01.DocumentClassifier.{Core, Utils}
 import Core.Clustering.HierarchicalClustering.Cluster
 import Utils.Constants._
+import Utils.Util.ErrorHandling.logAwayErrorsAndExceptions
 import Utils.Types.TypeClasses.Vectors.EmptyV
 import scalafx.Includes._
 import scalafx.scene.control.{Button, ScrollPane, TextArea}
@@ -25,7 +27,7 @@ object HierarchicalGraphic {
       val (w, h) = ((screenSize.width * ZERO_NINE).toInt, (screenSize.height * ZERO_SEVEN).toInt)
 
       val root = new ScrollPane
-      val center = new StackPane
+      val center = new AnchorPane
       center.autosize
       root.autosize
       root.setContent(center)
@@ -88,7 +90,9 @@ object HierarchicalGraphic {
         val popup = new Popup
         popup.setHideOnEscape(true)
         val box = new VBox
-        val t = new Text(box.width.value / TWO, TWENTY, node.name)
+        val t = new Text(box.width.value / TWO, TWENTY, node.name){
+          onMouseClicked = (event: MouseEvent) => Utils.Util.I_O.openFromPath(node.name)
+        }
         t.setStyle("-fx-border-style: solid;-fx-font-weight: bold")
         val buttonView = new Button("View Vector") {
           onMouseClicked = (event: MouseEvent) => {

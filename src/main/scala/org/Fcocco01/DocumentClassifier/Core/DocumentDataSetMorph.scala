@@ -99,7 +99,7 @@ object DocumentDataSetMorph {
     * probably from a different chained function, it will produce a empty vector.
     * Optionally, a dictionary can be used as parameter as well, in order to normalise the vector produced.
     *
-    * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Features.ModelFunctions]]
+    * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Features.Bag_Of_Words_Models]]
     * @param dictionary A set of unique terms composing a dictionary (see [[Dictionary]])
     * @return [[DocumentVector]] instance, either [[DVector]] or [[EmptyV]]
     */
@@ -139,8 +139,7 @@ object DocumentDataSetMorph {
     * @param docPath
     * @return [[DocumentVector]] instance, either [[DVector]] or [[EmptyV]]
     */
-  def createVector(tokenizer: TokenSuite)(docPath: DocPath)
-    : (Scheme,Option[Tokens]) => DocumentVector =
+  def createVector(tokenizer: TokenSuite)(docPath: DocPath) : (Scheme,Option[Tokens]) => DocumentVector =
     (modeller: Scheme, dictionary: Option[Tokens]) =>
       (dictionary match {
         case Some(_) => createVector(modeller, dictionary)
