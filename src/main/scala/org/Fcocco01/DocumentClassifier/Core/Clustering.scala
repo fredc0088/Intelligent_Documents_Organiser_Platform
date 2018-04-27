@@ -63,7 +63,7 @@ object Clustering {
       * @return
       */
     def manhattan(v1: DVector, v2: DVector) =
-      v1.apply.map { x => x._2 - v2.apply.a(x._1) }.reduce(_ + _)
+      v1.apply.map { x => Math.abs(x._2 - v2.apply.a(x._1)) }.reduce(_ + _)
   }
 
   /** Methods to perform an hierarchical clustering for a set of document vectors */
@@ -287,7 +287,7 @@ object Clustering {
 
     def K_Means(k: Int) (dist: DistanceORSimFun) (vectors: DVector*) : Vector[Cluster] = {
       var count = 0
-      val n = if(k <= vectors.size && k > ZERO) k else ONE
+      val n = if(k <= vectors.size && k > ZERO) k else Math.sqrt(k/TWO).toInt
       //      (f: Option[(Array[DVector], DistanceORSimFun) => List[DVector]]) => {
       //        val initialSeeds = f match {
       //          case Some(x) => x.curried.apply(vectors.toArray)(dist)
