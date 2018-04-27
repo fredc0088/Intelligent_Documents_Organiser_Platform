@@ -26,7 +26,7 @@
             <Button fx:id="exclusionFileChooser" layoutX="581.0" layoutY="16.0" mnemonicParsing="false" onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />
             <ListView fx:id="inclusionList" layoutX="60.0" layoutY="48.0" prefHeight="69.0" prefWidth="320.0" />
             <ListView fx:id="exclusionList" layoutX="498.0" layoutY="48.0" prefHeight="69.0" prefWidth="320.0" />
-            <SplitPane dividerPositions="0.5" layoutY="146.0" prefHeight="27.0" prefWidth="898.0">
+            <SplitPane dividerPositions="0.5" layoutY="146.0" prefHeight="27.0" prefWidth="898.0" style="-fx-background-color: transparent;">
                <items>
                   <HBox alignment="CENTER">
                      <children>
@@ -66,12 +66,12 @@
             </HBox>
             <HBox alignment="CENTER" layoutX="211.0" layoutY="196.0" prefHeight="25.0" prefWidth="412.0">
                <children>
-                  <Label prefHeight="25.0" prefWidth="117.0" text=" Features Modelling" />
+                  <Label prefHeight="25.0" prefWidth="150.0" text=" Features Modelling" />
                   <ChoiceBox fx:id="weightingList" onAction="#changeOnWeighting" prefHeight="25.0" prefWidth="111.0">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="Tf" />
-                            <String fx:value="Bag-Of-Words" />
+                            <String fx:value="Raw-Bag-Of-Words" />
                             <String fx:value="Wdf" />
                             <String fx:value="TFLog" />
                         </FXCollections>
@@ -97,7 +97,7 @@
             </HBox>
             <HBox alignment="CENTER" layoutX="611.0" layoutY="195.0" prefHeight="25.0" prefWidth="265.0">
                <children>
-                  <Label prefHeight="25.0" prefWidth="97.0" text="Scoring strategy" />
+                  <Label prefHeight="25.0" prefWidth="129.0" text="Scoring strategy" />
                   <ChoiceBox fx:id="strategyList" onAction="#changeOnStrategy" prefHeight="25.0" prefWidth="96.0">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
@@ -124,7 +124,7 @@
                <children>
                   <HBox fx:id="linkageBox" alignment="CENTER">
                      <children>
-                        <Label prefHeight="17.0" prefWidth="111.0" text="Linkage Function" />
+                        <Label prefHeight="17.0" prefWidth="111.0" text="Merging Criteria" />
                         <ChoiceBox fx:id="linkageList" prefHeight="25.0" prefWidth="147.0">
                            <items>
                               <FXCollections fx:factory="observableArrayList">
