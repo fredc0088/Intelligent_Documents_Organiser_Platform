@@ -4,7 +4,7 @@ import org.Fcocco01.DocumentClassifier._
 import Core.Features.{IDF, Bag_Of_Words_Models}
 import IDF._
 import Bag_Of_Words_Models._
-import Core.DocumentDataSetMorph.{Dictionary, buildTokenSuite, tokenizeDocument}
+import Core.DataSetMorph.{Dictionary, buildTokenSuite, tokenizeDocument}
 import Core.Tokenization.TokenizedText
 import Test.TestingResources.Paths.{testPath1, testPath2, testPath3, testPath5, testPath8, testPath9, testPath10}
 import Test.TestingResources.Regexes.words1gram
