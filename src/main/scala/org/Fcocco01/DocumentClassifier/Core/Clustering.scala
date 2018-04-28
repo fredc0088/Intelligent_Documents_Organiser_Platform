@@ -241,10 +241,11 @@ object Clustering {
     }
 
     /**
+      * Create a matrix of the similarity/distance between all dataset of vectors.
       *
-      * @param vectors
-      * @param f
-      * @return
+      * @param vectors dataset
+      * @param f distance/similarity function to apply on two vectors
+      * @return a matrix of [[MatrixEl]]
       */
     def createSimMatrix(vectors: Traversable[DVector], f: DistanceORSimFun): SimMatrix = {
       val v = vectors.toArray.par
@@ -301,10 +302,17 @@ object Clustering {
   /** Methods to perform a flat clustering for a set of document vectors */
   object FlatClustering {
 
+    /**
+      * Represent a comparison between two vectors, storing their distance.
+      *
+      * @param vector
+      * @param vectorComparedTo
+      * @param distance
+      */
     case class Comparison(vector: DVector, vectorComparedTo: DVector, distance: Double)
 
     /**
-      * Cluster class for flat clustering, containing all closest vectors
+      * Cluster class for flat clustering, containing all closest vectors.
       *
       * @param center
       * @param elements
@@ -343,9 +351,9 @@ object Clustering {
 
       def help(oldCentroids: Vector[DVector]): Vector[Cluster] = {
         val clustersDistances = oldCentroids.map {
-          x => vectors.map(y => Comparison(y, x, dist(x, y))).zipWithIndex
+          x => vectors.map ( y => Comparison(y, x, dist(x, y)) ) .zipWithIndex
         }.flatten.groupBy(_._2)
-          .map(x => x._2.map(y => y._1).toList.minBy(z => z.distance)).toVector
+          .map ( x => x._2.map(y => y._1).toList.minBy(z => z.distance) ) .toVector
 
         val newClusters = clustersDistances.groupBy(_.vectorComparedTo)
           .map(x => Cluster(computeNewCentroid(x._2.map(_.vector): _*), x._2.map(_.vector): _*)
