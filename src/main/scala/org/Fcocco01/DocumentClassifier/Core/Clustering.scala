@@ -151,9 +151,30 @@ object Clustering {
         }
     }
 
+    /**
+      * Find the cluster in the structure that contains a defined vector.
+      *
+      * @param tree a hierarchy of clusters
+      * @param elToFind the vector sought
+      * @return the cluster that contain the desired vector
+      */
     def getRightCluster(tree: List[Cluster], elToFind: DVector): Cluster =
       tree.find(_.hasVector(elToFind)).get
 
+    /**
+      * Cut a matrix in half, excluding comparisons between the same vector and itself.
+      * This following the concept that half of the matrix are comparisons between vectors already made.
+      *
+      *        1   2    3     4
+      *  -----------------------
+      *   1 |  1   .7   .5    .2
+      *   2 | .7   1    .8    .1
+      *   3 | .5   .8    1    .7
+      *   4 | .2   .1   .7     1
+      *
+      * @param m a similarity matrix
+      * @return an array which is one meaningful half of the matrix
+      */
     def cutMatrix(m: SimMatrix): Array[MatrixEl] =
       m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / TWO + ONE)
 
