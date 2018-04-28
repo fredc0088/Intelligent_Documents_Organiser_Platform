@@ -26,7 +26,7 @@ object FlatPlot {
   object TempRepresentation {
     def apply(clusters: Cluster*) = {
         val visual : String = clusters.zipWithIndex.map {
-          x => s"Cluster ${x._2} with id ${x._1.hashCode}:\n ${
+          x => s"Cluster ${x._2} with name ${x._1.name}:\n ${
             x._1.vectorsID.map { y => s"            ${y}\n"
             }.reduce(_ + _)}\n"
         }.reduce(_ + _)

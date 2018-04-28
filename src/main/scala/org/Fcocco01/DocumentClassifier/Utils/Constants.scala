@@ -8,6 +8,7 @@ package object Constants {
   val ONE = 1
   val TWO = 2
   val TWO_HALF = 2.5
+  val THREE = 3
   val THREE_HALF = 3.5
   val FOUR = 4
   val FOUR_HALF = 4.5

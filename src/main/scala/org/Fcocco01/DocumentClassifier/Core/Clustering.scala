@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils.{Util,Types,Constants}
-import Constants.{ZERO,ONE,TWO,HALF,FIVE}
+import Constants.{ZERO,ONE,TWO,THREE,HALF,FIVE}
 import Util.Operators.|>
 
 import scala.annotation.tailrec
@@ -131,14 +131,14 @@ object Clustering {
         def constructTitle(string: String, n: Int, terms: List[Option[(String, Double)]], default: (String, Double)): String =
           if (terms.isEmpty) string
           else n match {
-            case ZERO => string
-            case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1} ", n - ONE, terms.tail, default)
+            case ZERO => s"${string}_"
+            case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1}_", n - ONE, terms.tail, default)
           }
         val height = getHeight.toInt
         val name = if (height > FIVE && highestTerms.length > FIVE)
           constructTitle("", height / FIVE, highestTerms, default)
         else constructTitle("", height, highestTerms, default)
-        s"${name}_${Math.abs(this.hashCode).toString}"
+        s"${name}${Math.abs(this.hashCode).toString}"
       }
 
       lazy val vectors: List[DVector] =
@@ -253,7 +253,7 @@ object Clustering {
       @tailrec
       def createClusterTree(setL: Int, tree: List[Cluster]): Cluster = {
         tree.size match {
-          case 1 => tree.head
+          case ONE => tree.head
           case _ => {
 
             val c = linkStrategy.getDistance(Right(p))
@@ -282,12 +282,36 @@ object Clustering {
 
     case class Comparison(vector: DVector, vectorComparedTo: DVector, distance: Double)
 
+    /**
+      * Cluster class for flat clustering, containing all closest vectors
+      *
+      * @param center
+      * @param elements
+      */
     case class Cluster(center: DVector, elements: DVector*){
-      val vectorsID = elements.map(_.id)
+      lazy val vectorsID = elements.map(_.id)
+      /* Picks the most important terms for all vectors to construct a name for
+      * the cluster. Hashcode is used to ensure uniqueness. */
+      lazy val name = {
+        val mains = elements.map(x => x.apply.toArray.sortBy(_._2).head).sortBy(_._2)
+        val names  = if(mains.size > THREE) mains.map(_._1).toArray.distinct.take(THREE)
+        else mains.map(_._1).toArray.distinct.take(ONE)
+        names.mkString("_") ++ s"_${this.hashCode}"
+      }
     }
 
+    /**
+      * Simple K-means algorithm to assign the document vectors to k number of clusters
+      * based on their distance from the center of that cluster.
+      * A centroid is recomputed each iteration creating as a fake vector calculated from the mean
+      * of the vectors in a cluster.
+      *
+      * @param k number of desired clusters
+      * @param dist a distance function
+      * @param vectors the dataset formed of document vectors
+      * @return a set of clusters
+      */
     def K_Means(k: Int) (dist: DistanceORSimFun) (vectors: DVector*) : Vector[Cluster] = {
-      var count = 0
       val n = if(k <= vectors.size && k > ZERO) k else Math.sqrt(k/TWO).toInt
       //      (f: Option[(Array[DVector], DistanceORSimFun) => List[DVector]]) => {
       //        val initialSeeds = f match {
@@ -297,7 +321,6 @@ object Clustering {
       val initialSeeds = scala.util.Random.shuffle(vectors).take(n)
 
       def help(oldCentroids: Vector[DVector]): Vector[Cluster] = {
-        count += 1
         val clustersDistances = oldCentroids.map {
           x => vectors.map(y => Comparison(y, x, dist(x, y))).zipWithIndex
         }.flatten.groupBy(_._2)
@@ -308,12 +331,6 @@ object Clustering {
           ).toVector
 
         val newCentroids = newClusters.map(x => x.center)
-
-        println(s"Iterations: $count")
-
-        println("Clusters:\n " + newClusters.map(_.elements).mkString(",\n     "))
-        println(newCentroids.forall(oldCentroids.contains(_)))
-        println("")
 
         newCentroids == oldCentroids match {
           case true => newClusters
@@ -333,19 +350,35 @@ object Clustering {
     //      current
     //    }
 
+    /**
+      * Creates a centroid vector from the mean of a set of vectors.
+      *
+      * @param vectors the vectors used for the calculation
+      * @return a new vector representing the mean vector of the input set
+      */
     def computeNewCentroid(vectors: DVector*) = {
       val vector = vectors.head.apply.map(x => (x._1, valueMean(vectors.map(y => y.apply(x._1)).toVector)))
       Types.TypeClasses.Vectors.DVector(vector.hashCode.toString,vector)
     }
 
+    /**
+      * Get the mean value of two values.
+      *
+      * @param values
+      * @return the mean value
+      */
     private def valueMean(values: Vector[Double]) = {
       values.reduce(_ + _) / values.size
     }
 
+    /**
+      * Print one or more clusters on the console with information on their content
+      * @param clusters
+      */
     def printClusters(clusters: Cluster*) : Unit = {
       clusters.zipWithIndex.foreach {
         x => {
-          println(s"Cluster ${x._2}: ")
+          println(s"Cluster ${x._1.name}: ")
           x._1.elements.foreach { y =>
             println(s"            ${y.id}")
           }
