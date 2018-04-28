@@ -1,14 +1,20 @@
 package org.Fcocco01.DocumentClassifier.Visualisation
 
-import java.awt.{Toolkit, Desktop}
+import java.awt.Toolkit
 import java.io.File
+
+import org.apache.commons.io.FileUtils
 
 import org.Fcocco01.DocumentClassifier.{Core, Utils}
 import Core.Clustering.HierarchicalClustering.Cluster
 import Utils.Constants._
-import Utils.Util.ErrorHandling.logAwayErrorsAndExceptions
 import Utils.Types.TypeClasses.Vectors.EmptyV
+import javafx.scene.control.Alert
+import javafx.stage.DirectoryChooser
+import Utils.Util.ErrorHandling.logAwayErrorsAndExceptions
+
 import scalafx.Includes._
+import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Button, ScrollPane, TextArea}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
@@ -18,8 +24,15 @@ import scalafx.scene.text.Text
 import scalafx.scene.{Group, Parent, Scene}
 import scalafx.stage.{Popup, Stage}
 
+import scala.util.{Failure, Success, Try}
+
 object HierarchicalGraphic {
 
+  /**
+    *
+    * @param cluster
+    * @param panel
+    */
   class Dendrogram(cluster: Cluster)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
   object Dendrogram {
     def apply(cluster: Cluster) = {
@@ -27,19 +40,84 @@ object HierarchicalGraphic {
       val (w, h) = ((screenSize.width * ZERO_NINE).toInt, (screenSize.height * ZERO_SEVEN).toInt)
 
       val root = new ScrollPane
-      val center = new AnchorPane
+      val center = new StackPane
       center.autosize
+      val addPane = new AnchorPane
+      addPane.children.add(center)
+      addPane.children.add(ControlNewFileSystem(cluster))
+      addPane.autosize
       root.autosize
-      root.setContent(center)
+      root.setContent(addPane)
       val pane = DrawDendrogram(cluster,(w, h))
       pane.setAutoSizeChildren(true)
       center.children.add(pane)
       val x = new Dendrogram(cluster)(root, w, h)
       x
     }
+
+    private class ControlNewFileSystem(cluster: Cluster)
+    object ControlNewFileSystem {
+      def apply(cluster: Cluster): Button = {
+        val create : Button = new Button("Generate file system")
+        create.setOnMouseClicked((event: MouseEvent) =>
+          if(event.isStillSincePress) {
+            val directoryChooser = new DirectoryChooser
+            val selectedDirectory = directoryChooser.showDialog(null)
+            if (selectedDirectory != null) {
+              val result = Try {
+                createFileSystem(cluster, selectedDirectory.getCanonicalPath)
+              }
+              result match {
+                case Success(x) => new Alert(
+                  AlertType.Information, s"New file system created in ${selectedDirectory.getCanonicalPath}.")
+                  .showAndWait
+                case Failure(y) => {
+                  logAwayErrorsAndExceptions(y)
+                  new Alert(AlertType.Error, "Some error occured. Please check error log")
+                }
+              }
+            }
+          }
+        )
+        create.setOnMouseDragged((e : MouseEvent) => {
+          create.setLayoutX(e.getSceneX)
+          create.setLayoutY(e.getSceneY)
+        })
+        create
+      }
+
+      private def createFileSystem(cluster: Cluster, root: String) = {
+        def help(cluster: Cluster,dir: String): Unit = {
+          cluster.getChildren match {
+            case None => {
+              val path = new File(dir)
+              path.mkdirs
+              FileUtils.copyFileToDirectory(new File(cluster.name),path)
+            }
+            case Some((left,right)) => {
+              help(left, s"$dir/${cluster.name}")
+              help(right, s"$dir/${cluster.name}")
+            }
+          }
+        }
+        help(cluster,root + "/" + cluster.name)
+      }
+    }
+
+
   }
 
+  /**
+    * Contains a mean to draw a dendrogram plot.
+    */
   object DrawDendrogram {
+    /**
+      * This will draw the dendrogram based on the parameters given.
+      *
+      * @param cluster the root cluster node
+      * @param measures initial width and height
+      * @return a [[Group]] containing the elements forming the dendrogram.
+      */
     def apply(cluster: Cluster, measures: (Double, Double)): Group = {
 
       val (width, height) = measures
@@ -53,6 +131,13 @@ object HierarchicalGraphic {
 
 //      AnchorPane.setAnchors(anchorpane, TEN ,TEN ,TEN ,TEN)
 
+      /**
+        * Recursevely draw the dendrogram.
+        *
+        * @param node the current cluster node
+        * @param x
+        * @param y
+        */
       def drawNode(node: Cluster, x: Double, y: Double): Unit = {
         node.getChildren match {
           case None => pane.children.add(
@@ -78,12 +163,28 @@ object HierarchicalGraphic {
       pane
     }
 
+    /**
+      * Get the max depth from the bottom to the top
+      * of the cluster's tree structure, to calculate how deep
+      * the diagram can go.
+      * Used for scaling.
+      *
+      * @param c top [[Cluster]]
+      * @return a [[Double]] value as the max depth
+      */
     def getDepth(c: Cluster): Double =
       c.getChildren match {
         case None => ZERO
         case Some((left, right)) => Math.max(getDepth(left), getDepth(right)) + c.distance.getOrElse(0.0)
       }
 
+    /**
+      * Create a popup window with information about the [[Cluster]] node,
+      * to use with a leaf.
+      *
+      * @param node the [[Cluster]] leaf in exam
+      * @param vectors if not [[None]], the path of the single vector inside a collection
+      */
     case class NodeInfo(node : Cluster, vectors : Option[Traversable[String]] = None) {
 
       def getInfo = {
@@ -115,6 +216,13 @@ object HierarchicalGraphic {
       }
     }
 
+    /**
+      * Will open a window to show the part of the dendrogram cut from the selected node to
+      * the bottom.
+      *
+      * @param c the selected cluster
+      * @return a new window
+      */
     private def focus(c: Cluster) = {
       val stage = new Stage
       val scene = Dendrogram(c)
@@ -128,8 +236,27 @@ object HierarchicalGraphic {
       stage
     }
 
+    /**
+      * Draw a filled circle.
+      *
+      * @param node the current node
+      * @param x
+      * @param y
+      * @param r the radius
+      */
     class CircleNode(node: Cluster, x: Int, y: Int, r: Int )
     object CircleNode {
+      /**
+        * apply method for [[CircleNode]]
+        *
+        * @param node the current node
+        * @param x
+        * @param y
+        * @param r the radius
+        * @param behaviousOnClick action if the circle is clicked
+        * @param color filling
+        * @return a new circle with the set properties
+        */
       def apply(node : Cluster, x: Double, y: Double, r: Double,
                 behaviousOnClick: MouseEvent => Unit, color : Paint): Circle =
         new Circle { centerX = x; centerY = y; radius = r; fill = color; onMouseClicked = behaviousOnClick }

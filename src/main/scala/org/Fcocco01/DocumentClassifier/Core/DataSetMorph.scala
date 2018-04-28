@@ -17,7 +17,7 @@ object DataSetMorph {
     * @param tokens
     */
   class Dictionary private(tokens: Tokens) {
-    def apply() : Option[Tokens] =
+    def apply : Option[Tokens] =
       if (tokens == null || tokens.isEmpty ||
         (tokens.size == 1 && tokens.head == "") || tokens.forall(_ == ""))
         None
@@ -38,12 +38,12 @@ object DataSetMorph {
         .filterNot(_.tokens.size == ZERO).map(_.tokens)
         .reduce(_ ++ _)
       val instance = new Dictionary(tokens)
-      instance()
+      instance.apply
     }
 
     /**
       * Creates a Dictionary using the paths to the actual document files
-      * and a suite for tokenisation, taking care of that additional process
+      * and a suite for tokenization, taking care of that additional process
       * of processing the documents.
       *
       * @param paths Absolute paths to the documents.
@@ -54,7 +54,7 @@ object DataSetMorph {
     def apply(paths: Paths, tokenizer: TokenSuite) : Option[Tokens] = {
       val tokens = paths.flatMap(x => tokenizer.getTokensFromFile(x))
       val instance = new Dictionary(tokens)
-      instance()
+      instance.apply
     }
 
     /**
@@ -66,7 +66,7 @@ object DataSetMorph {
     def apply(vectors: DocumentVector*) : Option[Tokens] = {
       val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.apply.map(y => y._1)).toArray
       val instance = new Dictionary(tokens)
-      instance()
+      instance.apply
     }
   }
 

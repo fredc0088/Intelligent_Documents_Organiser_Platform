@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils.{Util,Types,Constants}
-import Constants.{ZERO,ONE,TWO,HALF}
+import Constants.{ZERO,ONE,TWO,HALF,FIVE}
 import Util.Operators.|>
 
 import scala.annotation.tailrec
@@ -121,11 +121,11 @@ object Clustering {
 
       override def getChildren = Some(childL, childR)
 
-      // It does not work properly
+      /* Name the cluster based on the main topic. It is not working properly at this stage. Under research */
       lazy val name: String = {
         val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2): _*))
         val highestTerms = vectors.map(x => x.headOption)
-        val default = (scala.util.Random.alphanumeric.take(5).toString, ZERO.toDouble)
+        val default = (scala.util.Random.alphanumeric.take(FIVE).toString, ZERO.toDouble)
 
         @tailrec
         def constructTitle(string: String, n: Int, terms: List[Option[(String, Double)]], default: (String, Double)): String =
@@ -135,9 +135,10 @@ object Clustering {
             case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1} ", n - ONE, terms.tail, default)
           }
         val height = getHeight.toInt
-        if (height > 3 && highestTerms.length > 3)
-          constructTitle("", height / 3, highestTerms, default)
+        val name = if (height > FIVE && highestTerms.length > FIVE)
+          constructTitle("", height / FIVE, highestTerms, default)
         else constructTitle("", height, highestTerms, default)
+        s"${name}_${Math.abs(this.hashCode).toString}"
       }
 
       lazy val vectors: List[DVector] =

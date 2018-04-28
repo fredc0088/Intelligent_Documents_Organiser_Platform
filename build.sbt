@@ -25,6 +25,8 @@ val scalaFX = "org.scalafx" %% "scalafx" % "8.0.144-R12"
 
 val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
 
+val io_commons = "org.apache.commons" % "commons-io" % "1.3.2"
+
 val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
 val jFreeCHartForFlatPlot = Seq("org.jfree" % "jfreechart" % "1.5.0", "org.jfree" % "jfreechart-fx" % "1.0.1",
@@ -42,7 +44,7 @@ lazy val root = (project in file("."))
       resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
       addCompilerPlugin(paradise cross CrossVersion.full),
     libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest,
-      scalaFX, sclFXML, mockTest) ++ jFreeCHartForFlatPlot,
+      scalaFX, sclFXML, mockTest, io_commons) ++ jFreeCHartForFlatPlot,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false,
     mainClass in Compile := Some("org.Fcocco01.DocumentClassifier.Main")

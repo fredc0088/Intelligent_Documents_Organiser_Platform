@@ -228,11 +228,12 @@ class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
   private def onStopClick(event: ActionEvent): Unit = {
+    new Alert(AlertType.Error, "Feature not yet implemented.").showAndWait
     startButton.setDisable(false)
     stopButton.setDisable(true)
-    copyWorker.cancel(true)
-    progressBar.progressProperty.unbind
-    progressBar.setProgress(0)
+//    copyWorker.cancel(true)
+//    progressBar.progressProperty.unbind
+//    progressBar.setProgress(0)
   }
 
   @jfxf.FXML
