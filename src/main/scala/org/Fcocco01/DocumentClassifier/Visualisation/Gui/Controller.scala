@@ -1,4 +1,4 @@
-package org.Fcocco01.DocumentClassifier.Visualisation
+package org.Fcocco01.DocumentClassifier.Visualisation.Gui
 
 import java.io.File
 import java.net.URL

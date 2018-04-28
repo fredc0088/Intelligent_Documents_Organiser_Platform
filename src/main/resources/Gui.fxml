@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Fcocco01.DocumentClassifier.Visualisation.Controller">
+<StackPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Fcocco01.DocumentClassifier.Visualisation.Gui.Controller">
    <children>
       <AnchorPane fx:id="anchorDelegate" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="422.0" prefWidth="896.0" style="-fx-background-color: #ffffff;">
          <children>

@@ -13,8 +13,8 @@ import Core.Tokenization.{StopWords, TokenizedText}
 import Utils.Constants._
 import Utils.Util.I_O.GetDocContent
 import Utils.Util.Time.currentTimeMins
-import Visualisation.FlatGraphic.SparseGraph
-import Visualisation.HierarchicalGraphic.Dendrogram
+import Visualisation.Plotting.FlatGraphic.SparseGraph
+import Visualisation.Plotting.HierarchicalGraphic.Dendrogram
 import scalafx.scene.Scene
 
 

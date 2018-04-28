@@ -2,8 +2,8 @@ package org.Fcocco01.DocumentClassifier.Processes
 
 import org.Fcocco01.DocumentClassifier.{Core, Utils,Visualisation}
 import Core.Clustering.{FlatClustering, HierarchicalClustering}
-import Visualisation.HierarchicalGraphic.Dendrogram
-import Visualisation.FlatGraphic.SparseGraph
+import Visualisation.Plotting.HierarchicalGraphic.Dendrogram
+import Visualisation.Plotting.FlatGraphic.SparseGraph
 
 case class GraphicalResult() extends BaseProcess {
   def start(clusters: Either[HierarchicalClustering.Cluster, Traversable[FlatClustering.Cluster]]) = {

@@ -1,7 +1,6 @@
-package org.Fcocco01.DocumentClassifier.Visualisation
+package org.Fcocco01.DocumentClassifier.Visualisation.Gui
 
 import javafx.event.ActionEvent
-import javafx.scene.layout.{HBox, Priority}
 import javafx.scene.{control => jfxsc, layout => jfxsl}
 
 class XCell() extends jfxsc.ListCell[String] {

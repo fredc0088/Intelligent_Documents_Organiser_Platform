@@ -1,18 +1,16 @@
-package org.Fcocco01.DocumentClassifier.Visualisation
+package org.Fcocco01.DocumentClassifier.Visualisation.Plotting
 
 import java.awt.Toolkit
 import java.io.File
 
-import org.apache.commons.io.FileUtils
-
-import org.Fcocco01.DocumentClassifier.{Core, Utils}
-import Core.Clustering.HierarchicalClustering.Cluster
-import Utils.Constants._
-import Utils.Types.TypeClasses.Vectors.EmptyV
 import javafx.scene.control.Alert
 import javafx.stage.DirectoryChooser
-import Utils.Util.ErrorHandling.logAwayErrorsAndExceptions
-
+import org.Fcocco01.DocumentClassifier.Core.Clustering.HierarchicalClustering.Cluster
+import org.Fcocco01.DocumentClassifier.Utils.Constants._
+import org.Fcocco01.DocumentClassifier.Utils.Types.TypeClasses.Vectors.EmptyV
+import org.Fcocco01.DocumentClassifier.Utils.Util.ErrorHandling.logAwayErrorsAndExceptions
+import org.Fcocco01.DocumentClassifier.{Core, Utils}
+import org.apache.commons.io.FileUtils
 import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.{Button, ScrollPane, TextArea}
