@@ -24,7 +24,7 @@ import scalafx.stage.{Popup, Stage}
 
 import scala.util.{Failure, Success, Try}
 
-object HierarchicalGraphic {
+object HierarchicalPlot {
 
   /**
     *

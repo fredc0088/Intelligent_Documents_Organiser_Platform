@@ -8,7 +8,7 @@ import scalafx.scene.control.ScrollPane
 import scalafx.scene.text.Text
 import scalafx.scene.{Group, Parent, Scene}
 
-object FlatGraphic {
+object FlatPlot {
 
   class SparseGraph(clusters: Cluster*)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
   object SparseGraph {
