@@ -51,8 +51,7 @@ object HierarchicalGraphic {
       val pane = DrawDendrogram(cluster,(w, h))
       pane.setAutoSizeChildren(true)
       center.children.add(pane)
-      val x = new Dendrogram(cluster)(root, w, h)
-      x
+      new Dendrogram(cluster)(root, w, h)
     }
 
     private class ControlNewFileSystem(cluster: Cluster)
