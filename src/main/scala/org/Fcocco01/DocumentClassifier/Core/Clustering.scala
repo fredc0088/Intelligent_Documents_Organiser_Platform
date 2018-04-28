@@ -182,7 +182,7 @@ object Clustering {
       * It provides a [[collection.mutable.PriorityQueue]] ordered depending on the priority the strategy define
       * (like minimum value) and a function to obtain the right vectors depending on the value of comparison
       * defined by the strategy. */
-    trait Linkage_Strategy {
+    trait Merging_Strategy {
       def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]): MatrixEl
 
       def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl]
@@ -191,14 +191,14 @@ object Clustering {
     /**
       *
       */
-    object Single_Link extends Linkage_Strategy {
+    object Single_Link extends Merging_Strategy {
 
       override def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl] =
         PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
 
       override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
         val matrix = m match {
-          case Left(x) => x.flatten.toList;
+          case Left(x) => x.flatten.toList
           case Right(y) => y.toList
         }
 
@@ -217,14 +217,14 @@ object Clustering {
     /**
       *
       */
-    object Complete_Link extends Linkage_Strategy {
+    object Complete_Link extends Merging_Strategy {
 
       override def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl] =
         PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1)).reverse
 
-      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
+      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) : MatrixEl = {
         val matrix = m match {
-          case Left(x) => x.flatten.toList;
+          case Left(x) => x.flatten.toList
           case Right(y) => y.toList
         }
 
@@ -268,7 +268,7 @@ object Clustering {
       * @param v
       * @return
       */
-    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Linkage_Strategy, v: DVector*) = {
+    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy, v: DVector*) = {
       val cls = init(v.toSeq)
       val p: PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
 
@@ -277,8 +277,7 @@ object Clustering {
         tree.size match {
           case ONE => tree.head
           case _ => {
-
-            val c = linkStrategy.getDistance(Right(p))
+            val c: MatrixEl = linkStrategy.getDistance(Right(p))
             val cls1 = getRightCluster(tree, c._2)
             val cls2 = getRightCluster(tree, c._3)
             if (cls1 == cls2) {
