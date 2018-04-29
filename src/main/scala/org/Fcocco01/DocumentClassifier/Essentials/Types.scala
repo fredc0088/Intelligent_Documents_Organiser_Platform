@@ -1,7 +1,6 @@
-package org.Fcocco01.DocumentClassifier.Utils
+package org.Fcocco01.DocumentClassifier.Essentials
 
-import org.Fcocco01.DocumentClassifier.Core.Clustering.DVector
-import org.Fcocco01.DocumentClassifier.Utils.Constants.{FIVE, THREE}
+import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE}
 
 /**
   * Aliases to be used around the code for a better readibility

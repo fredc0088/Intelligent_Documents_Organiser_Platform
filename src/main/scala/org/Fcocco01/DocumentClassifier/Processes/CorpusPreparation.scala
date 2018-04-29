@@ -1,13 +1,13 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
-import org.Fcocco01.DocumentClassifier.Core.DocGathering.DocumentFinder
-import org.Fcocco01.DocumentClassifier.Core.DataSetMorph.{buildTokenSuite, tokenizeDocument}
-import org.Fcocco01.DocumentClassifier.Core.Tokenization.{StopWords, TokenizedText}
-import org.Fcocco01.DocumentClassifier.Utils
-import org.Fcocco01.DocumentClassifier.Utils.Constants.{FOUR, ONE, TEN, ZERO}
-import org.Fcocco01.DocumentClassifier.Utils.Types.TypeClasses.Document
-import org.Fcocco01.DocumentClassifier.Utils.Util.I_O.GetDocContent
-import org.Fcocco01.DocumentClassifier.Utils.Util.Time.currentTimeMins
+import org.Fcocco01.DocumentClassifier.{Core, Essentials}
+import Core.DocGathering.DocumentFinder
+import Core.DataSetMorph.{buildTokenSuite, tokenizeDocument}
+import Core.Tokenization.{StopWords, TokenizedText}
+import Essentials.Constants.{FOUR, ONE, TEN, ZERO}
+import Essentials.Types.TypeClasses.Document
+import Essentials.Util.I_O.GetDocContent
+import Essentials.Util.Time.currentTimeMins
 
 case class CorpusPreparation(directoriesChosen: Array[String] = Array(""),
                            exclusions: Array[String] = Array(""), stopwords: Option[String], regex: Option[String])
@@ -32,12 +32,12 @@ extends BaseProcess {
 
       val stopWords = stopwords match {
         case Some(s) => StopWords(s)
-        case None => StopWords(Utils.Constants.Defaults.stopwordPath)
+        case None => StopWords(Essentials.Constants.Defaults.stopwordPath)
       }
 
       val regexToUse = regex match {
         case Some(r) => r
-        case None => Utils.Constants.Defaults.regexWord1Gram
+        case None => Essentials.Constants.Defaults.regexWord1Gram
       }
       val tknTool = buildTokenSuite(TokenizedText(regexToUse, stopWords))(GetDocContent)
 

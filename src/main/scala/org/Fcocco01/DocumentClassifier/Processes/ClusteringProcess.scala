@@ -1,14 +1,16 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
-import org.Fcocco01.DocumentClassifier.{Core,Utils}
+import org.Fcocco01.DocumentClassifier.{Core,Essentials}
 import Core.Clustering.{DVector, Distance, FlatClustering, Similarity, HierarchicalClustering}
 import FlatClustering.{K_Means, printClusters}
 import HierarchicalClustering._
-import Utils.Util.Time.currentTimeMins
+import Essentials.Util.Time.currentTimeMins
+import Essentials.Types.TypeClasses.Clusters.{Flat,Hierarchical}
+import Hierarchical.SingleCluster
 
 case class ClusteringProcess(clusteringMode: String, comparison: String) extends BaseProcess {
 
-  private type Return = Either[HierarchicalClustering.Cluster, Traversable[FlatClustering.Cluster]]
+  private type Return = Either[Hierarchical.Cluster, Traversable[Flat.Cluster]]
   private type Returner = Traversable[DVector] => Return
 
   def start(linkStrategy: String, clustersNumber: Int): Returner =
@@ -40,7 +42,7 @@ case class ClusteringProcess(clusteringMode: String, comparison: String) extends
 
         val numberOfClusters = clustersNumber
 
-        val clusters: Vector[FlatClustering.Cluster] = K_Means(numberOfClusters)(compareFun)(vectors.toSeq: _*)
+        val clusters: Vector[Flat.Cluster] = K_Means(numberOfClusters)(compareFun)(vectors.toSeq: _*)
 
         printClusters(clusters: _*)
 
@@ -49,7 +51,7 @@ case class ClusteringProcess(clusteringMode: String, comparison: String) extends
 
       println("Clustering in  " + currentTimeMins(time))
 
-      setProgress(Utils.Constants.NINE)
+      setProgress(Essentials.Constants.NINE)
 
       result
     }

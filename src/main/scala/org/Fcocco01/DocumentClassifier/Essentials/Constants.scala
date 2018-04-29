@@ -1,4 +1,4 @@
-package org.Fcocco01.DocumentClassifier.Utils
+package org.Fcocco01.DocumentClassifier.Essentials
 
 package object Constants {
   val ZERO = 0

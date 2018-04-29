@@ -3,15 +3,15 @@ package org.Fcocco01.DocumentClassifier.Test
 import org.Fcocco01.DocumentClassifier._
 import Core.DataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Core.Tokenization.TokenizedText
-import Utils.Util.I_O.GetDocContent
+import Essentials.Util.I_O.GetDocContent
 import TestingResources.{Paths, Regexes, stopWords}
 import Paths._
 import Regexes.words1gram
-import Utils.Types.TypeClasses.{Document, TokenSuite}
-import Utils.Types.TypeClasses.Vectors.{DVector, DocumentVector, EmptyV}
+import Essentials.Types.TypeClasses.{Document, TokenSuite}
+import Essentials.Types.TypeClasses.Vectors.{RealVector, DocumentVector, EmptyVector}
 import Core.Features.{IDF,Bag_Of_Words_Models}
 import Bag_Of_Words_Models.{IDFValue, rawBag, tf, compose_weighting_Fun}
-import Utils.Types.Tokens
+import Essentials.Types.Tokens
 import IDF.simpleIdf
 
 class DataSetMorphTest extends UnitTest("DataSetMorph") {
@@ -21,7 +21,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   var tokens : Array[Option[Document]] = _
   var dictionary : Option[Tokens] = _
   var idfValues : Array[IDFValue] = _
-  var realVectors : Array[DVector] = _
+  var realVectors : Array[RealVector] = _
   var emptyVectors : Array[DocumentVector] = _
   var tknTool : TokenSuite = _
 
@@ -57,7 +57,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   }
 
   "\"Empty\" input" should "create empty dictionary" in {
-    val dictionary = Dictionary(EmptyV)
+    val dictionary = Dictionary(EmptyVector)
     assert(dictionary == None)
   }
 
@@ -91,13 +91,13 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
 
   "Providing a None as Document" should "produce an empty vector" in {
     val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(None)
-    v shouldBe EmptyV
+    v shouldBe EmptyVector
   }
 
   "Empty vectors" should "prove useless in analysis" in {
-    assert(EmptyV.size == 0)
-    assert(EmptyV.id == "")
-    assert(EmptyV.isEmpty)
+    assert(EmptyVector.size == 0)
+    assert(EmptyVector.id == "")
+    assert(EmptyVector.isEmpty)
   }
 
   "Creating vectors non empty" should "have correct properties" in {

@@ -1,6 +1,6 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Utils.{Util,Types,Constants}
+import org.Fcocco01.DocumentClassifier.Essentials.{Util,Types,Constants}
 import Constants.{ZERO,ONE,TWO}
 import Util.Operators.|>
 
@@ -11,7 +11,7 @@ import scala.annotation.tailrec
   */
 object Clustering {
 
-  import Types.TypeClasses.Vectors.{DocumentVector => DVector}
+  type DVector =  Types.TypeClasses.Vectors.DocumentVector
   type DistanceORSimFun = (DVector, DVector) => Double
 
   /**
@@ -286,7 +286,7 @@ object Clustering {
       */
     def computeNewCentroid(vectors: DVector*) = {
       val vector = vectors.head.apply.map(x => (x._1, valueMean(vectors.map(y => y.apply(x._1)).toVector)))
-      Types.TypeClasses.Vectors.DVector(vector.hashCode.toString,vector)
+      Types.TypeClasses.Vectors.RealVector(vector.hashCode.toString,vector)
     }
 
     /**

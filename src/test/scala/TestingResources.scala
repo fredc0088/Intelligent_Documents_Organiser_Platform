@@ -2,7 +2,7 @@ package org.Fcocco01.DocumentClassifier.Test
 
 import org.Fcocco01.DocumentClassifier._
 import Core.Tokenization.StopWords
-import Utils.Types.TypeClasses.Vectors.DVector
+import Essentials.Types.TypeClasses.Vectors.RealVector
 
 object TestingResources {
 
@@ -40,7 +40,7 @@ object TestingResources {
   val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
 
   object DummyObject {
-    val vector1 = DVector("test.docx",Array(("embedded", 0.0),("plugin", 0.0),
+    val vector1 = RealVector("test.docx",Array(("embedded", 0.0),("plugin", 0.0),
       ("test", 0.69897000433601885749368420874816365540027618408203125),("fonts", 0.0),("knows", 0.0),("essential", 0.0),
       ("demonstrates", 0.0),("line", 0.0),("document", 0.0),("compiler", 0.0),("data", 0.0),("inline", 0.0),("programmer", 0.0),
       ("demonstrate", 0.0),("text", 0.0),("particular", 0.0),("guarantee", 0.0),("safe", 0.0),("iterator", 0.0),("object", 0.0),
@@ -48,7 +48,7 @@ object TestingResources {
       ("ability", 0.0),("placed", 0.0),("calibre", 0.0),("integer", 0.0),("docx", 0.0),("kind", 0.0),("type", 0.0),("typically", 0.0),
       ("required", 0.0),("assignment", 0.0),("formatting", 0.0),("types", 0.0),("input", 0.0),("list", 0.0)).toMap)
 
-    val vector2 = DVector("demo3.docx", Array(("embedded", 0.0),("plugin", 0.0),("test", 0.0),("fonts", 0.0),("knows", 0.0),
+    val vector2 = RealVector("demo3.docx", Array(("embedded", 0.0),("plugin", 0.0),("test", 0.0),("fonts", 0.0),("knows", 0.0),
       ("essential", 0.0),("demonstrates", 0.1590404182398874599613236568984575569629669189453125),("line", 0.0),
       ("document", 0.1590404182398874599613236568984575569629669189453125),("compiler", 0.0),("data", 0.0),("inline", 0.0),
       ("programmer", 0.0),("demonstrate", 0.0),("text", 0.0),("particular", 0.0),("guarantee", 0.0),("safe", 0.0),("iterator", 0.0),
@@ -57,7 +57,7 @@ object TestingResources {
       ("integer", 0.0),("docx", 0.0),("kind", 0.0),("type", 0.0),("typically", 0.0),("required", 0.0),("assignment", 0.0),
       ("formatting", 0.0),("types", 0.0),("input", 0.0),("list", 0.0)).toMap)
 
-    val vector3 = DVector("demo4.docx", Array(("embedded", 0.04659800028906792290772642672891379334032535552978515625),
+    val vector3 = RealVector("demo4.docx", Array(("embedded", 0.04659800028906792290772642672891379334032535552978515625),
       ("plugin", 0.04659800028906792290772642672891379334032535552978515625), ("test", 0.0),
       ("fonts", 0.04659800028906792290772642672891379334032535552978515625), ("knows", 0.0), ("essential", 0.0),
       ("demonstrates", 0.0318080836479774919922647313796915113925933837890625), ("line", 0.0),
@@ -74,7 +74,7 @@ object TestingResources {
       ("types", 0.04659800028906792290772642672891379334032535552978515625),
       ("input", 0.04659800028906792290772642672891379334032535552978515625), ("list", 0.0)).toMap)
 
-    val vector4 = DVector("demo5.doc", Array(("embedded", 0.0), ("plugin", 0.0), ("test", 0.0), ("fonts", 0.0),
+    val vector4 = RealVector("demo5.doc", Array(("embedded", 0.0), ("plugin", 0.0), ("test", 0.0), ("fonts", 0.0),
       ("knows", 0.025887777938371069053058448616866371594369411468505859375),
       ("essential", 0.025887777938371069053058448616866371594369411468505859375), ("demonstrates", 0.0),
       ("line", 0.0176711575822097177734804063220508396625518798828125), ("document", 0.0),
@@ -101,14 +101,14 @@ object TestingResources {
       ("assignment", 0.025887777938371069053058448616866371594369411468505859375), ("formatting", 0.0), ("types", 0.0),
       ("input", 0.0), ("list", 0.025887777938371069053058448616866371594369411468505859375)).toMap)
 
-    val vector5 = DVector("demo5.doc", Array(("embedded", 0.24), ("plugin", 0.0), ("test", 0.0),
+    val vector5 = RealVector("demo5.doc", Array(("embedded", 0.24), ("plugin", 0.0), ("test", 0.0),
       ("fonts", 0.0), ("knows", 0.025887777938371), ("essential", 0.02589411468505859375),
       ("demonstrates", 0.0), ("line", 0.017671157588828125), ("document", 0.0),
       ("compiler", 0.369411468505859375), ("data", 0.4258877768505859375), ("inline", 0.0),
       ("programmer", 0.0258877778505859375), ("demonstrate", 0.0), ("text", 0.2352152),
       ("particular", 0.0263715943695)).toMap)
 
-    val vector6 = DVector("demo5.doc", Array(("embedded", 0.5), ("plugin", 0.0), ("test", 0.0),
+    val vector6 = RealVector("demo5.doc", Array(("embedded", 0.5), ("plugin", 0.0), ("test", 0.0),
       ("fonts", 0.0), ("essential", 0.9), ("demonstrates", 0.0), ("demonstrate", 0.0),
       ("line", 0.0176712), ("compiler", 0.02525526), ("data", 0.02588252),
       ("inline", 0.6), ("document", 0.0), ("programmer", 0.235),  ("text", 0.53253),

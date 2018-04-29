@@ -1,4 +1,4 @@
-package org.Fcocco01.DocumentClassifier.Utils
+package org.Fcocco01.DocumentClassifier.Essentials
 
 import java.io.File
 import java.nio.file.{Files, Paths, StandardOpenOption}

@@ -1,9 +1,9 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Utils
-import Utils.Types.TypeClasses.{Document, TermWeighted, TokenSuite}
-import Utils.Types.{Paths, Scheme, Term, Token, Tokens, Weight}
-import Utils.Constants.{ONE, ZERO}
+import org.Fcocco01.DocumentClassifier.Essentials
+import Essentials.Types.TypeClasses.{Document, TermWeighted, TokenSuite}
+import Essentials.Types.{Paths, Scheme, Term, Token, Tokens, Weight}
+import Essentials.Constants.{ONE, ZERO}
 
 /**
   * Provide functions for analysis a [[Term]],

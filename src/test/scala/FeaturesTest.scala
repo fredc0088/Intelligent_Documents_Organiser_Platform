@@ -9,8 +9,8 @@ import Core.Tokenization.TokenizedText
 import Test.TestingResources.Paths.{testPath1, testPath2, testPath3, testPath5, testPath8, testPath9, testPath10}
 import Test.TestingResources.Regexes.words1gram
 import Test.TestingResources.stopWords
-import Utils.Types.TypeClasses.{Document, TermWeighted}
-import Utils.Util.I_O.GetDocContent
+import Essentials.Types.TypeClasses.{Document, TermWeighted}
+import Essentials.Util.I_O.GetDocContent
 
 class FeaturesTest extends UnitTest ("Features"){
 

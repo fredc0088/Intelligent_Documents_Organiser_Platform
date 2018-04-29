@@ -1,12 +1,13 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
-import org.Fcocco01.DocumentClassifier.Core.DataSetMorph.{Dictionary, createVector}
-import org.Fcocco01.DocumentClassifier.Core.Features.Bag_Of_Words_Models._
-import org.Fcocco01.DocumentClassifier.Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
-import org.Fcocco01.DocumentClassifier.Utils.Constants.{FIVE_HALF, SEVEN}
-import org.Fcocco01.DocumentClassifier.Utils.Types.TypeClasses.Document
-import org.Fcocco01.DocumentClassifier.Utils.Types.TypeClasses.Vectors.DocumentVector
-import org.Fcocco01.DocumentClassifier.Utils.Util.Time.currentTimeMins
+import org.Fcocco01.DocumentClassifier.{Core, Essentials}
+import Core.DataSetMorph.{Dictionary, createVector}
+import Core.Features.Bag_Of_Words_Models._
+import Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
+import Essentials.Constants.{FIVE_HALF, SEVEN}
+import Essentials.Types.TypeClasses.Document
+import Essentials.Types.TypeClasses.Vectors.DocumentVector
+import Essentials.Util.Time.currentTimeMins
 
 case class DataSetPreparation(weightFun: String, idfChoice: String) extends BaseProcess {
   def start(corpus: Traversable[Option[Document]]) : Traversable[DocumentVector] = {

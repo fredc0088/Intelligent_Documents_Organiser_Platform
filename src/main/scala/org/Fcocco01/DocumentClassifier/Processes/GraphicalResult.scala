@@ -1,12 +1,12 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
-import org.Fcocco01.DocumentClassifier.{Core, Utils,Visualisation}
-import Core.Clustering.{FlatClustering, HierarchicalClustering}
+import org.Fcocco01.DocumentClassifier.{Essentials,Visualisation}
+import Essentials.Types.TypeClasses.Clusters.{Flat, Hierarchical}
 import Visualisation.Plotting.HierarchicalPlot.Dendrogram
 import Visualisation.Plotting.FlatPlot.SparseGraph
 
 case class GraphicalResult() extends BaseProcess {
-  def start(clusters: Either[HierarchicalClustering.Cluster, Traversable[FlatClustering.Cluster]]) = {
+  def start(clusters: Either[Hierarchical.Cluster, Traversable[Flat.Cluster]]) = {
     def result = clusters match {
       case Left(x) => {
         Dendrogram(x)
@@ -16,7 +16,7 @@ case class GraphicalResult() extends BaseProcess {
       }
     }
 
-    setProgress(Utils.Constants.TEN)
+    setProgress(Essentials.Constants.TEN)
 
     result
   }

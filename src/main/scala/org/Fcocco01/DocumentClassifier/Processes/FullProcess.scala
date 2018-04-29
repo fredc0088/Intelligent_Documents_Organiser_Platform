@@ -1,20 +1,21 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
-import org.Fcocco01.DocumentClassifier.{Core,Utils,Visualisation}
+import org.Fcocco01.DocumentClassifier.{Core, Essentials, Visualisation}
 import javafx.beans.property.{ReadOnlyDoubleProperty, ReadOnlyDoubleWrapper}
 import Core.Clustering.FlatClustering.{K_Means, printClusters}
 import Core.Clustering.HierarchicalClustering._
-import Core.Clustering.{DVector, Distance, FlatClustering, Similarity}
+import Core.Clustering.{DVector, Distance, Similarity}
 import Core.DocGathering.DocumentFinder
 import Core.DataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
 import Core.Features.Bag_Of_Words_Models._
 import Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
 import Core.Tokenization.{StopWords, TokenizedText}
-import Utils.Constants._
-import Utils.Util.I_O.GetDocContent
-import Utils.Util.Time.currentTimeMins
+import Essentials.Constants._
+import Essentials.Util.I_O.GetDocContent
+import Essentials.Util.Time.currentTimeMins
 import Visualisation.Plotting.FlatPlot.SparseGraph
 import Visualisation.Plotting.HierarchicalPlot.Dendrogram
+import org.Fcocco01.DocumentClassifier.Essentials.Types
 import scalafx.scene.Scene
 
 
@@ -50,12 +51,12 @@ object FullProcess {
 
         val stopWords = stopwords match {
           case Some(s) => StopWords(s)
-          case None => StopWords(Utils.Constants.Defaults.stopwordPath)
+          case None => StopWords(Essentials.Constants.Defaults.stopwordPath)
         }
 
         val regexToUse = regex match {
           case Some(r) => r
-          case None => Utils.Constants.Defaults.regexWord1Gram
+          case None => Essentials.Constants.Defaults.regexWord1Gram
         }
         val tknTool = buildTokenSuite(TokenizedText(regexToUse, stopWords))(GetDocContent)
 
@@ -108,7 +109,7 @@ object FullProcess {
         val result = if (clusteringMode == "Hierarchical") {
           val matrix = createSimMatrix(vectors, compareFun)
 
-          val docWrappedInCluster = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
+          val docWrappedInCluster = (x: Seq[DVector]) => x.map(Types.TypeClasses.Clusters.Hierarchical.SingleCluster(_)).toList
           val clusters = linkStrategy match {
             case "Single Link" => HAC(matrix, docWrappedInCluster, Single_Link, vectors: _*)
             case "Complete Link" => HAC(matrix, docWrappedInCluster, Complete_Link, vectors: _*)
@@ -123,7 +124,7 @@ object FullProcess {
 
           val numberOfClusters = clustersNumber
 
-          val clusters: Vector[FlatClustering.Cluster] = K_Means(numberOfClusters)(compareFun)(vectors: _*)
+          val clusters = K_Means(numberOfClusters)(compareFun)(vectors: _*)
 
           println("Clustering after  " + currentTimeMins(time))
 

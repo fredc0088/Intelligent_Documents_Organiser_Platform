@@ -2,8 +2,9 @@ package org.Fcocco01.DocumentClassifier.Visualisation.Plotting
 
 import java.awt.Toolkit
 
-import org.Fcocco01.DocumentClassifier.Core.Clustering.FlatClustering.Cluster
-import org.Fcocco01.DocumentClassifier.Utils.Constants.{ZERO_NINE, ZERO_SEVEN}
+import org.Fcocco01.DocumentClassifier.Essentials._
+import Types.TypeClasses.Clusters.Flat.Cluster
+import org.Fcocco01.DocumentClassifier.Essentials.Constants.{ZERO_NINE, ZERO_SEVEN}
 import scalafx.scene.control.ScrollPane
 import scalafx.scene.text.Text
 import scalafx.scene.{Group, Parent, Scene}

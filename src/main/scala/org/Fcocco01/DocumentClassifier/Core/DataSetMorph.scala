@@ -1,6 +1,6 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Utils.{Types,Constants}
+import org.Fcocco01.DocumentClassifier.Essentials.{Types,Constants}
 
 object DataSetMorph {
 

@@ -1,9 +1,9 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Utils
-import Utils.Util.I_O.GetDocContent
-import Utils.Util.String_Manipulation.onlyDigits
-import Utils.Types.Tokenizer
+import org.Fcocco01.DocumentClassifier.Essentials
+import Essentials.Util.I_O.GetDocContent
+import Essentials.Util.String_Manipulation.onlyDigits
+import Essentials.Types.Tokenizer
 
 /**
   * Provides objects and classes for dealing with tokenization of text.

@@ -5,11 +5,11 @@ import java.io.File
 
 import javafx.scene.control.Alert
 import javafx.stage.DirectoryChooser
-import org.Fcocco01.DocumentClassifier.Core.Clustering.HierarchicalClustering.Cluster
-import org.Fcocco01.DocumentClassifier.Utils.Constants._
-import org.Fcocco01.DocumentClassifier.Utils.Types.TypeClasses.Vectors.EmptyV
-import org.Fcocco01.DocumentClassifier.Utils.Util.ErrorHandling.logAwayErrorsAndExceptions
-import org.Fcocco01.DocumentClassifier.{Core, Utils}
+import org.Fcocco01.DocumentClassifier.Essentials
+import Essentials.Types.TypeClasses.Clusters.Hierarchical.Cluster
+import Essentials.Constants._
+import Essentials.Types.TypeClasses.Vectors.EmptyVector
+import Essentials.Util.ErrorHandling.logAwayErrorsAndExceptions
 import org.apache.commons.io.FileUtils
 import scalafx.Includes._
 import scalafx.scene.control.Alert.AlertType
@@ -189,12 +189,12 @@ object HierarchicalPlot {
         popup.setHideOnEscape(true)
         val box = new VBox
         val t = new Text(box.width.value / TWO, TWENTY, node.name){
-          onMouseClicked = (event: MouseEvent) => Utils.Util.I_O.openFromPath(node.name)
+          onMouseClicked = (event: MouseEvent) => Essentials.Util.I_O.openFromPath(node.name)
         }
         t.setStyle("-fx-border-style: solid;-fx-font-weight: bold")
         val buttonView = new Button("View Vector") {
           onMouseClicked = (event: MouseEvent) => {
-            val vector = node.vectors.headOption.getOrElse(EmptyV).apply
+            val vector = node.vectors.headOption.getOrElse(EmptyVector).apply
             val vectorRepresentation = new TextArea
             vectorRepresentation.setText(vector.map(v => s"${v._1} ----> ${v._2}").mkString("\n"))
             val hbox = new HBox { children = vectorRepresentation }
