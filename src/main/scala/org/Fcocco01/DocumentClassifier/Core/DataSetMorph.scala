@@ -21,7 +21,7 @@ object DataSetMorph {
       if (tokens == null || tokens.isEmpty ||
         (tokens.size == 1 && tokens.head == "") || tokens.forall(_ == ""))
         None
-      else Some(tokens.toVector.distinct)
+      else Some(tokens.toVector.distinct.filterNot(_ == ""))
   }
   /** Factory for [[Dictionary]] instances. */
   object Dictionary {
