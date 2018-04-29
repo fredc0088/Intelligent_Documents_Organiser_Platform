@@ -18,147 +18,136 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.Fcocco01.DocumentClassifier.Visualisation.Gui.Controller">
-   <children>
-      <AnchorPane fx:id="anchorDelegate" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="422.0" prefWidth="896.0" style="-fx-background-color: #ffffff;">
-         <children>
-            <Button fx:id="directoryFileChooser" layoutX="133.0" layoutY="16.0" mnemonicParsing="false" onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Directories" />
-            <Button fx:id="exclusionFileChooser" layoutX="581.0" layoutY="16.0" mnemonicParsing="false" onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions" />
-            <ListView fx:id="inclusionList" layoutX="60.0" layoutY="48.0" prefHeight="69.0" prefWidth="320.0" />
-            <ListView fx:id="exclusionList" layoutX="498.0" layoutY="48.0" prefHeight="69.0" prefWidth="320.0" />
-            <SplitPane dividerPositions="0.5" layoutY="146.0" prefHeight="27.0" prefWidth="898.0" style="-fx-background-color: transparent;">
+<StackPane xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.Fcocco01.DocumentClassifier.Visualisation.Gui.Controller">
+   <AnchorPane fx:id="anchorDelegate" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+               minWidth="-Infinity" prefHeight="422.0" prefWidth="896.0" style="-fx-background-color: #ffffff;">
+      <Button fx:id="directoryFileChooser" layoutX="133.0" layoutY="16.0" mnemonicParsing="false"
+              onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Directories"/>
+      <Button fx:id="exclusionFileChooser" layoutX="581.0" layoutY="16.0" mnemonicParsing="false"
+              onAction="#loadDirectories" prefHeight="25.0" prefWidth="154.0" text="Select Exclusions"/>
+      <ListView fx:id="inclusionList" layoutX="60.0" layoutY="48.0" prefHeight="69.0" prefWidth="320.0"/>
+      <ListView fx:id="exclusionList" layoutX="498.0" layoutY="48.0" prefHeight="69.0" prefWidth="320.0"/>
+      <SplitPane dividerPositions="0.5" layoutY="146.0" prefHeight="27.0" prefWidth="898.0"
+                 style="-fx-background-color: transparent;">
+         <HBox alignment="CENTER">
+            <Label text="Stopwords"/>
+            <RadioButton fx:id="customOption" mnemonicParsing="false" onAction="#radioOptionChange"
+                         text="Custom">
+               <padding>
+                  <Insets left="20.0" right="20.0"/>
+               </padding>
+            </RadioButton>
+            <RadioButton fx:id="defaultOption" mnemonicParsing="false" onAction="#radioOptionChange"
+                         prefHeight="17.0" prefWidth="78.0" text="Default">
+            </RadioButton>
+         </HBox>
+         <HBox alignment="CENTER" prefHeight="25.0" prefWidth="469.0">
+            <Label prefHeight="17.0" prefWidth="116.0" text="Regex (Optional)"/>
+            <TextField fx:id="regexOption" prefHeight="25.0" prefWidth="146.0"/>
+         </HBox>
+      </SplitPane>
+      <HBox alignment="CENTER" layoutX="20.0" layoutY="195.0" prefHeight="25.0" prefWidth="181.0">
+         <Label prefHeight="17.0" prefWidth="146.0" text="Clustering type"/>
+         <ChoiceBox fx:id="clusteringType" onAction="#changeOnClustering" prefHeight="25.0" prefWidth="140.0">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Flat"/>
+                  <String fx:value="Hierarchical"/>
+               </FXCollections>
+            </items>
+            <value>
+               <String fx:value="Hierarchical"/>
+            </value>
+         </ChoiceBox>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="211.0" layoutY="196.0" prefHeight="25.0" prefWidth="412.0">
+         <Label prefHeight="25.0" prefWidth="150.0" text=" Features Modelling"/>
+         <ChoiceBox fx:id="weightingList" onAction="#changeOnWeighting" prefHeight="25.0" prefWidth="111.0">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Tf"/>
+                  <String fx:value="Raw-Bag-Of-Words"/>
+                  <String fx:value="Wdf"/>
+                  <String fx:value="TFLog"/>
+               </FXCollections>
+            </items>
+            <value>
+               <String fx:value="Tf"/>
+            </value>
+         </ChoiceBox>
+         <ChoiceBox fx:id="IDFlist" onAction="#changeOnIdf" prefHeight="25.0" prefWidth="111.0">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Normal"/>
+                  <String fx:value="No Dictionary"/>
+                  <String fx:value="Idf"/>
+                  <String fx:value="Smooth Idf"/>
+               </FXCollections>
+            </items>
+            <value>
+               <String fx:value="Normal"/>
+            </value>
+         </ChoiceBox>
+      </HBox>
+      <HBox alignment="CENTER" layoutX="611.0" layoutY="195.0" prefHeight="25.0" prefWidth="265.0">
+         <Label prefHeight="25.0" prefWidth="129.0" text="Scoring strategy"/>
+         <ChoiceBox fx:id="strategyList" onAction="#changeOnStrategy" prefHeight="25.0" prefWidth="96.0">
+            <items>
+               <FXCollections fx:factory="observableArrayList">
+                  <String fx:value="Cosine Sim"/>
+                  <String fx:value="Euclidean Dist"/>
+                  <String fx:value="Manhattan Dist"/>
+               </FXCollections>
+            </items>
+            <value>
+               <String fx:value="Cosine Sim"/>
+            </value>
+         </ChoiceBox>
+      </HBox>
+      <GridPane layoutY="281.0" prefHeight="25.0" prefWidth="898.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+         </rowConstraints>
+         <HBox fx:id="linkageBox" alignment="CENTER">
+            <Label prefHeight="17.0" prefWidth="111.0" text="Merging Criteria"/>
+            <ChoiceBox fx:id="linkageList" prefHeight="25.0" prefWidth="147.0">
                <items>
-                  <HBox alignment="CENTER">
-                     <children>
-                        <Label text="Stopwords" />
-                        <RadioButton fx:id="customOption" mnemonicParsing="false" onAction="#radioOptionChange" text="Custom">
-                           <padding>
-                              <Insets left="20.0" right="20.0" />
-                           </padding>
-                        </RadioButton>
-                        <RadioButton fx:id="defaultOption" mnemonicParsing="false" onAction="#radioOptionChange" prefHeight="17.0" prefWidth="78.0" text="Default">
-                        </RadioButton>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER" prefHeight="25.0" prefWidth="469.0">
-                     <children>
-                        <Label prefHeight="17.0" prefWidth="116.0" text="Regex (Optional)" />
-                        <TextField fx:id="regexOption" prefHeight="25.0" prefWidth="146.0" />
-                     </children>
-                  </HBox>
+                  <FXCollections fx:factory="observableArrayList">
+                     <String fx:value="Single Link"/>
+                     <String fx:value="Complete Link"/>
+                  </FXCollections>
                </items>
-            </SplitPane>
-            <HBox alignment="CENTER" layoutX="20.0" layoutY="195.0" prefHeight="25.0" prefWidth="181.0">
-               <children>
-                  <Label prefHeight="17.0" prefWidth="146.0" text="Clustering type" />
-                  <ChoiceBox fx:id="clusteringType" onAction="#changeOnClustering" prefHeight="25.0" prefWidth="140.0">
-                     <items>
-                        <FXCollections fx:factory="observableArrayList">
-                           <String fx:value="Flat" />
-                           <String fx:value="Hierarchical" />
-                        </FXCollections>
-                     </items>
-                     <value>
-                        <String fx:value="Hierarchical" />
-                     </value>
-                  </ChoiceBox>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER" layoutX="211.0" layoutY="196.0" prefHeight="25.0" prefWidth="412.0">
-               <children>
-                  <Label prefHeight="25.0" prefWidth="150.0" text=" Features Modelling" />
-                  <ChoiceBox fx:id="weightingList" onAction="#changeOnWeighting" prefHeight="25.0" prefWidth="111.0">
-                     <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Tf" />
-                            <String fx:value="Raw-Bag-Of-Words" />
-                            <String fx:value="Wdf" />
-                            <String fx:value="TFLog" />
-                        </FXCollections>
-                     </items>
-                     <value>
-                        <String fx:value="Tf" />
-                     </value>
-                  </ChoiceBox>
-                  <ChoiceBox fx:id="IDFlist" onAction="#changeOnIdf" prefHeight="25.0" prefWidth="111.0">
-                     <items>
-                        <FXCollections fx:factory="observableArrayList">
-                           <String fx:value="Normal" />
-                            <String fx:value="No Dictionary" />
-                           <String fx:value="Idf" />
-                            <String fx:value="Smooth Idf" />
-                        </FXCollections>
-                     </items>
-                     <value>
-                        <String fx:value="Normal" />
-                     </value>
-                  </ChoiceBox>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER" layoutX="611.0" layoutY="195.0" prefHeight="25.0" prefWidth="265.0">
-               <children>
-                  <Label prefHeight="25.0" prefWidth="129.0" text="Scoring strategy" />
-                  <ChoiceBox fx:id="strategyList" onAction="#changeOnStrategy" prefHeight="25.0" prefWidth="96.0">
-                     <items>
-                        <FXCollections fx:factory="observableArrayList">
-                           <String fx:value="Cosine Sim" />
-                           <String fx:value="Euclidean Dist" />
-                           <String fx:value="Manhattan Dist" />
-                        </FXCollections>
-                     </items>
-                     <value>
-                        <String fx:value="Cosine Sim" />
-                     </value>
-                  </ChoiceBox>
-               </children>
-            </HBox>
-            <GridPane layoutY="281.0" prefHeight="25.0" prefWidth="898.0">
-               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                  <HBox fx:id="linkageBox" alignment="CENTER">
-                     <children>
-                        <Label prefHeight="17.0" prefWidth="111.0" text="Merging Criteria" />
-                        <ChoiceBox fx:id="linkageList" prefHeight="25.0" prefWidth="147.0">
-                           <items>
-                              <FXCollections fx:factory="observableArrayList">
-                                 <String fx:value="Single Link" />
-                                 <String fx:value="Complete Link" />
-                              </FXCollections>
-                           </items>
-                           <value>
-                              <String fx:value="Single Link" />
-                           </value>
-                        </ChoiceBox>
-                     </children>
-                  </HBox>
-                  <HBox fx:id="noOfClusterBox" alignment="CENTER" prefHeight="25.0" prefWidth="297.0" visible="false" GridPane.columnIndex="1">
-                     <children>
-                        <Label prefHeight="17.0" prefWidth="128.0" text="Number of clusters" />
-                        <TextField fx:id="noOfClusters" prefHeight="25.0" prefWidth="169.0" />
-                     </children>
-                  </HBox>
-                  <HBox GridPane.columnIndex="2">
-                  </HBox>
-               </children>
-            </GridPane>
-            <HBox layoutX="245.0" layoutY="327.0">
-               <children>
-                  <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="412.0" progress="0.0" visible="true" />
-               </children>
-            </HBox>
-            <Button fx:id="closeButton" layoutX="800.0" layoutY="372.0" mnemonicParsing="false" onAction="#onCloseButtonAction" prefHeight="25.0" prefWidth="73.0" text="Close" />
-            <Button fx:id="stopButton" disable="true" layoutX="575.0" layoutY="372.0" mnemonicParsing="false" onAction="#onStopClick" prefHeight="25.0" prefWidth="73.0" text="Stop" />
-            <Button fx:id="startButton" layoutX="462.0" layoutY="372.0" mnemonicParsing="false" onAction="#onStartClick" prefHeight="25.0" prefWidth="73.0" text="Start" />
-            <Button fx:id="viewError" layoutX="225.0" layoutY="372.0" mnemonicParsing="false" onAction="#openLog" prefHeight="25.0" prefWidth="73.0" text="Errors log" />
-            <Button fx:id="viewResultButton" disable="true" layoutX="97.0" layoutY="372.0" mnemonicParsing="false" onAction="#viewResults" prefHeight="25.0" prefWidth="73.0" text="View Results" />
-         </children>
-      </AnchorPane>
-   </children>
+               <value>
+                  <String fx:value="Single Link"/>
+               </value>
+            </ChoiceBox>
+         </HBox>
+         <HBox fx:id="noOfClusterBox" alignment="CENTER" prefHeight="25.0" prefWidth="297.0" visible="false"
+               GridPane.columnIndex="1">
+            <Label prefHeight="17.0" prefWidth="128.0" text="Number of clusters"/>
+            <TextField fx:id="noOfClusters" prefHeight="25.0" prefWidth="169.0"/>
+         </HBox>
+         <HBox GridPane.columnIndex="2">
+         </HBox>
+      </GridPane>
+      <HBox layoutX="245.0" layoutY="327.0">
+         <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="412.0" progress="0.0"/>
+      </HBox>
+      <Button fx:id="closeButton" layoutX="800.0" layoutY="372.0" mnemonicParsing="false"
+              onAction="#onCloseButtonAction" prefHeight="25.0" prefWidth="73.0" text="Close"/>
+      <Button fx:id="stopButton" disable="true" layoutX="575.0" layoutY="372.0" mnemonicParsing="false"
+              onAction="#onStopClick" prefHeight="25.0" prefWidth="73.0" text="Stop"/>
+      <Button fx:id="startButton" layoutX="462.0" layoutY="372.0" mnemonicParsing="false" onAction="#onStartClick"
+              prefHeight="25.0" prefWidth="73.0" text="Start"/>
+      <Button fx:id="viewError" layoutX="225.0" layoutY="372.0" mnemonicParsing="false" onAction="#openLog"
+              prefHeight="25.0" prefWidth="73.0" text="Errors log"/>
+      <Button fx:id="viewResultButton" disable="true" layoutX="97.0" layoutY="372.0" mnemonicParsing="false"
+              onAction="#viewResults" prefHeight="25.0" prefWidth="73.0" text="View Results"/>
+   </AnchorPane>
 </StackPane>

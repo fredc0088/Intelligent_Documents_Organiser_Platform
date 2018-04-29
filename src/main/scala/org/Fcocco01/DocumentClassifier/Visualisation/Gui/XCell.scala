@@ -3,6 +3,7 @@ package org.Fcocco01.DocumentClassifier.Visualisation.Gui
 import javafx.event.ActionEvent
 import javafx.scene.{control => jfxsc, layout => jfxsl}
 
+//noinspection ScalaUnusedSymbol
 class XCell() extends jfxsc.ListCell[String] {
 
   //noinspection VarCouldBeVal

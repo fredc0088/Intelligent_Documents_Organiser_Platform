@@ -26,6 +26,7 @@ package object Util {
   }
 
   /** Object containing functions for Input/Output */
+  //noinspection JavaMutatorMethodAccessedAsParameterless
   object I_O {
 
     import java.io.FileInputStream

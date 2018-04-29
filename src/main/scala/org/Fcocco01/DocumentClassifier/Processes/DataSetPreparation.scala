@@ -14,36 +14,37 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
 
     println("Begin data set creation")
     val time = System.nanoTime
-    val vectors : Traversable[DocumentVector] = corpus.isEmpty match {
-      case true => Vector.empty[DocumentVector]
-      case false =>
-        val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(corpus)
+    val vectors : Traversable[DocumentVector] = if (corpus.isEmpty) {
+      Vector.empty[DocumentVector]
+    } else {
 
-        if(idfChoice != "No Dictionary") println("Dictionary created in " + currentTimeMins(time))
+      val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(corpus)
 
-        setProgress(FIVE_HALF)
+      if (idfChoice != "No Dictionary") println("Dictionary created in " + currentTimeMins(time))
 
-        val idfWeightedTerms =
-          if(idfChoice == "Normal" || dictionary.isEmpty)
-            None
-          else idfChoice match {
-            case "Idf" => Some(dictionary.getOrElse(Vector("")).par
-              .map(IDFValue(_)(simpleIdf)((Option(corpus)))).toVector)
-            case "Smooth Idf" => Some(dictionary.getOrElse(Vector("")).par
-              .map(IDFValue(_)(smootherIdf)((Option(corpus)))).toVector)
-          }
+      setProgress(FIVE_HALF)
 
-
-        val vectorFun = weightFun match {
-          case "Tf" => createVector(compose_weighting_Fun(tf)(idfWeightedTerms),dictionary)
-          case "wdf" => createVector(compose_weighting_Fun(wdf)(idfWeightedTerms),dictionary)
-          case "TFLog" => createVector(compose_weighting_Fun(tfLog)(idfWeightedTerms),dictionary)
-          case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms),dictionary)
+      val idfWeightedTerms =
+        if (idfChoice == "Normal" || dictionary.isEmpty)
+          None
+        else idfChoice match {
+          case "Idf" => Some(dictionary.getOrElse(Vector("")).par
+            .map(IDFValue(_)(simpleIdf)((Option(corpus)))).toVector)
+          case "Smooth Idf" => Some(dictionary.getOrElse(Vector("")).par
+            .map(IDFValue(_)(smootherIdf)((Option(corpus)))).toVector)
         }
 
-        if(idfChoice != "Normal" || dictionary.isEmpty) println("Terms weighted to idf in " + currentTimeMins(time))
 
-        corpus.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toVector
+      val vectorFun = weightFun match {
+        case "Tf" => createVector(compose_weighting_Fun(tf)(idfWeightedTerms), dictionary)
+        case "wdf" => createVector(compose_weighting_Fun(wdf)(idfWeightedTerms), dictionary)
+        case "TFLog" => createVector(compose_weighting_Fun(tfLog)(idfWeightedTerms), dictionary)
+        case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms), dictionary)
+      }
+
+      if (idfChoice != "Normal" || dictionary.isEmpty) println("Terms weighted to idf in " + currentTimeMins(time))
+
+      corpus.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toVector
     }
 
     println("Vectors obtained in " + currentTimeMins(time))

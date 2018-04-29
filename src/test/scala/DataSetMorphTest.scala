@@ -81,7 +81,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   "Creating new vectors" should "create non-normalised vectors when dictionary is not provided" in {
     val vector1 = createVector(rawBag _)(tokens(0))
     val vector2 = createVector(rawBag _)(tokens(1))
-    val vector3 = createVector(rawBag _, dictionary)(tokens(1))
+    val vector3 = createVector(rawBag, dictionary)(tokens(1))
     assert(vector1.size !== vector2.size)
     assert(vector2.size !== vector3.size)
     assert(vector1.size !== vector3.size)

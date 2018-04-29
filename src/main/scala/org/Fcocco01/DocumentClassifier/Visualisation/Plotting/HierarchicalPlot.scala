@@ -179,6 +179,7 @@ object HierarchicalPlot {
       * @param node the [[Cluster]] leaf in exam
       * @param vectors if not [[None]], the path of the single vector inside a collection
       */
+    //noinspection ScalaUnusedSymbol
     case class NodeInfo(node : Cluster, vectors : Option[Traversable[String]] = None) {
 
       def getInfo: Popup = {
@@ -186,6 +187,7 @@ object HierarchicalPlot {
         popup.setHideOnEscape(true)
         val box = new VBox
         val t = new Text(box.width.value / TWO, TWENTY, node.name){
+          //noinspection ScalaUnusedSymbol
           onMouseClicked = (event: MouseEvent) => Essentials.Util.I_O.openFromPath(node.name)
         }
         t.setStyle("-fx-border-style: solid;-fx-font-weight: bold")

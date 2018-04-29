@@ -53,7 +53,7 @@ object Clustering {
       */
     def euclidean(v1: DVector, v2: DVector): Double =
       v1.apply.map { x => {
-        val y = x._2 - v2.apply.a(x._1);
+        val y = x._2 - v2.apply.a(x._1)
         y * y
       }
       }.sum |> Math.sqrt
