@@ -208,6 +208,10 @@ object HierarchicalPlot {
         buttonsBox.children.addAll(buttonView,buttonClose)
         box.children.addAll(t,buttonsBox)
         box.setStyle("-fx-background-color: WHITE;-fx-border-color:#545454;-fx-border-width: 1px;")
+        box.setOnMouseDragged((event : MouseEvent) => {
+          box.setLayoutX(event.getSceneX)
+          box.setLayoutY(event.getSceneY)
+        })
         popup.getContent.add(box)
         popup
       }

@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Core
 
 import org.Fcocco01.DocumentClassifier.Utils.{Util,Types,Constants}
-import Constants.{ZERO,ONE,TWO,THREE,HALF,FIVE}
+import Constants.{ZERO,ONE,TWO}
 import Util.Operators.|>
 
 import scala.annotation.tailrec
@@ -11,7 +11,7 @@ import scala.annotation.tailrec
   */
 object Clustering {
 
-  type DVector = Types.TypeClasses.Vectors.DocumentVector
+  import Types.TypeClasses.Vectors.{DocumentVector => DVector}
   type DistanceORSimFun = (DVector, DVector) => Double
 
   /**
@@ -69,87 +69,12 @@ object Clustering {
   /** Methods to perform an hierarchical clustering for a set of document vectors */
   object HierarchicalClustering {
 
-    import scala.collection.immutable.ListMap
+    import Types.TypeClasses.Clusters.Hierarchical.Cluster
     import scala.collection.mutable.PriorityQueue
 
     type MatrixEl = (Double, DVector, DVector)
     type SimMatrix = Array[Array[MatrixEl]]
 
-    /**
-      *
-      */
-    sealed trait Cluster {
-
-      val distance: Option[Double]
-      val vectors: List[DVector]
-      val name: String
-
-      def merge(c: Cluster)(d: Option[Double]): MultiCluster = MultiCluster(this, c)(d) // Merge two existing clusters
-      def hasVector(v: DVector): Boolean = vectors.exists(_ == v)
-
-      def getHeight: Double =
-        this.getChildren match {
-          case None => HALF
-          case Some((left, right)) => left.getHeight + right.getHeight
-        }
-
-      def getChildren: Option[(Cluster, Cluster)]
-    }
-
-    /**
-      *
-      * @param v
-      */
-    final case class SingleCluster(private val v: DVector) extends Cluster {
-      override def getChildren = None
-
-      lazy val vectors: List[DVector] = List(v)
-      lazy val name = {
-        v.apply.maxBy(_._2)._1
-        vectors.head.id
-      }
-      override val distance = None
-    }
-
-    /**
-      *
-      * @param childL
-      * @param childR
-      * @param distance
-      */
-    final case class MultiCluster(childL: Cluster, childR: Cluster)(val distance: Option[Double]) extends Cluster {
-
-      override def getChildren = Some(childL, childR)
-
-      /* Name the cluster based on the main topic. It is not working properly at this stage. Under research */
-      lazy val name: String = {
-        val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2): _*))
-        val highestTerms = vectors.map(x => x.headOption)
-        val default = (scala.util.Random.alphanumeric.take(FIVE).toString, ZERO.toDouble)
-
-        @tailrec
-        def constructTitle(string: String, n: Int, terms: List[Option[(String, Double)]], default: (String, Double)): String =
-          if (terms.isEmpty) string
-          else n match {
-            case ZERO => s"${string}_"
-            case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1}_", n - ONE, terms.tail, default)
-          }
-        val height = getHeight.toInt
-        val name = if (height > FIVE && highestTerms.length > FIVE)
-          constructTitle("", height / FIVE, highestTerms, default)
-        else constructTitle("", height, highestTerms, default)
-        s"${name}${Math.abs(this.hashCode).toString}"
-      }
-
-      lazy val vectors: List[DVector] =
-        getVectors(this, List.empty[DVector])
-
-      private def getVectors(c: Cluster, a: List[DVector]): List[DVector] =
-        c.getChildren match {
-          case None => c.vectors
-          case Some((left,right)) => left.vectors ::: right.vectors
-        }
-    }
 
     /**
       * Find the cluster in the structure that contains a defined vector.
@@ -301,32 +226,7 @@ object Clustering {
   /** Methods to perform a flat clustering for a set of document vectors */
   object FlatClustering {
 
-    /**
-      * Represent a comparison between two vectors, storing their distance.
-      *
-      * @param vector
-      * @param vectorComparedTo
-      * @param distance
-      */
-    case class Comparison(vector: DVector, vectorComparedTo: DVector, distance: Double)
-
-    /**
-      * Cluster class for flat clustering, containing all closest vectors.
-      *
-      * @param center
-      * @param elements
-      */
-    case class Cluster(center: DVector, elements: DVector*){
-      lazy val vectorsID = elements.map(_.id)
-      /* Picks the most important terms for all vectors to construct a name for
-      * the cluster. Hashcode is used to ensure uniqueness. */
-      lazy val name = {
-        val mains = elements.map(x => x.apply.toArray.sortBy(_._2).head).sortBy(_._2)
-        val names  = if(mains.size > THREE) mains.map(_._1).toArray.distinct.take(THREE)
-        else mains.map(_._1).toArray.distinct.take(ONE)
-        names.mkString("_") ++ s"_${this.hashCode}"
-      }
-    }
+    import Types.TypeClasses.Clusters.Flat.{Cluster, Comparison}
 
     /**
       * Simple K-means algorithm to assign the document vectors to k number of clusters

@@ -7,7 +7,7 @@ object DataSetMorph {
   import Types.TypeClasses.Vectors._
   import Types.TypeClasses._
   import Types._
-  import Constants.ZERO
+  import Constants.{ZERO, ONE}
 
   /**
     * Create a dictionary of unique terms.
@@ -101,19 +101,25 @@ object DataSetMorph {
     *
     * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Features.Bag_Of_Words_Models]]
     * @param dictionary A set of unique terms composing a dictionary (see [[Dictionary]])
-    * @return [[DocumentVector]] instance, either [[DVector]] or [[EmptyV]]
+    * @return [[DocumentVector]] instance, either [[RealVector]] or [[EmptyVector]]
     */
   def createVector(modeller: Scheme, dictionary: Option[Tokens] = None) : Option[Document] => DocumentVector = {
     (tokenizedText: Option[Document]) => {
       tokenizedText match {
         case Some(t) => {
           var m = Array.empty[TermWeighted]
-          dictionary match {
-            case Some(x) => for(d <- x) m = m :+ modeller(d,t.tokens)
-            case None => for(y <- t.tokens.toVector.distinct) m = m :+ modeller(y,t.tokens)
-          }
-          DVector(t.path,m.map(_.toTuple).toMap)
           /*
+          * This is an additional guard if the method is used outside the workflow and a not meaningful tokenized
+          * document is passed in.
+          * If the document happens to be empty or containing only an empty token, it produces an empty vector
+          * */
+          if (tokenizedText.isEmpty || (tokenizedText.size == ONE && tokenizedText.head == "")) EmptyVector
+          else {
+            dictionary match {
+              case Some(x) => for (d <- x) m = m :+ modeller(d, t.tokens)
+              case None => for (y <- t.tokens.toVector.distinct) m = m :+ modeller(y, t.tokens)
+            }
+            /*
             Depending on whether the createVector function is called on a PARALLEL COLLECTION
             should be good idea for the developer/maintainer to choose the above implementation,
             while the below implementation offer slightly worse performance but more consistent
@@ -123,8 +129,10 @@ object DataSetMorph {
 //            case Some(x) => DVector(t.path,x.par.map(d => modeller(d, t.tokens).toTuple).toVector.toMap)
 //            case None => DVector(t.path,t.tokens.par.map(d => modeller(d, t.tokens).toTuple).toVector.toMap)
 //          }
+            RealVector(t.path, m.map(_.toTuple).toMap)
+          }
         }
-        case None => EmptyV
+        case None => EmptyVector
       }
     }
   }
@@ -137,7 +145,7 @@ object DataSetMorph {
     *
     * @param tokenizer
     * @param docPath
-    * @return [[DocumentVector]] instance, either [[DVector]] or [[EmptyV]]
+    * @return [[DocumentVector]] instance, either [[RealVector]] or [[EmptyVector]]
     */
   def createVector(tokenizer: TokenSuite)(docPath: DocPath) : (Scheme,Option[Tokens]) => DocumentVector =
     (modeller: Scheme, dictionary: Option[Tokens]) =>
