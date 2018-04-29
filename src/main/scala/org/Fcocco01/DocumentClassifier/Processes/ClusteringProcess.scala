@@ -21,9 +21,9 @@ case class ClusteringProcess(clusteringMode: String, comparison: String) extends
       println("Begin corpus creation")
 
       val compareFun = comparison match {
-        case "Cosine Sim" => Similarity.cosine(_, _)
-        case "Euclidean Dist" => Distance.euclidean(_, _)
-        case "Manhattan Dist" => Distance.manhattan(_, _)
+        case "Cosine Sim" => Similarity.cosine _
+        case "Euclidean Dist" => Distance.euclidean _
+        case "Manhattan Dist" => Distance.manhattan _
       }
 
       val result : Return = if (clusteringMode == "Hierarchical") {
@@ -31,7 +31,7 @@ case class ClusteringProcess(clusteringMode: String, comparison: String) extends
 
         println("Similarity matrix generated in  " + currentTimeMins(time))
 
-        val docWrappedInCluster = (x: Seq[DVector]) => x.map(SingleCluster(_)).toList
+        val docWrappedInCluster = (x: Seq[DVector]) => x.map(SingleCluster).toList
         val clusters = linkStrategy match {
           case "Single Link" => HAC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
           case "Complete Link" => HAC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)

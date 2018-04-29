@@ -7,6 +7,7 @@ import scala.collection.immutable.HashMap
 
 class SimilarityTest extends UnitTest("Clustering.Similarity") {
   "Cosine similarity" should "return the expected value" in {
+    //noinspection ScalaUnusedSymbol
     val x = cosine(vector1, vector2)
     //    assertResult() {  }
   }

@@ -15,7 +15,7 @@ package object Tokenization {
       * Creates a [[String]] of words from a file to be used as stopwords.
       */
     object StopWords {
-      def apply(filePath: String) = {
+      def apply(filePath: String): String = {
         val stopWords = GetDocContent(filePath)
         stopWords
       }
@@ -31,16 +31,16 @@ package object Tokenization {
       */
     class TokenizedText(regex: String, stopWords: String)
       extends Tokenizer {
-      def apply(text: String) =
+      def apply(text: String): Vector[String] =
         text.toLowerCase.replaceAll("\\p{P}\\u00a0", " ").split(regex).par
-          .filterNot(onlyDigits(_)).filter(!stopWords.contains(_)).toVector
+          .filterNot(onlyDigits).filter(!stopWords.contains(_)).toVector
     }
 
     /**
       * Factory object for [[TokenizedText]]
       */
     object TokenizedText {
-      def apply(regex: String, stopWords: String) (text: String) = {
+      def apply(regex: String, stopWords: String) (text: String): Vector[String] = {
         val newInstance = new TokenizedText(regex, stopWords)
         newInstance(text)
       }

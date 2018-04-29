@@ -5,9 +5,13 @@ import javafx.scene.{control => jfxsc, layout => jfxsl}
 
 class XCell() extends jfxsc.ListCell[String] {
 
+  //noinspection VarCouldBeVal
   var hbox: jfxsl.HBox = new jfxsl.HBox
+  //noinspection VarCouldBeVal
   var label: jfxsc.Label = new jfxsc.Label
+  //noinspection VarCouldBeVal
   var pane: jfxsl.Pane = new jfxsl.Pane
+  //noinspection VarCouldBeVal
   var button: jfxsc.Button = new jfxsc.Button("Del")
 
   hbox.getChildren.addAll(button, pane, label)

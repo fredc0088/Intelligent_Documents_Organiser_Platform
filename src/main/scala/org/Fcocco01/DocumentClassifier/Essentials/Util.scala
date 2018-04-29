@@ -1,7 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
 import java.io.File
-import java.nio.file.{Files, Paths, StandardOpenOption}
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.util.Calendar
 
 import scala.language.reflectiveCalls
@@ -53,7 +53,7 @@ package object Util {
       * @param file Path to the file
       * @return A collection of [[String]] representing the text of the file
       */
-    def readDocWithTry(file: String) = file.split("\\.").last match {
+    def readDocWithTry(file: String): Try[List[String]] = file.split("\\.").last match {
       case "pdf" => Try {
         /**
           * To decide whether to keep it.
@@ -95,10 +95,9 @@ package object Util {
       */
     def GetDocContent(filePath: String): String = readDocWithTry(filePath) match {
       case Success(lines) => lines.mkString(" ")
-      case Failure(t) => {
+      case Failure(t) =>
         logAwayErrorsAndExceptions(t)
         ""
-      }
     }
 
     /**
@@ -108,11 +107,10 @@ package object Util {
       * @param message the message to be logged
       * @param append false if the message overwrites the existing file content
       */
-    def log(file: File, message: String, append: Boolean) = {
-      append match {
-        case true => Files.write(Paths.get(file.getAbsolutePath), message.getBytes, StandardOpenOption.APPEND)
-        case false => Files.write(Paths.get(file.getAbsolutePath), message.getBytes)
-      }
+    def log(file: File, message: String, append: Boolean): Path = {
+      if (append)
+        Files.write(Paths.get(file.getAbsolutePath), message.getBytes, StandardOpenOption.APPEND)
+      else Files.write(Paths.get(file.getAbsolutePath), message.getBytes)
     }
 
     /**
@@ -151,7 +149,7 @@ package object Util {
       * @param s
       * @return true if it is formed of only digits
       */
-    def onlyDigits(s: String) = {
+    def onlyDigits(s: String): Boolean = {
       var isDigit = true
       for(c <- s if !Character.isDigit(c)) isDigit = false
       isDigit
@@ -167,7 +165,7 @@ package object Util {
       * @param d A decimal number
       * @return [[String]] representing that value
       */
-    def roundDecimals(d: Double) = new java.math.BigDecimal(d).toPlainString
+    def roundDecimals(d: Double): String = new java.math.BigDecimal(d).toPlainString
   }
 
   /** Contains functions concerning time value manipulation, date, etc... */
@@ -198,13 +196,13 @@ package object Util {
       *
       * @param e a throwable error
       */
-    def logAwayErrorsAndExceptions(e: Throwable) = {
+    def logAwayErrorsAndExceptions(e: Throwable): Path = {
       val day = Time.getCurrentDateString
-      val file : File = (new File("./Error_Logs")).listFiles.find(_.getName.contains(day))
+      val file : File = new File("./Error_Logs").listFiles.find(_.getName.contains(day))
         .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
       val stackTrace = e.getStackTrace.map(s => s"      ${s.toString}\n").mkString
       val error = s"[${Time.getCurrentTimeString}] - [ ${e.getMessage} ]\n    ${e.getCause}\n     ${e.getLocalizedMessage}\n$stackTrace"
-      I_O.log(file, error,true)
+      I_O.log(file, error,append = true)
     }
 
     /**
@@ -213,12 +211,12 @@ package object Util {
       * @param m
       * @return
       */
-    def logAwayMessage(m: String) = {
+    def logAwayMessage(m: String): Path = {
       val day = Time.getCurrentDateString
-      val file : File = (new File("./Error_Logs")).listFiles.find(_.getName.contains(day))
+      val file : File = new File("./Error_Logs").listFiles.find(_.getName.contains(day))
         .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
       val error = s"[${Time.getCurrentTimeString}] - $m"
-      I_O.log(file, error, true)
+      I_O.log(file, error, append = true)
     }
   }
 

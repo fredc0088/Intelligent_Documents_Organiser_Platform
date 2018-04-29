@@ -10,8 +10,8 @@ class BaseProcess() {
 
   def progressProperty: ReadOnlyDoubleProperty = progress
 
-  def setProgress(value: Double) = progress.set(value)
+  def setProgress(value: Double): Unit = progress.set(value)
 
-  def setExternalHandler(listener: ChangeListener[_ >: Number]) = this.progressProperty.addListener(listener)
+  def setExternalHandler(listener: ChangeListener[_ >: Number]): Unit = this.progressProperty.addListener(listener)
 }
 

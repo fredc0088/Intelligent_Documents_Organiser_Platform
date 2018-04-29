@@ -21,6 +21,7 @@ import scalafx.scene.layout.AnchorPane
 
 import scala.collection.immutable.HashMap
 
+//noinspection VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,VarCouldBeVal,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol,ScalaUnusedSymbol
 class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
@@ -66,11 +67,11 @@ class Controller extends jfxf.Initializable {
 
   protected var inclusionListProperty = new SimpleListProperty[String]
   protected var exclusionListProperty = new SimpleListProperty[String]
-  protected var customFile: File = null
-  private var copyWorker: Task[_] = null
+  protected var customFile: File = _
+  private var copyWorker: Task[_] = _
 
-  private var currentOutput : Scene = null
-  private var running: Thread = null
+  private var currentOutput : Scene = _
+  private var running: Thread = _
 
   @jfxf.FXML
   private def loadDirectories(event: ActionEvent): Unit = {

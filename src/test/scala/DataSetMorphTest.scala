@@ -32,7 +32,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
     tokens = tests.par.map(x => tokenizeDocument(tknTool)(x)).toArray
     dictionary = Dictionary(tokens)
     idfValues = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(simpleIdf)(Option(tokens))).toArray
-    vectors = tokens.par.map(x => createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(x)).toArray
+    vectors = tokens.par.map(x => createVector(compose_weighting_Fun(tf)(Some(idfValues)), dictionary)(x)).toArray
 
     super.beforeAll()
   }
@@ -46,19 +46,19 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
 
   "Creating a dictionary using vectors" should "produce same as a base dictionary (but not same order) if that dictionary was used to create the vectors" in {
     val dictionary1 = Dictionary(tokens.take(3))
-    val dictionary3 = Dictionary(tokens.take(3).map(d => createVector(rawBag(_,_), dictionary1)(d)): _*)
+    val dictionary3 = Dictionary(tokens.take(3).map(d => createVector(rawBag, dictionary1)(d)): _*)
     assert(dictionary1.get.size == dictionary3.get.size)
-    assert(dictionary3.get.forall(dictionary1.get.toList.contains(_)) == true)
+    assert(dictionary3.get.forall(dictionary1.get.toList.contains(_)))
   }
 
   "Empty dictionary" should "be generated from empty documents" in {
     val dictionary = Dictionary(Array(None,None))
-    assert(dictionary == None)
+    assert(dictionary.isEmpty)
   }
 
   "\"Empty\" input" should "create empty dictionary" in {
     val dictionary = Dictionary(EmptyVector)
-    assert(dictionary == None)
+    assert(dictionary.isEmpty)
   }
 
   /********************* Test tokenizeDocument *****************/
@@ -79,9 +79,9 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
 
   /********************* Test Vector creation *****************/
   "Creating new vectors" should "create non-normalised vectors when dictionary is not provided" in {
-    val vector1 = createVector(rawBag(_,_))(tokens(0))
-    val vector2 = createVector(rawBag(_,_))(tokens(1))
-    val vector3 = createVector(rawBag(_,_), dictionary)(tokens(1))
+    val vector1 = createVector(rawBag _)(tokens(0))
+    val vector2 = createVector(rawBag _)(tokens(1))
+    val vector3 = createVector(rawBag _, dictionary)(tokens(1))
     assert(vector1.size !== vector2.size)
     assert(vector2.size !== vector3.size)
     assert(vector1.size !== vector3.size)
@@ -90,7 +90,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   }
 
   "Providing a None as Document" should "produce an empty vector" in {
-    val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(None)
+    val v = createVector(compose_weighting_Fun(tf)(Some(idfValues)), dictionary)(None)
     v shouldBe EmptyVector
   }
 
@@ -101,7 +101,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   }
 
   "Creating vectors non empty" should "have correct properties" in {
-    val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)))(tokens(0))
+    val v = createVector(compose_weighting_Fun(tf)(Some(idfValues)))(tokens(0))
     assert(v.apply.isInstanceOf[Map[String,Double]])
     v.id shouldNot be(null)
     v.id shouldNot be("")
@@ -110,14 +110,14 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   }
 
   "Non-empty vectors (normalised)" should "have the same terms of the dictionary used to normalise them" in {
-    val v = createVector(compose_weighting_Fun(tf(_,_))(Some(idfValues)), dictionary)(tokens(0))
+    val v = createVector(compose_weighting_Fun(tf)(Some(idfValues)), dictionary)(tokens(0))
     assert(dictionary.get.size == v.size)
-    assert(dictionary.get.forall(v.apply.map(_._1).toVector.contains(_)) == true)
+    assert(dictionary.get.forall(v.apply.keys.toVector.contains(_)))
   }
 
   "Vectors created from the same base dictionary" should "contain same terms in same order" in {
-    val vector1 = createVector(rawBag(_,_), dictionary)(tokens(1)).apply.map(_._1)
-    val vector2 = createVector(rawBag(_,_), dictionary)(tokens(3)).apply.map(_._1)
+    val vector1 = createVector(rawBag, dictionary)(tokens(1)).apply.keys
+    val vector2 = createVector(rawBag, dictionary)(tokens(3)).apply.keys
     assert(vector1 == vector2)
   }
 }

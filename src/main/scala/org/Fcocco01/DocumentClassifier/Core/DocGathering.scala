@@ -21,13 +21,13 @@ import scala.collection.mutable
          }
        }
        catch {
-         case e : NullPointerException => List[File]()
+         case _ : NullPointerException => List[File]()
        }
      }
 
      private def getPaths(docs: List[File]) = docs.map(_.getCanonicalPath)
 
-     def apply() = {
+     def apply(): List[String] = {
         val documents = (for {
           d <- directories
         } yield this.recursiveTreeDocsSearch(d)).flatten.toList

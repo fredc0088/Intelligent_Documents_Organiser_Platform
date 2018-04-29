@@ -16,6 +16,7 @@ import Essentials.Util.Time.currentTimeMins
 import Visualisation.Plotting.FlatPlot.SparseGraph
 import Visualisation.Plotting.HierarchicalPlot.Dendrogram
 import org.Fcocco01.DocumentClassifier.Essentials.Types
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses
 import scalafx.scene.Scene
 
 
@@ -64,7 +65,7 @@ object FullProcess {
 
         progress.set(ONE)
 
-        implicit val corpus = paths.par.map(x => tknFun(x)).toArray
+        implicit val corpus: Array[Option[TypeClasses.Document]] = paths.par.map(x => tknFun(x)).toArray
 
         println("Documents tokenised in " + currentTimeMins(time))
 
@@ -75,21 +76,21 @@ object FullProcess {
         progress.set(FIVE_HALF)
 
         val idfWeightedTerms =
-          if(idfChoice == "Normal" || dictionary == None)
+          if(idfChoice == "Normal" || dictionary.isEmpty)
             None
           else idfChoice match {
             case "Idf" => Some(dictionary.getOrElse(Vector("")).par
-              .map(IDFValue(_)(simpleIdf)((Option(corpus)))).toVector)
+              .map(IDFValue(_)(simpleIdf)(Option(corpus))).toVector)
             case "Smooth Idf" => Some(dictionary.getOrElse(Vector("")).par
-              .map(IDFValue(_)(smootherIdf)((Option(corpus)))).toVector)
+              .map(IDFValue(_)(smootherIdf)(Option(corpus))).toVector)
           }
 
 
         val vectorFun = weightFun match {
-          case "Tf" => createVector(compose_weighting_Fun(tf(_,_))(idfWeightedTerms),dictionary)
-          case "wdf" => createVector(compose_weighting_Fun(wdf(_,_))(idfWeightedTerms),dictionary)
-          case "TFLog" => createVector(compose_weighting_Fun(tfLog(_,_))(idfWeightedTerms),dictionary)
-          case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag(_,_))(idfWeightedTerms),dictionary)
+          case "Tf" => createVector(compose_weighting_Fun(tf)(idfWeightedTerms),dictionary)
+          case "wdf" => createVector(compose_weighting_Fun(wdf)(idfWeightedTerms),dictionary)
+          case "TFLog" => createVector(compose_weighting_Fun(tfLog)(idfWeightedTerms),dictionary)
+          case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms),dictionary)
         }
 
         println("Terms weighted to idf in " + currentTimeMins(time))
@@ -101,15 +102,15 @@ object FullProcess {
         progress.set(SEVEN)
 
         val compareFun = comparison match {
-          case "Cosine Sim" => Similarity.cosine(_, _)
-          case "Euclidean Dist" => Distance.euclidean(_, _)
-          case "Manhattan Dist" => Distance.manhattan(_, _)
+          case "Cosine Sim" => Similarity.cosine _
+          case "Euclidean Dist" => Distance.euclidean _
+          case "Manhattan Dist" => Distance.manhattan _
         }
 
         val result = if (clusteringMode == "Hierarchical") {
           val matrix = createSimMatrix(vectors, compareFun)
 
-          val docWrappedInCluster = (x: Seq[DVector]) => x.map(Types.TypeClasses.Clusters.Hierarchical.SingleCluster(_)).toList
+          val docWrappedInCluster = (x: Seq[DVector]) => x.map(Types.TypeClasses.Clusters.Hierarchical.SingleCluster).toList
           val clusters = linkStrategy match {
             case "Single Link" => HAC(matrix, docWrappedInCluster, Single_Link, vectors: _*)
             case "Complete Link" => HAC(matrix, docWrappedInCluster, Complete_Link, vectors: _*)

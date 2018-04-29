@@ -1,10 +1,13 @@
 package org.Fcocco01.DocumentClassifier.Core
 
-import org.Fcocco01.DocumentClassifier.Essentials.{Util,Types,Constants}
-import Constants.{ZERO,ONE,TWO}
+import org.Fcocco01.DocumentClassifier.Essentials.{Constants, Types, Util}
+import Constants.{ONE, TWO, ZERO}
 import Util.Operators.|>
+import org.Fcocco01.DocumentClassifier.Essentials.Types.Token
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.Vectors
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 
 /**
   * Provide grounds for clustering sets of document vectors.
@@ -25,18 +28,16 @@ object Clustering {
       * @param v2
       * @return
       */
-    def cosine(v1: DVector, v2: DVector) = {
+    def cosine(v1: DVector, v2: DVector): Double = {
       val a: Double = getAbsoluteValue(v1) |> Math.sqrt
       val b: Double = getAbsoluteValue(v2) |> Math.sqrt
-      getDocProduct(v1, v2).map(_._2).reduce(_ + _) / (a * b)
+      getDocProduct(v1, v2).values.sum / (a * b)
     }
 
-    def getDocProduct(v1: DVector, v2: DVector) =
+    def getDocProduct(v1: DVector, v2: DVector): Map[Token, Double] =
       v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, ZERO.toDouble)) }
 
-    def getAbsoluteValue(v: DVector): Double = {
-      v.apply.toVector.map(x => Math.pow(x._2, TWO)).reduce(_ + _)
-    }
+    def getAbsoluteValue(v: DVector): Double = v.apply.toVector.map(x => Math.pow(x._2, TWO)).sum
   }
 
   /**
@@ -50,11 +51,12 @@ object Clustering {
       * @param v2
       * @return
       */
-    def euclidean(v1: DVector, v2: DVector) =
+    def euclidean(v1: DVector, v2: DVector): Double =
       v1.apply.map { x => {
-        val y = x._2 - v2.apply.a(x._1); y * y
+        val y = x._2 - v2.apply.a(x._1);
+        y * y
       }
-      }.reduce(_ + _) |> Math.sqrt
+      }.sum |> Math.sqrt
 
     /**
       *
@@ -62,8 +64,8 @@ object Clustering {
       * @param v2
       * @return
       */
-    def manhattan(v1: DVector, v2: DVector) =
-      v1.apply.map { x => Math.abs(x._2 - v2.apply.a(x._1)) }.reduce(_ + _)
+    def manhattan(v1: DVector, v2: DVector): Double =
+      v1.apply.map { x => Math.abs(x._2 - v2.apply.a(x._1)) }.sum
   }
 
   /** Methods to perform an hierarchical clustering for a set of document vectors */
@@ -110,7 +112,7 @@ object Clustering {
     trait Merging_Strategy {
       def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]): MatrixEl
 
-      def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl]
+      def getPQueue(m: SimMatrix): mutable.PriorityQueue[MatrixEl]
     }
 
     /**
@@ -118,10 +120,10 @@ object Clustering {
       */
     object Single_Link extends Merging_Strategy {
 
-      override def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl] =
-        PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
+      override def getPQueue(m: SimMatrix): mutable.PriorityQueue[MatrixEl] =
+        mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
 
-      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) = {
+      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]): (Double, DVector, DVector) = {
         val matrix = m match {
           case Left(x) => x.flatten.toList
           case Right(y) => y.toList
@@ -144,8 +146,8 @@ object Clustering {
       */
     object Complete_Link extends Merging_Strategy {
 
-      override def getPQueue(m: SimMatrix): PriorityQueue[MatrixEl] =
-        PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1)).reverse
+      override def getPQueue(m: SimMatrix): mutable.PriorityQueue[MatrixEl] =
+        mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1)).reverse
 
       override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) : MatrixEl = {
         val matrix = m match {
@@ -193,15 +195,15 @@ object Clustering {
       * @param v
       * @return
       */
-    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy, v: DVector*) = {
+    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy, v: DVector*): Cluster = {
       val cls = init(v.toSeq)
-      val p: PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
+      val p: mutable.PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
 
       @tailrec
       def createClusterTree(setL: Int, tree: List[Cluster]): Cluster = {
         tree.size match {
           case ONE => tree.head
-          case _ => {
+          case _ =>
             val c: MatrixEl = linkStrategy.getDistance(Right(p))
             val cls1 = getRightCluster(tree, c._2)
             val cls2 = getRightCluster(tree, c._3)
@@ -214,7 +216,6 @@ object Clustering {
               val newTree2 = newTree :+ mergedCls
               createClusterTree(setL + ONE, newTree2)
             }
-          }
         }
       }
 
@@ -249,9 +250,9 @@ object Clustering {
       val initialSeeds = scala.util.Random.shuffle(vectors).take(n)
 
       def help(oldCentroids: Vector[DVector]): Vector[Cluster] = {
-        val clustersDistances = oldCentroids.map {
-          x => vectors.map ( y => Comparison(y, x, dist(x, y)) ) .zipWithIndex
-        }.flatten.groupBy(_._2)
+        val clustersDistances = oldCentroids.flatMap {
+          x => vectors.map(y => Comparison(y, x, dist(x, y))).zipWithIndex
+        }.groupBy(_._2)
           .map ( x => x._2.map(y => y._1).toList.minBy(z => z.distance) ) .toVector
 
         val newClusters = clustersDistances.groupBy(_.vectorComparedTo)
@@ -260,10 +261,8 @@ object Clustering {
 
         val newCentroids = newClusters.map(x => x.center)
 
-        newCentroids == oldCentroids match {
-          case true => newClusters
-          case false => help(newCentroids)
-        }
+        if (newCentroids == oldCentroids) newClusters
+        else help(newCentroids)
       }
       help(initialSeeds.toVector)
     }
@@ -284,7 +283,7 @@ object Clustering {
       * @param vectors the vectors used for the calculation
       * @return a new vector representing the mean vector of the input set
       */
-    def computeNewCentroid(vectors: DVector*) = {
+    def computeNewCentroid(vectors: DVector*): Vectors.RealVector = {
       val vector = vectors.head.apply.map(x => (x._1, valueMean(vectors.map(y => y.apply(x._1)).toVector)))
       Types.TypeClasses.Vectors.RealVector(vector.hashCode.toString,vector)
     }
@@ -296,7 +295,7 @@ object Clustering {
       * @return the mean value
       */
     private def valueMean(values: Vector[Double]) = {
-      values.reduce(_ + _) / values.size
+      values.sum / values.size
     }
 
     /**

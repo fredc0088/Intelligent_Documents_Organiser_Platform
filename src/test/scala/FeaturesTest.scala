@@ -29,8 +29,8 @@ class FeaturesTest extends UnitTest ("Features"){
   "A terms's idf value (using simple IDF)" should "be calculated correctly according to given documents" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
     val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(x)).toArray
-    assertResult(0.3010299956639812){ (IDFValue("doc")(simpleIdf)(Some(tokens))).apply }
-    assertResult(1.3010299956639812){ (IDFValue("doc")(smootherIdf)(Some(tokens))).apply }
+    assertResult(0.3010299956639812){ IDFValue("doc")(simpleIdf)(Some(tokens)).apply }
+    assertResult(1.3010299956639812){ IDFValue("doc")(smootherIdf)(Some(tokens)).apply }
   }
 
   "Idf from a set of empty documents" should "return 0" in {

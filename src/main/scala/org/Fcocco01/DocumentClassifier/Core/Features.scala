@@ -141,7 +141,7 @@ package object Features {
       */
     def tf(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, (GetFrequency(document, term).toDouble / document.size))
+      else TermWeighted(term, GetFrequency(document, term).toDouble / document.size)
 
     /**
       *
@@ -152,8 +152,8 @@ package object Features {
       */
     def wdf(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, (Math.log(GetFrequency(document, term).toDouble + ONE) /
-        ONE + Math.log(document.size)))
+      else TermWeighted(term, Math.log(GetFrequency(document, term).toDouble + ONE) /
+        ONE + Math.log(document.size))
 
     type IDFValue = IDF.IDFValue
 
@@ -180,7 +180,7 @@ package object Features {
       * @param weightingFun
       * @return the term accordingly weighted, as 0 if document is empty
       */
-    def compose_weighting_Fun(weightingFun : Scheme) =
+    def compose_weighting_Fun(weightingFun : Scheme): Option[Traversable[IDFValue]] => (Term, Tokens) => TermWeighted =
       (idfValues: Option[Traversable[IDFValue]]) =>
         (term: Term, document: Tokens) => {
           val res = { if(document.isEmpty) ZERO

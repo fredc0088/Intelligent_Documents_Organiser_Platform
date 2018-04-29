@@ -16,7 +16,7 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
     val time = System.nanoTime
     val vectors : Traversable[DocumentVector] = corpus.isEmpty match {
       case true => Vector.empty[DocumentVector]
-      case false => {
+      case false =>
         val dictionary = if (idfChoice == "No Dictionary") None else Dictionary(corpus)
 
         if(idfChoice != "No Dictionary") println("Dictionary created in " + currentTimeMins(time))
@@ -24,7 +24,7 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
         setProgress(FIVE_HALF)
 
         val idfWeightedTerms =
-          if(idfChoice == "Normal" || dictionary == None)
+          if(idfChoice == "Normal" || dictionary.isEmpty)
             None
           else idfChoice match {
             case "Idf" => Some(dictionary.getOrElse(Vector("")).par
@@ -35,16 +35,15 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
 
 
         val vectorFun = weightFun match {
-          case "Tf" => createVector(compose_weighting_Fun(tf(_,_))(idfWeightedTerms),dictionary)
-          case "wdf" => createVector(compose_weighting_Fun(wdf(_,_))(idfWeightedTerms),dictionary)
-          case "TFLog" => createVector(compose_weighting_Fun(tfLog(_,_))(idfWeightedTerms),dictionary)
-          case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag(_,_))(idfWeightedTerms),dictionary)
+          case "Tf" => createVector(compose_weighting_Fun(tf)(idfWeightedTerms),dictionary)
+          case "wdf" => createVector(compose_weighting_Fun(wdf)(idfWeightedTerms),dictionary)
+          case "TFLog" => createVector(compose_weighting_Fun(tfLog)(idfWeightedTerms),dictionary)
+          case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms),dictionary)
         }
 
-        if(idfChoice != "Normal" || dictionary == None) println("Terms weighted to idf in " + currentTimeMins(time))
+        if(idfChoice != "Normal" || dictionary.isEmpty) println("Terms weighted to idf in " + currentTimeMins(time))
 
         corpus.par.map(x => vectorFun(x)).filterNot(_.isEmpty).toVector
-      }
     }
 
     println("Vectors obtained in " + currentTimeMins(time))

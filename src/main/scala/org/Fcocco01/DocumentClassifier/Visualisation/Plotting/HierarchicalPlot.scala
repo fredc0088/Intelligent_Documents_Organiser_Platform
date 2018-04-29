@@ -33,7 +33,7 @@ object HierarchicalPlot {
     */
   class Dendrogram(cluster: Cluster)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
   object Dendrogram {
-    def apply(cluster: Cluster) = {
+    def apply(cluster: Cluster): Dendrogram = {
       val screenSize = Toolkit.getDefaultToolkit.getScreenSize
       val (w, h) = ((screenSize.width * ZERO_NINE).toInt, (screenSize.height * ZERO_SEVEN).toInt)
 
@@ -65,13 +65,12 @@ object HierarchicalPlot {
                 createFileSystem(cluster, selectedDirectory.getCanonicalPath)
               }
               result match {
-                case Success(x) => new Alert(
+                case Success(_) => new Alert(
                   AlertType.Information, s"New file system created in ${selectedDirectory.getCanonicalPath}.")
                   .showAndWait
-                case Failure(y) => {
+                case Failure(y) =>
                   logAwayErrorsAndExceptions(y)
                   new Alert(AlertType.Error, "Some error occured. Please check error log")
-                }
               }
             }
           }
@@ -83,18 +82,16 @@ object HierarchicalPlot {
         create
       }
 
-      private def createFileSystem(cluster: Cluster, root: String) = {
+      private def createFileSystem(cluster: Cluster, root: String): Unit = {
         def help(cluster: Cluster,dir: String): Unit = {
           cluster.getChildren match {
-            case None => {
+            case None =>
               val path = new File(dir)
               path.mkdirs
               FileUtils.copyFileToDirectory(new File(cluster.name),path)
-            }
-            case Some((left,right)) => {
+            case Some((left,right)) =>
               help(left, s"$dir/${cluster.name}")
               help(right, s"$dir/${cluster.name}")
-            }
           }
         }
         help(cluster,root + "/" + cluster.name)
@@ -135,12 +132,13 @@ object HierarchicalPlot {
         * @param x
         * @param y
         */
+      //noinspection ScalaUnusedSymbol
       def drawNode(node: Cluster, x: Double, y: Double): Unit = {
         node.getChildren match {
           case None => pane.children.add(
             CircleNode(node, x, y, FIVE, (event: MouseEvent) =>
               NodeInfo(node).getInfo.show(pane.getScene.getWindow), Color.Silver))
-          case Some((left,right)) => {
+          case Some((left,right)) =>
             val (h1, h2) = (left.getHeight * THIRTY, right.getHeight * THIRTY)
             val (top, bottom) = (y - (h1 + h2) / TWO, y + (h1 + h2) / TWO)
             val ll = node.distance.getOrElse(ZERO.toDouble) * scaling + TWENTY
@@ -152,7 +150,6 @@ object HierarchicalPlot {
               x, bottom - h2 / TWO, x + ll, bottom - h2 / TWO))
             drawNode(left, x + ll, top + h1 / TWO)
             drawNode(right, x + ll, bottom - h2 / TWO)
-          }
         }
       }
       drawNode(cluster, TWENTY, h / TWO)
@@ -184,7 +181,7 @@ object HierarchicalPlot {
       */
     case class NodeInfo(node : Cluster, vectors : Option[Traversable[String]] = None) {
 
-      def getInfo = {
+      def getInfo: Popup = {
         val popup = new Popup
         popup.setHideOnEscape(true)
         val box = new VBox

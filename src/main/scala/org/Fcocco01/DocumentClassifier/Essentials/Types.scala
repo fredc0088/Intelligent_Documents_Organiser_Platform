@@ -23,7 +23,7 @@ package object Types {
     }
     case class Document(path: DocPath, tokens: Tokens)
     case class TermWeighted(term : Term, weight: Double) {
-      def toTuple = (term,weight)
+      def toTuple: (Term, Weight) = (term,weight)
     }
 
     /** Object wrapping Document Vectors Types */
@@ -35,8 +35,8 @@ package object Types {
         def size : Int
         def isEmpty : Boolean
         implicit def apply : Map[Token,Weight]
-        override def toString() =
-          (for ((k, v) <- this.apply) yield s" ${k} -> ${Util.Formatting.roundDecimals(v)} ").mkString
+        override def toString: String =
+          (for ((k, v) <- this.apply) yield s" $k -> ${Util.Formatting.roundDecimals(v)} ").mkString
       }
 
       /**
@@ -49,9 +49,9 @@ package object Types {
         */
       final case class RealVector(override val id: String, private val v: Map[Token, Weight])
         extends DocumentVector {
-        def isEmpty = if(v.isEmpty)true else false
-        implicit def apply = v
-        def size = v.size
+        def isEmpty: Boolean = if(v.isEmpty)true else false
+        implicit def apply: Map[Token, Weight] = v
+        def size: Int = v.size
       }
 
       /**
@@ -61,8 +61,8 @@ package object Types {
       final case object EmptyVector extends DocumentVector {
         override val id: String = ""
         override def isEmpty = true
-        override def size = Constants.ZERO
-        implicit def apply = Map.empty[Token,Weight]
+        override def size: Int = Constants.ZERO
+        implicit def apply: Map[Token, Weight] = Map.empty[Token,Weight]
       }
 
     }
@@ -83,7 +83,7 @@ package object Types {
           val name: String
 
           def merge(c: Cluster)(d: Option[Double]): MultiCluster = MultiCluster(this, c)(d) // Merge two existing clusters
-          def hasVector(v: DVector): Boolean = vectors.exists(_ == v)
+          def hasVector(v: DVector): Boolean = vectors.contains(v)
 
           def getHeight: Double =
             this.getChildren match {
@@ -99,14 +99,14 @@ package object Types {
           * @param v
           */
         final case class SingleCluster(private val v: DVector) extends Cluster {
-          override def getChildren = None
+          override def getChildren: None.type = None
 
           lazy val vectors: List[DVector] = List(v)
-          lazy val name = {
+          lazy val name: String = {
             v.apply.maxBy(_._2)._1
             vectors.head.id
           }
-          override val distance = None
+          override val distance: None.type = None
         }
 
         /**
@@ -130,13 +130,13 @@ package object Types {
               if (terms.isEmpty) string
               else n match {
                 case ZERO => s"${string}_"
-                case _ => constructTitle(s"${string} ${terms.head.getOrElse(default)._1}_", n - ONE, terms.tail, default)
+                case _ => constructTitle(s"$string ${terms.head.getOrElse(default)._1}_", n - ONE, terms.tail, default)
               }
             val height = getHeight.toInt
             val name = if (height > FIVE && highestTerms.length > FIVE)
               constructTitle("", height / FIVE, highestTerms, default)
             else constructTitle("", height, highestTerms, default)
-            s"${name}${Math.abs(this.hashCode).toString}"
+            s"$name${Math.abs(this.hashCode).toString}"
           }
 
           lazy val vectors: List[DVector] =
@@ -167,10 +167,10 @@ package object Types {
           * @param elements
           */
         case class Cluster(center: DVector, elements: DVector*){
-          lazy val vectorsID = elements.map(_.id)
+          lazy val vectorsID: Seq[String] = elements.map(_.id)
           /* Picks the most important terms for all vectors to construct a name for
           * the cluster. Hashcode is used to ensure uniqueness. */
-          lazy val name = {
+          lazy val name: String = {
             val mains = elements.map(x => x.apply.toArray.sortBy(_._2).reverse.head).sortBy(_._2).reverse
             val names  = if(mains.size > THREE) mains.map(_._1).toArray.distinct.take(THREE)
             else mains.map(_._1).toArray.distinct.take(ONE)

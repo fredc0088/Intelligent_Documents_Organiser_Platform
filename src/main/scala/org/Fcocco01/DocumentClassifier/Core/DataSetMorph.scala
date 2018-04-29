@@ -64,7 +64,7 @@ object DataSetMorph {
       * @return A collection of tokens that represent the dictionary
       */
     def apply(vectors: DocumentVector*) : Option[Tokens] = {
-      val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.apply.map(y => y._1)).toArray
+      val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.apply.keys).toArray
       val instance = new Dictionary(tokens)
       instance.apply
     }
@@ -103,17 +103,18 @@ object DataSetMorph {
     * @param dictionary A set of unique terms composing a dictionary (see [[Dictionary]])
     * @return [[DocumentVector]] instance, either [[RealVector]] or [[EmptyVector]]
     */
+  //noinspection ComparingUnrelatedTypes
   def createVector(modeller: Scheme, dictionary: Option[Tokens] = None) : Option[Document] => DocumentVector = {
     (tokenizedText: Option[Document]) => {
       tokenizedText match {
-        case Some(t) => {
+        case Some(t) =>
           var m = Array.empty[TermWeighted]
           /*
           * This is an additional guard if the method is used outside the workflow and a not meaningful tokenized
           * document is passed in.
           * If the document happens to be empty or containing only an empty token, it produces an empty vector
           * */
-          if (tokenizedText.isEmpty || (tokenizedText.size == ONE && tokenizedText.head == "")) EmptyVector
+          if (t.tokens.isEmpty || (t.tokens.size == ONE && t.tokens.head == "")) EmptyVector
           else {
             dictionary match {
               case Some(x) => for (d <- x) m = m :+ modeller(d, t.tokens)
@@ -131,7 +132,6 @@ object DataSetMorph {
 //          }
             RealVector(t.path, m.map(_.toTuple).toMap)
           }
-        }
         case None => EmptyVector
       }
     }

@@ -13,7 +13,7 @@ object FlatPlot {
 
   class SparseGraph(clusters: Cluster*)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
   object SparseGraph {
-    def apply(cluster: Cluster*) = {
+    def apply(cluster: Cluster*): SparseGraph = {
       val screenSize = Toolkit.getDefaultToolkit.getScreenSize
       val (w, h) = ((screenSize.width * ZERO_NINE).toInt, (screenSize.height * ZERO_SEVEN).toInt)
 
@@ -25,10 +25,10 @@ object FlatPlot {
 
   class TempRepresentation(clusters: Cluster*)
   object TempRepresentation {
-    def apply(clusters: Cluster*) = {
+    def apply(clusters: Cluster*): Group = {
         val visual : String = clusters.zipWithIndex.map {
           x => s"Cluster ${x._2} with name ${x._1.name}:\n ${
-            x._1.vectorsID.map { y => s"            ${y}\n"
+            x._1.vectorsID.map { y => s"            $y\n"
             }.reduce(_ + _)}\n"
         }.reduce(_ + _)
       val node = new Group
