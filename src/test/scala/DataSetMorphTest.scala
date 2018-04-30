@@ -102,7 +102,7 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
 
   "Creating vectors non empty" should "have correct properties" in {
     val v = createVector(compose_weighting_Fun(tf)(Some(idfValues)))(tokens(0))
-    assert(v.apply.isInstanceOf[Map[String,Double]])
+    assert(v.features.isInstanceOf[Map[String,Double]])
     v.id shouldNot be(null)
     v.id shouldNot be("")
     assert(v.size.isInstanceOf[Int])
@@ -112,12 +112,12 @@ class DataSetMorphTest extends UnitTest("DataSetMorph") {
   "Non-empty vectors (normalised)" should "have the same terms of the dictionary used to normalise them" in {
     val v = createVector(compose_weighting_Fun(tf)(Some(idfValues)), dictionary)(tokens(0))
     assert(dictionary.get.size == v.size)
-    assert(dictionary.get.forall(v.apply.keys.toVector.contains(_)))
+    assert(dictionary.get.forall(v.features.keys.toVector.contains(_)))
   }
 
   "Vectors created from the same base dictionary" should "contain same terms in same order" in {
-    val vector1 = createVector(rawBag, dictionary)(tokens(1)).apply.keys
-    val vector2 = createVector(rawBag, dictionary)(tokens(3)).apply.keys
+    val vector1 = createVector(rawBag, dictionary)(tokens(1)).features.keys
+    val vector2 = createVector(rawBag, dictionary)(tokens(3)).features.keys
     assert(vector1 == vector2)
   }
 }

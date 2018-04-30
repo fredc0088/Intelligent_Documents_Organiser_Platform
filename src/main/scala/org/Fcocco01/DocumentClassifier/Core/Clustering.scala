@@ -35,9 +35,9 @@ object Clustering {
     }
 
     def getDocProduct(v1: DVector, v2: DVector): Map[Token, Double] =
-      v1.apply.map { case (k, v) => k -> (v * v2.apply.getOrElse(k, ZERO.toDouble)) }
+      v1.features.map { case (k, v) => k -> (v * v2.features.getOrElse(k, ZERO.toDouble)) }
 
-    def getAbsoluteValue(v: DVector): Double = v.apply.toVector.map(x => Math.pow(x._2, TWO)).sum
+    def getAbsoluteValue(v: DVector): Double = v.features.toVector.map(x => Math.pow(x._2, TWO)).sum
   }
 
   /**
@@ -52,8 +52,8 @@ object Clustering {
       * @return
       */
     def euclidean(v1: DVector, v2: DVector): Double =
-      v1.apply.map { x => {
-        val y = x._2 - v2.apply.a(x._1)
+      v1.features.map { x => {
+        val y = x._2 - v2.features.a(x._1)
         y * y
       }
       }.sum |> Math.sqrt
@@ -65,7 +65,7 @@ object Clustering {
       * @return
       */
     def manhattan(v1: DVector, v2: DVector): Double =
-      v1.apply.map { x => Math.abs(x._2 - v2.apply.a(x._1)) }.sum
+      v1.features.map { x => Math.abs(x._2 - v2.features.a(x._1)) }.sum
   }
 
   /** Methods to perform an hierarchical clustering for a set of document vectors */
@@ -284,7 +284,7 @@ object Clustering {
       * @return a new vector representing the mean vector of the input set
       */
     def computeNewCentroid(vectors: DVector*): Vectors.RealVector = {
-      val vector = vectors.head.apply.map(x => (x._1, valueMean(vectors.map(y => y.apply(x._1)).toVector)))
+      val vector = vectors.head.features.map(x => (x._1, valueMean(vectors.map(y => y.features(x._1)).toVector)))
       Types.TypeClasses.Vectors.RealVector(vector.hashCode.toString,vector)
     }
 

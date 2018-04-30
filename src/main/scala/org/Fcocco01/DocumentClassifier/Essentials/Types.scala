@@ -31,12 +31,13 @@ package object Types {
 
       /** Common property and behaviour for any type of document vector */
       sealed trait DocumentVector {
-        val id: String
+        val id : String
+        val features : Map[Token,Weight]
         def size : Int
         def isEmpty : Boolean
-        implicit def apply : Map[Token,Weight]
         override def toString: String =
-          (for ((k, v) <- this.apply) yield s" $k -> ${Util.Formatting.roundDecimals(v)} ").mkString
+          (for ((k, v) <- this.features) yield s" $k -> ${Util.Formatting.roundDecimals(v)} ").mkString
+        def apply(key: Term) = this.features(key)
       }
 
       /**
@@ -45,24 +46,24 @@ package object Types {
         *
         * @constructor create a new vector with an id and a collection of terms mapped to values
         * @param id Vector unique ID
-        * @param v  The content of the vector, to every term a value [[Weight]] is assigned
+        * @param features  The content of the vector, to every term a value [[Weight]] is assigned
         */
-      final case class RealVector(override val id: String, private val v: Map[Token, Weight])
+      final case class RealVector(val id: String, val features: Map[Token, Weight])
         extends DocumentVector {
-        def isEmpty: Boolean = if(v.isEmpty)true else false
-        implicit def apply: Map[Token, Weight] = v
-        def size: Int = v.size
+        def isEmpty: Boolean = if(features.isEmpty)true else false
+        def size: Int = features.size
       }
 
       /**
         * An empty document vector, does not contain any term and it could be
-        * generated from an empty document (tokenised) or an error.
+        * generated from an empty document (tokenized) or an error.
         */
       final case object EmptyVector extends DocumentVector {
-        override val id: String = ""
-        override def isEmpty = true
-        override def size: Int = Constants.ZERO
-        implicit def apply: Map[Token, Weight] = Map.empty[Token,Weight]
+        val id: String = ""
+        def isEmpty = true
+        def size: Int = Constants.ZERO
+        val features: Map[Token, Weight] = Map.empty[Token,Weight]
+        override def apply(key: Term): Weight = Double.NaN
       }
 
     }
@@ -103,7 +104,7 @@ package object Types {
 
           lazy val vectors: List[DVector] = List(v)
           lazy val name: String = {
-            v.apply.maxBy(_._2)._1
+            v.features.maxBy(_._2)._1
             vectors.head.id
           }
           override val distance: None.type = None
@@ -121,7 +122,7 @@ package object Types {
 
           /* Name the cluster based on the main topic. It is not working properly at this stage. Under research */
           lazy val name: String = {
-            val vectors = this.vectors.map(x => ListMap(x.apply.toSeq.sortWith(_._2 > _._2): _*))
+            val vectors = this.vectors.map(x => ListMap(x.features.toSeq.sortWith(_._2 > _._2): _*))
             val highestTerms = vectors.map(x => x.headOption)
             val default = (scala.util.Random.alphanumeric.take(FIVE).toString, ZERO.toDouble)
 
@@ -171,7 +172,7 @@ package object Types {
           /* Picks the most important terms for all vectors to construct a name for
           * the cluster. Hashcode is used to ensure uniqueness. */
           lazy val name: String = {
-            val mains = elements.map(x => x.apply.toArray.sortBy(_._2).reverse.head).sortBy(_._2).reverse
+            val mains = elements.map(x => x.features.toArray.sortBy(_._2).reverse.head).sortBy(_._2).reverse
             val names  = if(mains.size > THREE) mains.map(_._1).toArray.distinct.take(THREE)
             else mains.map(_._1).toArray.distinct.take(ONE)
             names.mkString("_") ++ s"_${this.hashCode}"

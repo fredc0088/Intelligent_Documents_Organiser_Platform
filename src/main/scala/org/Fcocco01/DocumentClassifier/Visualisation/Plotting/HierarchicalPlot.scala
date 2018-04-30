@@ -193,7 +193,7 @@ object HierarchicalPlot {
         t.setStyle("-fx-border-style: solid;-fx-font-weight: bold")
         val buttonView = new Button("View Vector") {
           onMouseClicked = (event: MouseEvent) => {
-            val vector = node.vectors.headOption.getOrElse(EmptyVector).apply
+            val vector = node.vectors.headOption.getOrElse(EmptyVector).features
             val vectorRepresentation = new TextArea
             vectorRepresentation.setText(vector.map(v => s"${v._1} ----> ${v._2}").mkString("\n"))
             val hbox = new HBox { children = vectorRepresentation }
@@ -228,7 +228,7 @@ object HierarchicalPlot {
       val scene = Dendrogram(c)
       scene.setOnMouseEntered((event: MouseEvent) =>
         scene.setOnMouseExited((event: MouseEvent) =>
-          stage.close()
+          stage.close
         )
       )
       stage.setTitle(s"Focus: $c.name")

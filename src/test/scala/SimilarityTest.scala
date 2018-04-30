@@ -19,7 +19,7 @@ class SimilarityTest extends UnitTest("Clustering.Similarity") {
   "Calculation of the DOT Product of two vectors" should "return the expected result" in {
     //    getDocProduct()
     assertResult(0.005058770926783665) {
-      vector2.apply("ability") * vector3.apply("ability")
+      vector2.features("ability") * vector3.features("ability")
     }
 
     assertResult(HashMap("embedded" -> 0.24, "plugin" -> 0.0, "test" -> 0.0,

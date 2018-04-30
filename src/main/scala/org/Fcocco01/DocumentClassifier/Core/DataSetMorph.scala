@@ -64,7 +64,7 @@ object DataSetMorph {
       * @return A collection of tokens that represent the dictionary
       */
     def apply(vectors: DocumentVector*) : Option[Tokens] = {
-      val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.apply.keys).toArray
+      val tokens = vectors.par.filterNot(_.isEmpty).flatMap(x => x.features.keys).toArray
       val instance = new Dictionary(tokens)
       instance.apply
     }
