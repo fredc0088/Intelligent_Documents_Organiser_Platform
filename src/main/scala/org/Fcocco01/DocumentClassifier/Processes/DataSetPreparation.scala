@@ -29,9 +29,9 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
           None
         else idfChoice match {
           case "Idf" => Some(dictionary.getOrElse(Vector("")).par
-            .map(IDFValue(_)(simpleIdf)((Option(corpus)))).toVector)
+            .map(IDFValue(_)(simpleIdf)(Option(corpus))).toVector)
           case "Smooth Idf" => Some(dictionary.getOrElse(Vector("")).par
-            .map(IDFValue(_)(smootherIdf)((Option(corpus)))).toVector)
+            .map(IDFValue(_)(smootherIdf)(Option(corpus))).toVector)
         }
 
 

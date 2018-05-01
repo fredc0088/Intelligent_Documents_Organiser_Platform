@@ -6,7 +6,7 @@ import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE}
   * Aliases to be used around the code for a better readibility
   * and comprehension.
   */
-package object Types {
+object Types {
   type DocPath = String
   type TxtExtractor = String => String
   type Paths = Traversable[String]
@@ -38,6 +38,7 @@ package object Types {
         override def toString: String =
           (for ((k, v) <- this.features) yield s" $k -> ${Util.Formatting.roundDecimals(v)} ").mkString
         def apply(key: Term) = this.features(key)
+        def mainTopic : String = this.features.toArray.maxBy(_._2)._1
       }
 
       /**
@@ -48,7 +49,7 @@ package object Types {
         * @param id Vector unique ID
         * @param features  The content of the vector, to every term a value [[Weight]] is assigned
         */
-      final case class RealVector(val id: String, val features: Map[Token, Weight])
+      final case class RealVector(id: String, features: Map[Token, Weight])
         extends DocumentVector {
         def isEmpty: Boolean = if(features.isEmpty)true else false
         def size: Int = features.size
@@ -59,11 +60,12 @@ package object Types {
         * generated from an empty document (tokenized) or an error.
         */
       final case object EmptyVector extends DocumentVector {
-        val id: String = ""
+        val id = ""
         def isEmpty = true
         def size: Int = Constants.ZERO
-        val features: Map[Token, Weight] = Map.empty[Token,Weight]
+        val features = Map.empty[Token,Weight]
         override def apply(key: Term): Weight = Double.NaN
+        override def mainTopic = ""
       }
 
     }

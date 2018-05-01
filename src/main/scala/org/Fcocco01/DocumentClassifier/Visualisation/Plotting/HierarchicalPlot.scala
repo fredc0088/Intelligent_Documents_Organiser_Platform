@@ -28,7 +28,7 @@ object HierarchicalPlot {
 
   /**
     *
-    * @param cluster
+    * @param cluster the root [[Cluster]]
     * @param panel
     */
   class Dendrogram(cluster: Cluster)(panel: (Parent, Int, Int)) extends Scene(panel._1, panel._2, panel._3)
@@ -52,6 +52,11 @@ object HierarchicalPlot {
       new Dendrogram(cluster)(root, w, h)
     }
 
+    /**
+      * Button to create a file system starting from the root cluster given.
+      *
+      * @param cluster the root [[Cluster]]
+      */
     private class ControlNewFileSystem(cluster: Cluster)
     object ControlNewFileSystem {
       def apply(cluster: Cluster): Button = {
@@ -122,11 +127,8 @@ object HierarchicalPlot {
 
       val pane = new Group()
       pane.setAutoSizeChildren(true)
-
-//      AnchorPane.setAnchors(anchorpane, TEN ,TEN ,TEN ,TEN)
-
       /**
-        * Recursevely draw the dendrogram.
+        * Recursively draw the dendrogram.
         *
         * @param node the current cluster node
         * @param x

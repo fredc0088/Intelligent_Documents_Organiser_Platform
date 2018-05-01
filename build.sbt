@@ -27,6 +27,7 @@ val sclFXML = "org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
 
 val io_commons = "org.apache.commons" % "commons-io" % "1.3.2"
 
+//noinspection Annotator,Annotator
 val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
 val jFreeCHartForFlatPlot = Seq("org.jfree" % "jfreechart" % "1.5.0", "org.jfree" % "jfreechart-fx" % "1.0.1",
