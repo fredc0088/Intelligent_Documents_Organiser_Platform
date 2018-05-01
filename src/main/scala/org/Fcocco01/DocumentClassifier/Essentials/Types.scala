@@ -7,6 +7,7 @@ import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE}
   * and comprehension.
   */
 object Types {
+  type DocumentsPaths = () => List[String]
   type DocPath = String
   type TxtExtractor = String => String
   type Paths = Traversable[String]

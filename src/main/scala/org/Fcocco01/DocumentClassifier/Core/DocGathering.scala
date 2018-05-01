@@ -4,9 +4,9 @@ import java.io.File
 
 import scala.collection.mutable
 
- object DocGathering {
+import org.Fcocco01.DocumentClassifier.Essentials.Types.DocumentsPaths
 
-   type DocumentsPaths = () => List[String]
+ object DocGathering {
 
    class DocumentFinder(directories: Array[String],directoriesToExclude: Array[String]) extends DocumentsPaths{
 
