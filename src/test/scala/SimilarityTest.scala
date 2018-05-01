@@ -5,19 +5,12 @@ import org.Fcocco01.DocumentClassifier.Test.TestingResources.DummyObject._
 
 import scala.collection.immutable.HashMap
 
-class SimilarityTest extends UnitTest("Clustering.Similarity") {
+class SimilarityTest extends UnitTest("Core.Clustering.Similarity") {
   "Cosine similarity" should "return the expected value" in {
-    //noinspection ScalaUnusedSymbol
-    val x = cosine(vector1, vector2)
-    //    assertResult() {  }
-  }
-
-  "Getting the absolute value of a vector" should "return the expected result" in {
-    //    getAbsoluteValue
+        assertResult(0.32964472509699594) { cosine(vector3, vector2) }
   }
 
   "Calculation of the DOT Product of two vectors" should "return the expected result" in {
-    //    getDocProduct()
     assertResult(0.005058770926783665) {
       vector2.features("ability") * vector3.features("ability")
     }

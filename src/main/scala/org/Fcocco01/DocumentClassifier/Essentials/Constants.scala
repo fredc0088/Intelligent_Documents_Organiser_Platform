@@ -23,6 +23,9 @@ package object Constants {
   val HUNDRED_FIFTY = 150
   val THREE_HUNDRED = 300
 
+  val EMPTY_STRING = ""
+  val SPACE = " "
+
   object Defaults {
     val stopwordPath = "./src/main/resources/stop-word-list.txt"
     val regexWord1Gram = "[^a-z0-9]"

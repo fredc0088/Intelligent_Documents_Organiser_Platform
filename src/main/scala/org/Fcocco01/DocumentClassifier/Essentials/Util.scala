@@ -181,7 +181,7 @@ package object Util {
     def currentTimeMins(t: Double) : String = (((System.nanoTime - t) / 1E9) / 60) + " mins"
     def getCurrentDateString : String = {
       val todayDate = Calendar.getInstance
-      s"${todayDate.get(Calendar.DAY_OF_MONTH)}-${todayDate.get(Calendar.MONTH)}-${todayDate.get(Calendar.YEAR)}"
+      s"${todayDate.get(Calendar.DAY_OF_MONTH)}-${todayDate.get(Calendar.MONTH) + 1}-${todayDate.get(Calendar.YEAR)}"
     }
     def getCurrentTimeString : String = {
       val todayDate = Calendar.getInstance

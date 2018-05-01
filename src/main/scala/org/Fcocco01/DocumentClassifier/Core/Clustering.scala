@@ -242,11 +242,7 @@ object Clustering {
       */
     def K_Means(k: Int) (dist: DistanceORSimFun) (vectors: DVector*) : Vector[Cluster] = {
       val n = if(k <= vectors.size && k > ZERO) k else Math.sqrt(k/TWO).toInt
-      //      (f: Option[(Array[DVector], DistanceORSimFun) => List[DVector]]) => {
-      //        val initialSeeds = f match {
-      //          case Some(x) => x.curried.apply(vectors.toArray)(dist)
-      //          case None => scala.util.Random.shuffle(vectors).take(k)
-      //        }
+
       val initialSeeds = scala.util.Random.shuffle(vectors).take(n)
 
       def help(oldCentroids: Vector[DVector]): Vector[Cluster] = {
@@ -312,31 +308,6 @@ object Clustering {
         }
       }
     }
-
-    //    def `kmeans++`(v: Array[DVector]) (d: DistanceORSimFun) = {
-    //      val randomSeed = scala.util.Random.shuffle(v).take(1)
-    //      val sumOfDistances = v.par.map{ x => d(x,randomSeed) }.toArray.reduce(_ + _)
-    ////      for{
-    //
-    //      }
-
-    //    }
-    //
-    //    def `kmeans||`(v: Array[DVector])(oversamplingFactor : Int) (d: DistanceORSimFun) = {
-    //      var c = List[DVector]
-    //      val randomSeed = scala.util.Random.shuffle(v).head
-    //      def getDistances(seed : DVector, v: List[DVector]) =  v.par.filter(_ != randomSeed)
-    //        .map { x => Math.pow(d(x, randomSeed),2) }.toArray
-    //      val iterations = Math.log(getDistances(randomSeed,v.toList).sum).round
-    //
-    //      for (0 <- iterations) {
-    //        for(dp <- c){
-    //          val distance = getDistances(dp,v.toList)
-    //        }
-    //      }
-    //
-    //
-    //    }
   }
 
 }

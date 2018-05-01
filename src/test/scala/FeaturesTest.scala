@@ -12,7 +12,7 @@ import Test.TestingResources.stopWords
 import Essentials.Types.TypeClasses.{Document, TermWeighted}
 import Essentials.Util.I_O.GetDocContent
 
-class FeaturesTest extends UnitTest ("Features"){
+class FeaturesTest extends UnitTest ("Core.Features"){
 
   var idfValues : Array[IDFValue] = _
   var tokens : Array[Option[Document]] = _

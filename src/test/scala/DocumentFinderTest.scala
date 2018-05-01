@@ -6,7 +6,7 @@ import org.Fcocco01.DocumentClassifier.{Core,Test}
 import Core.DocGathering.DocumentFinder
 import Test.TestingResources.Paths.{testDirPath1, testDirPath2, testDirPath3, testDirPath4}
 
-class DocumentFinderTest extends UnitTest("DocGathering.DocumentFinder") {
+class DocumentFinderTest extends UnitTest("Core.DocGathering.DocumentFinder") {
 
   val testPaths = Array(testDirPath1,testDirPath2,testDirPath3)
 
