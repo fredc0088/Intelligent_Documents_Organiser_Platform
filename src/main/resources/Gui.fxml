@@ -68,7 +68,7 @@
                <FXCollections fx:factory="observableArrayList">
                   <String fx:value="Tf"/>
                   <String fx:value="Raw-Bag-Of-Words"/>
-                  <String fx:value="Wdf"/>
+                  <String fx:value="Aug Tf"/>
                   <String fx:value="TFLog"/>
                </FXCollections>
             </items>

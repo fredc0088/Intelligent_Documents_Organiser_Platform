@@ -41,7 +41,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
   "All features scoring functions" should "return a TermWeighted" in {
     val a = rawBag("text",tokens(1).get.tokens)
     val b = tf("text",tokens(1).get.tokens)
-    val c = wdf("text",tokens(1).get.tokens)
+    val c = augmented_tf("text",tokens(1).get.tokens)
     val d = tfLog("text",tokens(1).get.tokens)
     assert(Array(a,b,c,d).forall(_.isInstanceOf[TermWeighted]))
   }
@@ -58,9 +58,9 @@ class FeaturesTest extends UnitTest ("Core.Features"){
       BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
     }
 
-  "Wdf" should "return right result" in
-    assertResult(9.7999032363) {
-      val x = wdf("text",tokens(1).get.tokens)
+  "Augmented Tf" should "return right result" in
+    assertResult(0.9230769231) {
+      val x = augmented_tf("text",tokens(1).get.tokens)
       BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
     }
 
@@ -93,19 +93,19 @@ class FeaturesTest extends UnitTest ("Core.Features"){
   "The functions" should "return a 0 weight if the document provided is empty" in {
     val a = rawBag("example",Array.empty[String])
     val b = tf("example",Array.empty[String])
-    val c = wdf("example",Array.empty[String])
+    val c = augmented_tf("example",Array.empty[String])
     val d = tfLog("example",Array.empty[String])
     assert(Array(a,b,c,d).forall(_.weight == 0))
   }
 
   "All functions" should "return the right result when composed with IDF values" in {
     val a = compose_weighting_Fun(tf)(Some(idfValues))
-    val b = compose_weighting_Fun(wdf)(Some(idfValues))
+    val b = compose_weighting_Fun(augmented_tf)(Some(idfValues))
     val c = compose_weighting_Fun(tfLog)(Some(idfValues))
     val tokens = this.tokens.map(_.get.tokens)
     assertResult(0.0012089708834031455){a("example",tokens(0)).weight}
     assertResult(0.0){a("example",Array.empty[String]).weight}
-    assertResult(2.031241956110586){b("example",tokens(0)).weight}
+    assertResult(0.10120187302050646){b("example",tokens(0)).weight}
     assertResult(0.0012048396307164518){c("example",tokens(0)).weight}
   }
 }

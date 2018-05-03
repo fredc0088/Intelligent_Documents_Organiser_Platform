@@ -88,7 +88,7 @@ object FullProcess {
 
         val vectorFun = weightFun match {
           case "Tf" => createVector(compose_weighting_Fun(tf)(idfWeightedTerms),dictionary)
-          case "wdf" => createVector(compose_weighting_Fun(wdf)(idfWeightedTerms),dictionary)
+          case "Aug Tf" => createVector(compose_weighting_Fun(augmented_tf)(idfWeightedTerms),dictionary)
           case "TFLog" => createVector(compose_weighting_Fun(tfLog)(idfWeightedTerms),dictionary)
           case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms),dictionary)
         }

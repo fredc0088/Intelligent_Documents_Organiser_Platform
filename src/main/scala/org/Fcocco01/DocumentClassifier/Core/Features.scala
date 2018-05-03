@@ -3,7 +3,7 @@ package org.Fcocco01.DocumentClassifier.Core
 import org.Fcocco01.DocumentClassifier.Essentials
 import Essentials.Types.TypeClasses.{Document, TermWeighted, TokenSuite}
 import Essentials.Types.{Paths, Scheme, Term, Token, Tokens, Weight}
-import Essentials.Constants.{ONE, ZERO}
+import Essentials.Constants.{ONE, ZERO, HALF}
 
 /**
   * Provide functions for analysis a [[Term]],
@@ -144,16 +144,18 @@ package object Features {
       else TermWeighted(term, GetFrequency(document, term).toDouble / document.size)
 
     /**
-      *
+      * Augmented frequency, to prevent a bias towards longer documents,
+      * e.g. raw frequency divided by the maximum raw frequency of any term in the document.
+      * This computation tend to be heavy and affect perfomances.
       *
       * @param term
       * @param document tokens from tokenised document
       * @return the term accordingly weighted, as 0 if document is empty
       */
-    def wdf(term: Term, document: Tokens) : TermWeighted =
+    def augmented_tf(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, Math.log(GetFrequency(document, term).toDouble + ONE) /
-        ONE + Math.log(document.size))
+      else TermWeighted(term, HALF + ( HALF * (GetFrequency(document, term).toDouble) /
+          document.par.map(x => GetFrequency(document,x)).toArray.max))
 
     type IDFValue = IDF.IDFValue
 

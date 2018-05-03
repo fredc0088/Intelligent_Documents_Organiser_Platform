@@ -1,12 +1,14 @@
 package org.Fcocco01.DocumentClassifier.Test
 
-import org.Fcocco01.DocumentClassifier.{Essentials,Core}
-import TestingResources.DummyObject.{vector1,vector2,vector3,vector4,vector5,vector6}
+import org.Fcocco01.DocumentClassifier.{Core, Essentials}
+import TestingResources.DummyObject.{vector1, vector2, vector3, vector4, vector5, vector6}
 import Core.Clustering._
 import Essentials.Types.TypeClasses.Vectors.{DocumentVector => V}
 import Similarity._
 import Distance._
 import HierarchicalClustering._
+import org.scalatest.{Matchers, PropSpec}
+import org.scalatest.prop.TableDrivenPropertyChecks
 
 import scala.collection.immutable.HashMap
 
@@ -24,6 +26,9 @@ class HierarchicalClusteringTest extends UnitTest("Core.Clustering.HierarchicalC
 
 
 
+class Similarity extends PropSpec with TableDrivenPropertyChecks with Matchers {
+
+}
 
 /*
 

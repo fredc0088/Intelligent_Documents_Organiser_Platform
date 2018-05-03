@@ -6,7 +6,7 @@ import org.Fcocco01.DocumentClassifier.Test.TestingResources.DummyObject._
 import scala.collection.immutable.HashMap
 
 class SimilarityTest extends UnitTest("Core.Clustering.Similarity") {
-  "Cosine similarity" should "return the expected value" in {
+  it should "return the expected value" in {
         assertResult(0.32964472509699594) { cosine(vector3, vector2) }
   }
 
