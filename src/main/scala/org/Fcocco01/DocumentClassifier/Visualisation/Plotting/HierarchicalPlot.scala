@@ -102,8 +102,7 @@ object HierarchicalPlot {
         help(cluster,root + "/" + cluster.name)
       }
     }
-
-
+    
   }
 
   /**
@@ -204,9 +203,16 @@ object HierarchicalPlot {
             disable = true
           }
         }
+        val buttonTopic = new Button("Main topic") {
+          onMouseClicked = (event: MouseEvent) =>
+            new Alert(AlertType.Information, s"${node.vectors.head.mainTopic}")
+          .showAndWait
+        }
         val buttonClose = new Button("Close") { onMouseClicked = (event: MouseEvent) => popup.hide }
+        val topButtons = new HBox
+        topButtons.children.addAll(buttonView,buttonTopic)
         val buttonsBox = new VBox
-        buttonsBox.children.addAll(buttonView,buttonClose)
+        buttonsBox.children.addAll(topButtons,buttonClose)
         box.children.addAll(t,buttonsBox)
         box.setStyle("-fx-background-color: WHITE;-fx-border-color:#545454;-fx-border-width: 1px;")
         box.setOnMouseDragged((event : MouseEvent) => {
