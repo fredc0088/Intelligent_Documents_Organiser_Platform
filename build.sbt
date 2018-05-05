@@ -34,8 +34,9 @@ val io_commons = "org.apache.commons" % "commons-io" % "1.3.2"
 //noinspection Annotator,Annotator
 val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
-val jFreeCHartForFlatPlot = Seq("org.jfree" % "jfreechart" % "1.5.0", "org.jfree" % "jfreechart-fx" % "1.0.1",
-  "org.jfree" % "jcommon" % "1.0.24")
+/* Possible library to implement flat clustering sparse diagram */
+//val jFreeCHartForFlatPlot = Seq("org.jfree" % "jfreechart" % "1.5.0", "org.jfree" % "jfreechart-fx" % "1.0.1",
+//  "org.jfree" % "jcommon" % "1.0.24")
 
 lazy val root = (project in file("."))
   .settings(
@@ -51,8 +52,8 @@ lazy val root = (project in file("."))
       url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns),
       addCompilerPlugin(paradise cross CrossVersion.full),
     libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest,
-      scalaFX, sclFXML, mockTest, io_commons) ++ jFreeCHartForFlatPlot,
-    testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
+      scalaFX, sclFXML, mockTest, io_commons) // ++ jFreeCHartForFlatPlot
+    , testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false,
     mainClass in (Compile, run) := Some("org.Fcocco01.DocumentClassifier.Main"),
     unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/ext/jfxrt.jar"))
