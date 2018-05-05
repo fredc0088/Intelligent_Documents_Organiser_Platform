@@ -52,7 +52,7 @@ object FullProcess {
 
         val stopWords = stopwords match {
           case Some(s) => StopWords(s)
-          case None => StopWords(Essentials.Constants.Defaults.stopwordPath)
+          case None => Essentials.Constants.Defaults.stopwords
         }
 
         val regexToUse = regex match {

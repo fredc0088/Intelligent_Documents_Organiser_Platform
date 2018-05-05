@@ -1,8 +1,8 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
-import java.io.File
+import org.apache.commons.io.IOUtils
 
-import javax.swing.filechooser.FileSystemView
+import scala.io.Codec
 
 package object Constants {
   val ZERO = 0
@@ -31,16 +31,16 @@ package object Constants {
   val SPACE = " "
 
   object Defaults {
-    val stopwordPath: String = getClass.getClassLoader.getResource("stop-word-list.txt").getPath
+    /* Loads a stopwords file content */
+    val stopwords: String = org.apache.commons.io.IOUtils.toString(getClass.getClassLoader.
+      getResourceAsStream("stop-word-list.txt"), Codec.ISO8859.name)
     val regexWord1Gram = "[^a-z0-9]"
     /* Errors logs folder in the HOME directory, if it  does not exist, a new one is created */
     val logFile: String = {
-      val o = FileSystemView.getFileSystemView.getHomeDirectory
-      if(!o.listFiles.map(_.getPath.split("/").last).contains("DC_logs")) {
-        new File(s"$o/DC_logs").mkdirs
-      }
-      val p = o.listFiles.find(x => x.getPath.contains("DC_logs"))
-      p.get.getCanonicalPath
+      val pathToHome = javax.swing.filechooser.FileSystemView.getFileSystemView.getHomeDirectory
+      if(!pathToHome.listFiles.map(_.getPath.split("/").last).contains("DC_logs"))
+        new java.io.File(s"$pathToHome/DC_logs").mkdirs
+      pathToHome.listFiles.find(x => x.getPath.contains("DC_logs")).get.getCanonicalPath
     }
   }
 }
