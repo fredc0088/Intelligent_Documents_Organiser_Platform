@@ -56,12 +56,14 @@ object Clustering {
       * @return
       */
     def euclidean(v1: DVector, v2: DVector): Double =
-      v1.features.map { x => {
-        val y = x._2 - v2.features.a(x._1)
-        y * y
+      if(v1.isEmpty || v2.isEmpty) ONE
+      else {
+        v1.features.map { x => {
+          val y = x._2 - v2.features.a(x._1)
+          y * y
+        }
+        }.sum |> Math.sqrt
       }
-      }.sum |> Math.sqrt
-
     /**
       *
       * @param v1
@@ -69,7 +71,10 @@ object Clustering {
       * @return
       */
     def manhattan(v1: DVector, v2: DVector): Double =
-      v1.features.map { x => Math.abs(x._2 - v2.features.a(x._1)) }.sum
+      if(v1.isEmpty || v2.isEmpty) ONE
+      else {
+        v1.features.map { x => Math.abs(x._2 - v2.features.a(x._1)) }.sum
+      }
   }
 
   /** Methods to perform an hierarchical clustering for a set of document vectors */

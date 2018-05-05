@@ -7,16 +7,16 @@ import org.Fcocco01.DocumentClassifier.Test.TestingResources.DummyObject._
 import scala.collection.immutable.HashMap
 
 class SimilarityTest extends UnitTest("Core.Clustering.Similarity") {
-  it should "return the expected value" in {
+  "Cosine" should "return the expected value" in {
     assertResult(0.32964472509699594) { cosine(vector3, vector2) }
   }
 
-  it should "handle division to 0" in {
+  "Cosine" should "handle division to 0" in {
     assertResult(0) {
       cosine(RealVector("a", HashMap("" -> 0.0)), RealVector("b", HashMap("" -> 0.0))) }
   }
 
-  it should "return Nan if one or both vector are empty" in {
+  "Cosine" should "return 0 if one or both vector are empty" in {
     assert(cosine(RealVector("a", HashMap("" -> 0.0)), EmptyVector) === 0 )
   }
 
