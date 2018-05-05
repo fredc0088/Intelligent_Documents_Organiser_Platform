@@ -33,7 +33,7 @@ object Clustering {
       else {
         val a: Double = getAbsoluteValue(v1) |> Math.sqrt
         val b: Double = getAbsoluteValue(v2) |> Math.sqrt
-        val euclideanLength = (a * b)
+        val euclideanLength = a * b
         getDocProduct(v1, v2).values.sum / {if(euclideanLength > ZERO) euclideanLength else ONE}
       }
     }

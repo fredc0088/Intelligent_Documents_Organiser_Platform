@@ -31,13 +31,13 @@ package object Constants {
   val SPACE = " "
 
   object Defaults {
-    val stopwordPath = getClass.getClassLoader.getResource("stop-word-list.txt").getPath
+    val stopwordPath: String = getClass.getClassLoader.getResource("stop-word-list.txt").getPath
     val regexWord1Gram = "[^a-z0-9]"
     /* Errors logs folder in the HOME directory, if it  does not exist, a new one is created */
-    val logFile = {
+    val logFile: String = {
       val o = FileSystemView.getFileSystemView.getHomeDirectory
       if(!o.listFiles.map(_.getPath.split("/").last).contains("DC_logs")) {
-        new File(s"${o}/DC_logs").mkdirs
+        new File(s"$o/DC_logs").mkdirs
       }
       val p = o.listFiles.find(x => x.getPath.contains("DC_logs"))
       p.get.getCanonicalPath

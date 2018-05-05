@@ -154,7 +154,7 @@ package object Features {
       */
     def augmented_tf(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, HALF)
-      else TermWeighted(term, HALF + ( HALF * (GetFrequency(document, term).toDouble) /
+      else TermWeighted(term, HALF + ( HALF * GetFrequency(document, term).toDouble /
           document.par.map(x => GetFrequency(document,x)).toArray.max))
 
     type IDFValue = IDF.IDFValue

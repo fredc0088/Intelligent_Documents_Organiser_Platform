@@ -28,7 +28,7 @@ extends BaseProcess {
 
     def urlses(cl: ClassLoader): Array[java.net.URL] = cl match {
       case null => Array()
-      case u: java.net.URLClassLoader => u.getURLs() ++ urlses(cl.getParent)
+      case u: java.net.URLClassLoader => u.getURLs ++ urlses(cl.getParent)
       case _ => urlses(cl.getParent)
     }
 
@@ -36,10 +36,10 @@ extends BaseProcess {
 //    println(urls.filterNot(_.toString.contains("ivy")).mkString("\n"))
 
     println(Essentials.Constants.Defaults.stopwordPath)
-    println((new File (Essentials.Constants.Defaults.stopwordPath)).canRead)
-    println((new File (Essentials.Constants.Defaults.stopwordPath)).canExecute)
-      println((new File (Essentials.Constants.Defaults.stopwordPath)).getParent)
-      println((new File (Essentials.Constants.Defaults.stopwordPath)).isFile)
+    println(new File(Essentials.Constants.Defaults.stopwordPath).canRead)
+    println(new File(Essentials.Constants.Defaults.stopwordPath).canExecute)
+      println(new File(Essentials.Constants.Defaults.stopwordPath).getParent)
+      println(new File(Essentials.Constants.Defaults.stopwordPath).isFile)
 
 
     if (paths.size == ZERO) {

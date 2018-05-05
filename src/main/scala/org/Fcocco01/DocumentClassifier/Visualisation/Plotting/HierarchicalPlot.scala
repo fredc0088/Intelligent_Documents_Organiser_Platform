@@ -234,8 +234,8 @@ object HierarchicalPlot {
     private def focus(c: Cluster) = {
       val stage = new Stage
       val scene = Dendrogram(c)
-      scene.setOnMouseEntered((event: MouseEvent) =>
-        scene.setOnMouseExited((event: MouseEvent) =>
+      scene.setOnMouseEntered((_: MouseEvent) =>
+        scene.setOnMouseExited((_: MouseEvent) =>
           stage.close
         )
       )
