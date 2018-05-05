@@ -33,6 +33,7 @@ package object Constants {
   object Defaults {
     val stopwordPath = getClass.getClassLoader.getResource("stop-word-list.txt").getPath
     val regexWord1Gram = "[^a-z0-9]"
+    /* Errors logs folder in the HOME directory, if it  does not exist, a new one is created */
     val logFile = {
       val o = FileSystemView.getFileSystemView.getHomeDirectory
       if(!o.listFiles.map(_.getPath.split("/").last).contains("DC_logs")) {
