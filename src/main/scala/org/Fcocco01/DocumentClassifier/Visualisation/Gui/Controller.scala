@@ -167,7 +167,7 @@ class Controller extends jfxf.Initializable {
   @jfxf.FXML
   private def openLog(event: ActionEvent) : Unit = {
     println("Called on Strategy change") // debug and test
-    org.Fcocco01.DocumentClassifier.Essentials.Util.I_O.openFromPath("./Error_Logs")
+    org.Fcocco01.DocumentClassifier.Essentials.Util.I_O.openFromPath(org.Fcocco01.DocumentClassifier.Essentials.Constants.Defaults.logFile)
   }
 
   @jfxf.FXML

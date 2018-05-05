@@ -108,7 +108,7 @@ package object Features {
 
   /** Contains function for modelling a document vector into a Bag-Of-Words model,
     * weighting in each terms in relation to the document used to create the vector. */
-  object Bag_Of_Words_Models {
+  object Ranking_Modellers {
 
     /**
       *
@@ -153,7 +153,7 @@ package object Features {
       * @return the term accordingly weighted, as 0 if document is empty
       */
     def augmented_tf(term: Term, document: Tokens) : TermWeighted =
-      if(document.isEmpty) TermWeighted(term, ZERO)
+      if(document.isEmpty) TermWeighted(term, HALF)
       else TermWeighted(term, HALF + ( HALF * (GetFrequency(document, term).toDouble) /
           document.par.map(x => GetFrequency(document,x)).toArray.max))
 

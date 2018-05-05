@@ -15,10 +15,8 @@ package object Tokenization {
       * Creates a [[String]] of words from a file to be used as stopwords.
       */
     object StopWords {
-      def apply(filePath: String): String = {
-        val stopWords = GetDocContent(filePath)
-        stopWords
-      }
+      def apply(filePath: String): String =
+        GetDocContent(filePath)
     }
 
     /**
@@ -40,10 +38,8 @@ package object Tokenization {
       * Factory object for [[TokenizedText]]
       */
     object TokenizedText {
-      def apply(regex: String, stopWords: String) (text: String): Vector[String] = {
-        val newInstance = new TokenizedText(regex, stopWords)
-        newInstance(text)
-      }
+      def apply(regex: String, stopWords: String) (text: String): Vector[String] =
+        (new TokenizedText(regex, stopWords))(text)
     }
 
 

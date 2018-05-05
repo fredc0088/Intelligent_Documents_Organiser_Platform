@@ -1,5 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Processes
 
+import java.io.File
+
 import org.Fcocco01.DocumentClassifier.{Core, Essentials}
 import Core.DocGathering.DocumentFinder
 import Core.DataSetMorph.{buildTokenSuite, tokenizeDocument}
@@ -23,6 +25,23 @@ extends BaseProcess {
 
     println("Documents gathered in " + currentTimeMins(time))
 
+
+    def urlses(cl: ClassLoader): Array[java.net.URL] = cl match {
+      case null => Array()
+      case u: java.net.URLClassLoader => u.getURLs() ++ urlses(cl.getParent)
+      case _ => urlses(cl.getParent)
+    }
+
+//    val  urls = urlses(getClass.getClassLoader)
+//    println(urls.filterNot(_.toString.contains("ivy")).mkString("\n"))
+
+    println(Essentials.Constants.Defaults.stopwordPath)
+    println((new File (Essentials.Constants.Defaults.stopwordPath)).canRead)
+    println((new File (Essentials.Constants.Defaults.stopwordPath)).canExecute)
+      println((new File (Essentials.Constants.Defaults.stopwordPath)).getParent)
+      println((new File (Essentials.Constants.Defaults.stopwordPath)).isFile)
+
+
     if (paths.size == ZERO) {
       setProgress(TEN)
       println("No document found")
@@ -34,6 +53,7 @@ extends BaseProcess {
         case Some(s) => StopWords(s)
         case None => StopWords(Essentials.Constants.Defaults.stopwordPath)
       }
+
 
       val regexToUse = regex match {
         case Some(r) => r

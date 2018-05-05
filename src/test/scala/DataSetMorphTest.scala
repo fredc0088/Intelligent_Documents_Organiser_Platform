@@ -9,8 +9,8 @@ import Paths._
 import Regexes.words1gram
 import Essentials.Types.TypeClasses.{Document, TokenSuite}
 import Essentials.Types.TypeClasses.Vectors.{RealVector, DocumentVector, EmptyVector}
-import Core.Features.{IDF,Bag_Of_Words_Models}
-import Bag_Of_Words_Models.{IDFValue, rawBag, tf, compose_weighting_Fun}
+import Core.Features.{IDF,Ranking_Modellers}
+import Ranking_Modellers.{IDFValue, rawBag, tf, compose_weighting_Fun}
 import Essentials.Types.Tokens
 import IDF.simpleIdf
 
@@ -53,7 +53,7 @@ class DataSetMorphTest extends UnitTest("Core.DataSetMorph") {
     val dictionary1 = Dictionary(tokens.take(3))
     val dictionary2 = Dictionary(tests.take(3),buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent))
     assert(dictionary1.get == dictionary2.get)
-  }
+}
 
   "Creating a dictionary using vectors" should "produce same as a base dictionary (but not same order) if that dictionary was used to create the vectors" in {
     val dictionary1 = Dictionary(tokens.take(3))
@@ -115,6 +115,12 @@ class DataSetMorphTest extends UnitTest("Core.DataSetMorph") {
     v shouldBe EmptyVector
   }
 
+  "createVector: Vectors created from the same base dictionary" should "contain same terms in same order" in {
+    val vector1 = createVector(rawBag, dictionary)(tokens(1)).features.keys
+    val vector2 = createVector(rawBag, dictionary)(tokens(3)).features.keys
+    assert(vector1 == vector2)
+  }
+
   "Empty vectors" should "prove useless in analysis" in {
     assert(EmptyVector.size == 0)
     assert(EmptyVector.id == "")
@@ -136,22 +142,10 @@ class DataSetMorphTest extends UnitTest("Core.DataSetMorph") {
     v("force") should be(0.0002054796013687995)
   }
 
-  "A RealVector (normalised to the corpus)" should "have the same terms of the dictionary used to normalise them" in {
-    val v = createVector(compose_weighting_Fun(tf)(Some(idfValues)), dictionary)(tokens(0))
-    assert(dictionary.get.size == v.size)
-    assert(dictionary.get.forall(v.features.keys.toVector.contains(_)))
-  }
-
   "A RealVector" should "result empty like an empty vector if instantiated with empty values" in {
     val v = RealVector("", Map.empty)
     v.isEmpty should be(true)
     v.size should be(0)
-  }
-
-  "Vectors created from the same base dictionary" should "contain same terms in same order" in {
-    val vector1 = createVector(rawBag, dictionary)(tokens(1)).features.keys
-    val vector2 = createVector(rawBag, dictionary)(tokens(3)).features.keys
-    assert(vector1 == vector2)
   }
 
 }

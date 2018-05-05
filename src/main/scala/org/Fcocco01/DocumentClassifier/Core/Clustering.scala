@@ -29,9 +29,13 @@ object Clustering {
       * @return
       */
     def cosine(v1: DVector, v2: DVector): Double = {
-      val a: Double = getAbsoluteValue(v1) |> Math.sqrt
-      val b: Double = getAbsoluteValue(v2) |> Math.sqrt
-      getDocProduct(v1, v2).values.sum / (a * b)
+      if(v1.isEmpty || v2.isEmpty) ZERO
+      else {
+        val a: Double = getAbsoluteValue(v1) |> Math.sqrt
+        val b: Double = getAbsoluteValue(v2) |> Math.sqrt
+        val euclideanLength = (a * b)
+        getDocProduct(v1, v2).values.sum / {if(euclideanLength > ZERO) euclideanLength else ONE}
+      }
     }
 
     def getDocProduct(v1: DVector, v2: DVector): Map[Token, Double] =

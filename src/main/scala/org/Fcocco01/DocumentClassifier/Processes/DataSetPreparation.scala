@@ -2,7 +2,7 @@ package org.Fcocco01.DocumentClassifier.Processes
 
 import org.Fcocco01.DocumentClassifier.{Core, Essentials}
 import Core.DataSetMorph.{Dictionary, createVector}
-import Core.Features.Bag_Of_Words_Models._
+import Core.Features.Ranking_Modellers._
 import Core.Features.IDF.{IDFValue, simpleIdf, smootherIdf}
 import Essentials.Constants.{FIVE_HALF, SEVEN}
 import Essentials.Types.TypeClasses.Document

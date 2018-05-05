@@ -1,5 +1,9 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
+import java.io.File
+
+import javax.swing.filechooser.FileSystemView
+
 package object Constants {
   val ZERO = 0
   val HALF = 0.5
@@ -27,7 +31,15 @@ package object Constants {
   val SPACE = " "
 
   object Defaults {
-    val stopwordPath = "./src/main/resources/stop-word-list.txt"
+    val stopwordPath = getClass.getClassLoader.getResource("stop-word-list.txt").getPath
     val regexWord1Gram = "[^a-z0-9]"
+    val logFile = {
+      val o = FileSystemView.getFileSystemView.getHomeDirectory
+      if(!o.listFiles.map(_.getPath.split("/").last).contains("DC_logs")) {
+        new File(s"${o}/DC_logs").mkdirs
+      }
+      val p = o.listFiles.find(x => x.getPath.contains("DC_logs"))
+      p.get.getCanonicalPath
+    }
   }
 }

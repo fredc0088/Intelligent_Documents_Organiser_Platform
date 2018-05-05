@@ -4,6 +4,8 @@ import java.io.File
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.util.Calendar
 
+import javax.swing.filechooser.FileSystemView
+
 import scala.language.reflectiveCalls
 import scala.util.{Failure, Success, Try}
 
@@ -199,8 +201,9 @@ package object Util {
       */
     def logAwayErrorsAndExceptions(e: Throwable): Path = {
       val day = Time.getCurrentDateString
-      val file : File = new File("./Error_Logs").listFiles.find(_.getName.contains(day))
-        .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
+      val errorDirs = org.Fcocco01.DocumentClassifier.Essentials.Constants.Defaults.logFile
+      val file : File = new File(errorDirs).listFiles.find(_.getName.contains(day))
+        .getOrElse(Files.createFile(Paths.get(s"$errorDirs/$day - ErrorsLog.log")).toFile)
       val stackTrace = e.getStackTrace.map(s => s"      ${s.toString}\n").mkString
       val error = s"[${Time.getCurrentTimeString}] - [ ${e.getMessage} ]\n    ${e.getCause}\n     ${e.getLocalizedMessage}\n$stackTrace"
       I_O.log(file, error,append = true)
@@ -214,8 +217,10 @@ package object Util {
       */
     def logAwayMessage(m: String): Path = {
       val day = Time.getCurrentDateString
-      val file : File = new File("./Error_Logs").listFiles.find(_.getName.contains(day))
-        .getOrElse(Files.createFile(Paths.get(s"./Error_Logs/$day - ErrorsLog.log")).toFile)
+      val errorDirs = org.Fcocco01.DocumentClassifier.Essentials.Constants.Defaults.logFile
+      val file : File = new File(errorDirs)
+        .listFiles.find(_.getName.contains(day))
+        .getOrElse(Files.createFile(Paths.get(s"$errorDirs/$day - ErrorsLog.log")).toFile)
       val error = s"[${Time.getCurrentTimeString}] - $m"
       I_O.log(file, error, append = true)
     }

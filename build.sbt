@@ -1,5 +1,9 @@
 import sbt.Keys.testFrameworks
 import sbt.addCompilerPlugin
+import AssemblyPlugin.assemblySettings
+
+// sbt-assembly
+assemblySettings
 
 val check = "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 
@@ -36,22 +40,36 @@ val jFreeCHartForFlatPlot = Seq("org.jfree" % "jfreechart" % "1.5.0", "org.jfree
 lazy val root = (project in file("."))
   .settings(
     name := "Documents_Clusterizer",
-    version := "0.0.1",
+    version := "1.0.0",
     scalaVersion := "2.12.3",
-    organization := name.value,
+    organization := "org.Fcocco01",
     autoCompilerPlugins := true,
     scalacOptions := List("-encoding", "utf8", "-Xfatal-warnings", "-deprecation", "-unchecked", "-feature"),
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/releases",
-      resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
+    resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases",
+    resolvers += Resolver.url("artifactory",
+      url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases"))(Resolver.ivyStylePatterns),
       addCompilerPlugin(paradise cross CrossVersion.full),
     libraryDependencies ++= Seq(check, scalactic, testlib, poi, poiDocX, poiDoc, poiSchema, pdfbox, speedTest,
       scalaFX, sclFXML, mockTest, io_commons) ++ jFreeCHartForFlatPlot,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false,
-    mainClass in Compile := Some("org.Fcocco01.DocumentClassifier.Main")
+    mainClass in (Compile, run) := Some("org.Fcocco01.DocumentClassifier.Main"),
+    unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/ext/jfxrt.jar"))
   )
   .enablePlugins(
       SbtProguard,
       JavaServerAppPackaging,
-      DockerPlugin
+      DockerPlugin,
+      AssemblyPlugin
   )
+
+assemblyMergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case x => MergeStrategy.first
+}
+
+
+
+fork := true
+

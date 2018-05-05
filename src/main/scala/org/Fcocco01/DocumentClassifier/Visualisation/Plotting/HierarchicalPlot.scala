@@ -124,7 +124,7 @@ object HierarchicalPlot {
       val depth = getDepth(cluster)
       val scaling = (w - THREE_HUNDRED) / depth
 
-      val pane = new Group()
+      val pane = new Group
       pane.setAutoSizeChildren(true)
       /**
         * Recursively draw the dendrogram.
