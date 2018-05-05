@@ -94,8 +94,8 @@ object Clustering {
       * @param elToFind the vector sought
       * @return the cluster that contain the desired vector
       */
-    def getRightCluster(tree: List[Cluster], elToFind: DVector): Cluster =
-      tree.find(_.hasVector(elToFind)).get
+    def getRightCluster(tree: List[Cluster], elToFind: DVector): Option[Cluster] =
+      tree.find(_.hasVector(elToFind))
 
     /**
       * Cut a matrix in half, excluding comparisons between the same vector and itself.
@@ -204,7 +204,7 @@ object Clustering {
       * @param v
       * @return
       */
-    def HAC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy, v: DVector*): Cluster = {
+    def agglomerative_HC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy, v: DVector*): Cluster = {
       val cls = init(v.toSeq)
       val p: mutable.PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
 
@@ -216,11 +216,11 @@ object Clustering {
             val c: MatrixEl = linkStrategy.getDistance(Right(p))
             val cls1 = getRightCluster(tree, c._2)
             val cls2 = getRightCluster(tree, c._3)
-            if (cls1 == cls2) {
+            if (cls1.isEmpty || cls2.isEmpty || cls1 == cls2 ) {
               p.dequeue()
               createClusterTree(setL, tree)
             } else {
-              val mergedCls = cls1.merge(cls2)(Some(p.dequeue._1))
+              val mergedCls = cls1.get.merge(cls2.get)(Some(p.dequeue._1))
               val newTree = tree.filterNot(x => x == mergedCls.childL || x == mergedCls.childR)
               val newTree2 = newTree :+ mergedCls
               createClusterTree(setL + ONE, newTree2)

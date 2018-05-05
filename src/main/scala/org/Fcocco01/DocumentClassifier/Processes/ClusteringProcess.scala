@@ -34,11 +34,11 @@ case class ClusteringProcess(clusteringMode: String, comparison: String) extends
         val docWrappedInCluster = (x: Seq[DVector]) => x.map(SingleCluster).toList
         val clusters = linkStrategy match {
           case "Single Link" =>
-            if(comparison.contains("Dist"))HAC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
-            else HAC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
+            if(comparison.contains("Dist"))agglomerative_HC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
+            else agglomerative_HC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
           case "Complete Link" =>
-            if(comparison.contains("Dist"))HAC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
-            else HAC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
+            if(comparison.contains("Dist"))agglomerative_HC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
+            else agglomerative_HC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
         }
 
         Left(clusters)
