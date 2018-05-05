@@ -112,8 +112,13 @@ object FullProcess {
 
           val docWrappedInCluster = (x: Seq[DVector]) => x.map(Types.TypeClasses.Clusters.Hierarchical.SingleCluster).toList
           val clusters = linkStrategy match {
-            case "Single Link" => HAC(matrix, docWrappedInCluster, Single_Link, vectors: _*)
-            case "Complete Link" => HAC(matrix, docWrappedInCluster, Complete_Link, vectors: _*)
+            case "Single Link" =>
+              if (comparison.contains("Dist")) HAC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
+              else HAC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
+            case "Complete Link" => {
+              if (comparison.contains("Dist")) HAC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
+              else HAC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
+            }
           }
           println("Clustering after  " + currentTimeMins(time))
 
