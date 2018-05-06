@@ -3,7 +3,8 @@ package org.Fcocco01.DocumentClassifier.Core
 import org.Fcocco01.DocumentClassifier.Essentials
 import Essentials.Util.I_O.GetDocContent
 import Essentials.Util.String_Manipulation.onlyDigits
-import Essentials.Types.Tokenizer
+import Essentials.Types.{ Tokenizer, TypeClasses}
+import TypeClasses.DocPath
 
 /**
   * Provides objects and classes for dealing with tokenization of text.
@@ -15,7 +16,7 @@ package object Tokenization {
       * Creates a [[String]] of words from a file to be used as stopwords.
       */
     object StopWords {
-      def apply(filePath: String): String =
+      def apply(filePath: DocPath) : String =
         GetDocContent(filePath)
     }
 
@@ -41,6 +42,5 @@ package object Tokenization {
       def apply(regex: String, stopWords: String) (text: String): Vector[String] =
         (new TokenizedText(regex, stopWords))(text)
     }
-
 
 }

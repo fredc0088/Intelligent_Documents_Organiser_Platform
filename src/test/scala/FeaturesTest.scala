@@ -6,10 +6,10 @@ import IDF._
 import Ranking_Modellers._
 import Core.DataSetMorph.{Dictionary, buildTokenSuite, tokenizeDocument}
 import Core.Tokenization.TokenizedText
-import Test.TestingResources.Paths.{testPath1, testPath2, testPath3, testPath5, testPath8, testPath9, testPath10}
+import Test.TestingResources.Paths.{testPath1, testPath10, testPath2, testPath3, testPath5, testPath8, testPath9}
 import Test.TestingResources.Regexes.words1gram
 import Test.TestingResources.stopWords
-import Essentials.Types.TypeClasses.{Document, TermWeighted}
+import Essentials.Types.TypeClasses.{DocPath, Document, TermWeighted}
 import Essentials.Util.I_O.GetDocContent
 
 class FeaturesTest extends UnitTest ("Core.Features"){
@@ -21,7 +21,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
 
   override def beforeAll : Unit = {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    tokens = tests.par.map(x => tokenizeDocument(tknTool)(x)).toArray
+    tokens = tests.par.map(x => tokenizeDocument(tknTool)(DocPath(x))).toArray
     val dictionary = Dictionary(tokens)
     idfValues = dictionary.getOrElse(Vector("")).par.map(IDFValue(_)(simpleIdf)(Option(tokens))).toArray
   }
@@ -30,7 +30,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
 
   "A terms's idf value (using simple IDF)" should "be calculated correctly according to given documents" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(x)).toArray
+    val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(DocPath(x))).toArray
     assertResult(0.3010299956639812){ IDFValue("doc")(simpleIdf)(Some(tokens)).apply }
     assertResult(1.3010299956639812){ IDFValue("doc")(smootherIdf)(Some(tokens)).apply }
   }
@@ -42,7 +42,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
 
   "simpleIdf" should "have a value 0 to 1" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(x)).toArray
+    val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(DocPath(x))).toArray
     val idfs = tokens.map(_.get.tokens).reduce(_ ++ _)
       .toVector.distinct.map(x => IDFValue(x)(simpleIdf)(Some(tokens)).apply)
     assert(idfs.forall(x => { x <= 1 && x >= 0} ))
@@ -50,7 +50,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
 
   "smootherIdf" should "be a value 1 to 2" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(x)).toArray
+    val tokens = Array(testPath3,testPath5).par.map(x => tokenizeDocument(tknTool)(DocPath(x))).toArray
     val idfs = tokens.map(_.get.tokens).reduce(_ ++ _)
       .toVector.distinct.map(x => IDFValue(x)(smootherIdf)(Some(tokens)).apply)
     assert(idfs.forall(x => { x <= 2 && x >= 1} ))
@@ -71,7 +71,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
 
   "Tf" should "return 1 if  a term happen to be the only term in a document" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    val tokens = tokenizeDocument(tknTool)(testPath10)
+    val tokens = tokenizeDocument(tknTool)(DocPath(testPath10))
     assertResult(1.0){tf("HiMissing".toLowerCase,tokens.get.tokens).weight}
   }
 
@@ -153,7 +153,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
 
   "TfIdf combination" should "return 0 if the term is in all documents" in {
     val tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    val tokens = Array(testPath8,testPath9,testPath10).par.map(x => tokenizeDocument(tknTool)(x)).toArray
+    val tokens = Array(testPath8,testPath9,testPath10).par.map(x => tokenizeDocument(tknTool)(DocPath(x))).toArray
     val dictionary = Dictionary(tokens)
     val idfValues = dictionary.getOrElse(Vector("")).par.map(IDFValue(_)(simpleIdf)(Option(tokens))).toArray
     assertResult(0.0){compose_weighting_Fun(tf)(Some(idfValues))("himissing",tokens(0).get.tokens).weight}

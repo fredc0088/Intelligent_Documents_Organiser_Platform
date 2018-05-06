@@ -5,6 +5,7 @@ import java.io.File
 import org.Fcocco01.DocumentClassifier.{Core, Test}
 import Core.DocGathering.DocumentFinder
 import Test.TestingResources.Paths._
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
 
 class DocumentFinderTest extends UnitTest("Core.DocGathering.DocumentFinder") {
 
@@ -12,14 +13,14 @@ class DocumentFinderTest extends UnitTest("Core.DocGathering.DocumentFinder") {
 
   it should "Return a List of paths" in {
     val paths = DocumentFinder.apply(testPaths)
-    paths.isInstanceOf[List[String]] shouldBe true
+    paths.isInstanceOf[List[DocPath]] shouldBe true
     paths.size shouldBe 7
   }
 
   it should "Return only expected types of files" in {
     val paths = DocumentFinder(Array(testDirPath3),Array(new File(testDirPath4).getCanonicalPath))
-    assert(paths.forall(x => x.contains(".pdf") || x.contains(".doc") || x.contains(".docx") || x.contains(".txt")
-    || x.contains(".log")))
+    assert(paths.forall(x => x.path.contains(".pdf") || x.path.contains(".doc") || x.path.contains(".docx") ||
+      x.path.contains(".txt") || x.path.contains(".log")))
   }
 
   it should "Return paths" in {

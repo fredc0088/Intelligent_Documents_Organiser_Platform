@@ -1,17 +1,15 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
 import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE}
-import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.Vectors.EmptyVector
 
 /**
-  * Aliases to be used around the code for a better readibility
+  * Aliases to be used around the code for a better readability
   * and comprehension.
   */
 object Types {
-  type DocumentsPaths = () => List[String]
-  type DocPath = String
-  type TxtExtractor = String => String
-  type Paths = Traversable[String]
+  type DocumentsPaths = () => List[TypeClasses.DocPath]
+  type TxtExtractor = TypeClasses.DocPath => String
+  type Paths = Traversable[TypeClasses.DocPath]
   type Token = String
   type Term = String
   type Tokens = Traversable[Token]
@@ -20,10 +18,11 @@ object Types {
   type Text = String
   type Weight = Double
   object TypeClasses {
+    case class DocPath(path: String)
     case class TokenSuite(extract : TxtExtractor, tokenizer : Tokenizer) {
-      def getTokensFromFile(arg: String) = tokenizer(extract(arg))
+      def getTokensFromFile(arg: DocPath) = tokenizer(extract(arg))
     }
-    case class Document(path: DocPath, tokens: Tokens)
+    case class Document(path: String, tokens: Tokens)
     case class TermWeighted(term : Term, weight: Double) {
       def toTuple: (Term, Weight) = (term,weight)
     }
@@ -107,7 +106,7 @@ object Types {
         final case class SingleCluster(private val v: DVector) extends Cluster {
           override def getChildren: None.type = None
 
-          lazy val vectors: List[DVector] = List(if(v == null) EmptyVector else v)
+          lazy val vectors: List[DVector] = List(if(v == null) Vectors.EmptyVector else v)
           lazy val name: String =
             if(v == null || v.isEmpty) ""
             else
@@ -127,8 +126,8 @@ object Types {
         final case class MultiCluster(private val childL: Cluster, private val childR: Cluster)(val distance: Option[Double]) extends Cluster {
 
           override def getChildren = Some(
-            if(childL == null) SingleCluster(EmptyVector) else childL,
-            if(childR == null) SingleCluster(EmptyVector) else childR
+            if(childL == null) SingleCluster(Vectors.EmptyVector) else childL,
+            if(childR == null) SingleCluster(Vectors.EmptyVector) else childR
           )
 
           /* Name the cluster based on the main topic. It is not working properly at this stage. Under research */

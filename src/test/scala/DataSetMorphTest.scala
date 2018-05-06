@@ -2,15 +2,15 @@ package org.Fcocco01.DocumentClassifier.Test
 
 import org.Fcocco01.DocumentClassifier._
 import Core.DataSetMorph.{Dictionary, buildTokenSuite, createVector, tokenizeDocument}
-import Core.Tokenization.{TokenizedText, StopWords}
+import Core.Tokenization.{StopWords, TokenizedText}
 import Essentials.Util.I_O.GetDocContent
 import TestingResources.{Paths, Regexes, stopWords}
 import Paths._
 import Regexes.words1gram
-import Essentials.Types.TypeClasses.{Document, TokenSuite}
-import Essentials.Types.TypeClasses.Vectors.{RealVector, DocumentVector, EmptyVector}
-import Core.Features.{IDF,Ranking_Modellers}
-import Ranking_Modellers.{IDFValue, rawBag, tf, compose_weighting_Fun}
+import Essentials.Types.TypeClasses.{DocPath, Document, TokenSuite}
+import Essentials.Types.TypeClasses.Vectors.{DocumentVector, EmptyVector, RealVector}
+import Core.Features.{IDF, Ranking_Modellers}
+import Ranking_Modellers.{IDFValue, compose_weighting_Fun, rawBag, tf}
 import Essentials.Types.Tokens
 import IDF.simpleIdf
 
@@ -29,7 +29,7 @@ class DataSetMorphTest extends UnitTest("Core.DataSetMorph") {
   override def beforeAll(): Unit = {
 
     tknTool = buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent)
-    tokens = tests.par.map(x => tokenizeDocument(tknTool)(x)).toArray
+    tokens = tests.par.map(x => tokenizeDocument(tknTool)(DocPath(x))).toArray
     dictionary = Dictionary(tokens)
     idfValues = dictionary.getOrElse(Vector("")).par.map(IDF.IDFValue(_)(simpleIdf)(Option(tokens))).toArray
     vectors = tokens.par.map(x => createVector(compose_weighting_Fun(tf)(Some(idfValues)), dictionary)(x)).toArray
@@ -45,13 +45,13 @@ class DataSetMorphTest extends UnitTest("Core.DataSetMorph") {
 
   "A StopWords object" should "return an empty string if path is non existent or not readable" in {
     assertResult("")
-    {StopWords("nonExistent.txt")}
+    {StopWords(DocPath("nonExistent.txt"))}
   }
 
   /********************* Test Dictionary **************************/
   "Creating dictionaries with 2 different constructors" should "produce the same result" in {
     val dictionary1 = Dictionary(tokens.take(3))
-    val dictionary2 = Dictionary(tests.take(3),buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent))
+    val dictionary2 = Dictionary(tests.take(3).map(DocPath),buildTokenSuite(TokenizedText(words1gram, stopWords))(GetDocContent))
     assert(dictionary1.get == dictionary2.get)
 }
 
@@ -74,17 +74,17 @@ class DataSetMorphTest extends UnitTest("Core.DataSetMorph") {
 
   /********************* Test tokenizeDocument *****************/
   "TokenizeDocument with a empty document" should "return None when tokenized" in {
-    val doc = tokenizeDocument(tknTool)("./test/resources/1/1.4/empty.txt")
+    val doc = tokenizeDocument(tknTool)(DocPath("./test/resources/1/1.4/empty.txt"))
     doc shouldEqual None
   }
 
   "Tokenization of a non-empty file but all words falling into chosen stopwords'list" should "return None" in {
-    val doc = tokenizeDocument(tknTool)("./test/resources/1/1.4/text.txt")
+    val doc = tokenizeDocument(tknTool)(DocPath("./test/resources/1/1.4/text.txt"))
     doc shouldEqual None
   }
 
   "Tokenization of a non-empty file containing only numbers or special characters" should "return None" in {
-    val doc = tokenizeDocument(tknTool)("./test/resources/1/1.4/text2.txt")
+    val doc = tokenizeDocument(tknTool)(DocPath("./test/resources/1/1.4/text2.txt"))
     doc shouldEqual None
   }
 

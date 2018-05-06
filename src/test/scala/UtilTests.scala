@@ -3,19 +3,20 @@ package org.Fcocco01.DocumentClassifier.Test
 import org.Fcocco01.DocumentClassifier.Essentials.Util._
 import org.scalatest.Suites
 import TestingResources.Paths._
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
 
 class UtilTests extends Suites(new I_OTest, new OperatorsTest, new String_ManipulationTest)
 
 class I_OTest extends UnitTest("Essentials.Util.I_O") {
   import I_O._
   "GetDocContent" should "return the content of a file" in {
-    GetDocContent(testPath8).trim should be("HiMissing")
-    GetDocContent(testPath3).trim should be("test")
-    GetDocContent(testPath11).trim should be("test")
-    GetDocContent(testPath12).trim should be("test")
+    GetDocContent(DocPath(testPath8)).trim should be("HiMissing")
+    GetDocContent(DocPath(testPath3)).trim should be("test")
+    GetDocContent(DocPath(testPath11)).trim should be("test")
+    GetDocContent(DocPath(testPath12)).trim should be("test")
   }
   "GetDocContent" should "return an empty string if fails" in {
-    GetDocContent("").trim should be("")
+    GetDocContent(DocPath("")).trim should be("")
   }
 }
 

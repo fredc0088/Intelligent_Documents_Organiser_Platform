@@ -3,6 +3,9 @@ package org.Fcocco01.DocumentClassifier.Essentials
 import java.io.File
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.util.Calendar
+
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
+
 import scala.language.reflectiveCalls
 import scala.util.{Failure, Success, Try}
 
@@ -93,7 +96,7 @@ package object Util {
       * @param filePath Path to file
       * @return A [[String]] representing the text extracted
       */
-    def GetDocContent(filePath: String): String = readDocWithTry(filePath) match {
+    def GetDocContent(filePath: DocPath) : String = readDocWithTry(filePath.path) match {
       case Success(lines) => lines.mkString(" ")
       case Failure(t) =>
         logAwayErrorsAndExceptions(t)

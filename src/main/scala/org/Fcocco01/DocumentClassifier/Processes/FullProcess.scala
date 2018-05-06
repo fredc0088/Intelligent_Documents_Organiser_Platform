@@ -17,6 +17,7 @@ import Visualisation.Plotting.FlatPlot.SparseGraph
 import Visualisation.Plotting.HierarchicalPlot.Dendrogram
 import org.Fcocco01.DocumentClassifier.Essentials.Types
 import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
 import scalafx.scene.Scene
 
 
@@ -51,7 +52,7 @@ object FullProcess {
       else {
 
         val stopWords = stopwords match {
-          case Some(s) => StopWords(s)
+          case Some(s) => StopWords(DocPath(s))
           case None => Essentials.Constants.Defaults.stopwords
         }
 
@@ -67,7 +68,7 @@ object FullProcess {
 
         implicit val corpus: Array[Option[TypeClasses.Document]] = paths.par.map(x => tknFun(x)).toArray
 
-        println("Documents tokenised in " + currentTimeMins(time))
+        println("Documents tokenized in " + currentTimeMins(time))
 
         progress.set(FOUR)
 

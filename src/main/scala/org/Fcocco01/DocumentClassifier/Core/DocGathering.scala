@@ -5,6 +5,8 @@ import java.io.File
 import scala.collection.mutable
 
 import org.Fcocco01.DocumentClassifier.Essentials.Types.DocumentsPaths
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
+
 
  object DocGathering {
 
@@ -27,15 +29,15 @@ import org.Fcocco01.DocumentClassifier.Essentials.Types.DocumentsPaths
 
      private def getPaths(docs: List[File]) = docs.map(_.getCanonicalPath)
 
-     def apply(): List[String] = {
+     def apply(): List[DocPath] = {
         val documents = (for {
           d <- directories
         } yield this.recursiveTreeDocsSearch(d)).flatten.toList
-       this.getPaths(documents).distinct
+       this.getPaths(documents).distinct.map(DocPath)
      }
    }
    object DocumentFinder {
-    def apply(directories: Array[String],directoriesToExclude: Array[String] = Array()): List[String] = {
+    def apply(directories: Array[String],directoriesToExclude: Array[String] = Array()): List[DocPath] = {
       val instance = new DocumentFinder(directories, directoriesToExclude)
       instance()
     }

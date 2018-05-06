@@ -90,7 +90,7 @@ object DataSetMorph {
     (docPath: DocPath) => {
       val txt : Tokens = t.getTokensFromFile(docPath)
       if(txt.size == ZERO) None
-      else Some(Document(docPath,txt))
+      else Some(Document(docPath.path,txt))
     }
 
   /**

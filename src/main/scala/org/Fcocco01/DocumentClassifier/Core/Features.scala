@@ -78,10 +78,10 @@ package object Features {
       }
 
       /**
-        * Create an instance of [[IDFValue]] using a set of tokenised documents.
+        * Create an instance of [[IDFValue]] using a set of tokenized documents.
         *
         * @param term The term being weighted
-        * @param documentsAsTokens Optional set of already tokenised documents
+        * @param documentsAsTokens Optional set of already tokenized documents
         * @return instance of [[IDFValue]]
         */
       def apply(term: Term)(idfFunc: IDFFun)(implicit documentsAsTokens: Option[Traversable[Option[Document]]]) : IDFValue = {
@@ -99,7 +99,7 @@ package object Features {
   /**
     * Helper function, checks how often a term appear in a single document.
     *
-    * @param document tokens from tokenised document
+    * @param document tokens from tokenized document
     * @param term checked term
     * @return number of times the term appear in the document, 0 if document is empty
     */
@@ -114,7 +114,7 @@ package object Features {
       *
       *
       * @param term
-      * @param document tokens from tokenised document
+      * @param document tokens from tokenized document
       * @return the term accordingly weighted, as 0 if document is empty
       */
     def rawBag(term: Term, document: Tokens) : TermWeighted =
@@ -125,7 +125,7 @@ package object Features {
       *
       *
       * @param term
-      * @param document tokens from tokenised document
+      * @param document tokens from tokenized document
       * @return the term accordingly weighted, as 0 if document is empty
       */
     def tfLog(term: Term, document: Tokens) : TermWeighted =
@@ -136,7 +136,7 @@ package object Features {
       *
       *
       * @param term
-      * @param document tokens from tokenised document
+      * @param document tokens from tokenized document
       * @return the term accordingly weighted, as 0 if document is empty
       */
     def tf(term: Term, document: Tokens) : TermWeighted =
@@ -146,7 +146,7 @@ package object Features {
     /**
       * Augmented frequency, to prevent a bias towards longer documents,
       * e.g. raw frequency divided by the maximum raw frequency of any term in the document.
-      * This computation tend to be heavy and affect perfomances.
+      * This computation tend to be heavy and affect performances.
       *
       * @param term
       * @param document tokens from tokenised document

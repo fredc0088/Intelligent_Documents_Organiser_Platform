@@ -7,7 +7,7 @@ import Core.DocGathering.DocumentFinder
 import Core.DataSetMorph.{buildTokenSuite, tokenizeDocument}
 import Core.Tokenization.{StopWords, TokenizedText}
 import Essentials.Constants.{FOUR, ONE, TEN, ZERO}
-import Essentials.Types.TypeClasses.Document
+import Essentials.Types.TypeClasses.{DocPath, Document}
 import Essentials.Util.I_O.GetDocContent
 import Essentials.Util.Time.currentTimeMins
 
@@ -33,7 +33,7 @@ extends BaseProcess {
     else {
 
       val stopWords = stopwords match {
-        case Some(s) => StopWords(s)
+        case Some(s) => StopWords(DocPath(s))
         case None => Essentials.Constants.Defaults.stopwords
       }
 
