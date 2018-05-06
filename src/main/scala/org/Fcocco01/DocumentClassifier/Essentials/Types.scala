@@ -1,6 +1,7 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
 import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE}
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.Vectors.EmptyVector
 
 /**
   * Aliases to be used around the code for a better readibility
@@ -99,29 +100,36 @@ object Types {
         }
 
         /**
+          * A singleton cluster: it acts as a wrapper for only 1 vector
           *
-          * @param v
+          * @param v the vector to be contained in the cluster
           */
         final case class SingleCluster(private val v: DVector) extends Cluster {
           override def getChildren: None.type = None
 
-          lazy val vectors: List[DVector] = List(v)
-          lazy val name: String = {
-            v.features.maxBy(_._2)._1
-            vectors.head.id
-          }
+          lazy val vectors: List[DVector] = List(if(v == null) EmptyVector else v)
+          lazy val name: String =
+            if(v == null || v.isEmpty) ""
+            else
+              vectors.head.id
+
           override val distance: None.type = None
         }
 
         /**
+          * Cluster generated from the merge of two clusters.
           *
-          * @param childL
-          * @param childR
-          * @param distance
+          * @param childL left cluster used for the merge
+          * @param childR right cluster used for the merge
+          * @param distance the score (whether is distance or similarity, etc..) between
+          *                 the two clusters used in the merge
           */
-        final case class MultiCluster(childL: Cluster, childR: Cluster)(val distance: Option[Double]) extends Cluster {
+        final case class MultiCluster(private val childL: Cluster, private val childR: Cluster)(val distance: Option[Double]) extends Cluster {
 
-          override def getChildren = Some(childL, childR)
+          override def getChildren = Some(
+            if(childL == null) SingleCluster(EmptyVector) else childL,
+            if(childR == null) SingleCluster(EmptyVector) else childR
+          )
 
           /* Name the cluster based on the main topic. It is not working properly at this stage. Under research */
           lazy val name: String = {

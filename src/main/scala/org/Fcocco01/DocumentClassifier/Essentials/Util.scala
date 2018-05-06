@@ -3,9 +3,6 @@ package org.Fcocco01.DocumentClassifier.Essentials
 import java.io.File
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.util.Calendar
-
-import javax.swing.filechooser.FileSystemView
-
 import scala.language.reflectiveCalls
 import scala.util.{Failure, Success, Try}
 
@@ -104,11 +101,12 @@ package object Util {
     }
 
     /**
-      * Log a message into some file
+      * Log a message into a file.
       *
       * @param file file that will contain the log
       * @param message the message to be logged
       * @param append false if the message overwrites the existing file content
+      *               or true if it needs to append it to the current content.
       */
     def log(file: File, message: String, append: Boolean): Path = {
       if (append)
@@ -153,9 +151,12 @@ package object Util {
       * @return true if it is formed of only digits
       */
     def onlyDigits(s: String): Boolean = {
-      var isDigit = true
-      for(c <- s if !Character.isDigit(c)) isDigit = false
-      isDigit
+      if(s == null) false
+      else{
+        var isDigit = true
+        for(c <- s if !Character.isDigit(c)) isDigit = false
+        isDigit
+      }
     }
   }
 

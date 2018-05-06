@@ -1,8 +1,11 @@
 package org.Fcocco01.DocumentClassifier.Test
 
+import java.io.File
+
 import org.Fcocco01.DocumentClassifier._
-import Core.Tokenization.StopWords
 import Essentials.Types.TypeClasses.Vectors.RealVector
+
+import scala.util.{Failure, Success, Try}
 
 object TestingResources {
 
@@ -10,34 +13,42 @@ object TestingResources {
     val words1gram = "[^a-z0-9]"
   }
   object Paths {
-    val testPath1 =
-      "./src/test/resources/1/1.2/Java - Generics by Oracle.docx"
-    val testPath2 =
-      "./src/test/resources/1/1.1/demo.docx"
-    val testPath3 =
-      "./src/test/resources/3/3.2/test.docx"
-    val testPath4 =
-      "./src/test/resources/3/3.1/SampleDOCFile_100kb.doc"
-    val testPath5 =
-      "./src/test/resources/3/3.1/3.1.1/TestWordDoc.doc"
-    val testPath6 =
-      "./src/test/resources/1/Dfr.doc"
-    val testPath7 =
-      "./src/test/resources/2/a.docx"
-    val testPath8 =
-      "./src/test/resources/4/1.txt"
-    val testPath9 =
-      "./src/test/resources/4/2.txt"
-    val testPath10 =
-      "./src/test/resources/4/3.txt"
-    val testDirPath1 = "./src/test/resources/1/1.1"
-    val testDirPath2 = "./src/test/resources/1/1.2"
-    val testDirPath3 = "./src/test/resources/3"
-    val testDirPath4 = "./src/test/resources/3/3.1"
-    val testDirPath5 = "./src/test/resources/4"
+    val testPath1: String = getTestResourceFullPath("1/1.2/Java - Generics by Oracle.docx")
+    val testPath2: String = getTestResourceFullPath("1/1.1/demo.docx")
+    val testPath3: String = getTestResourceFullPath("3/3.2/test.docx")
+    val testPath4: String = getTestResourceFullPath("3/3.1/SampleDOCFile_100kb.doc")
+    val testPath5: String = getTestResourceFullPath("3/3.1/3.1.1/TestWordDoc.doc")
+    val testPath6: String = getTestResourceFullPath("1/Dfr.doc")
+    val testPath7: String = getTestResourceFullPath("2/a.docx")
+    val testPath8: String = getTestResourceFullPath("4/1.txt")
+    val testPath9: String = getTestResourceFullPath("4/2.txt")
+    val testPath10: String = getTestResourceFullPath("4/3.txt")
+    val testPath11: String = getTestResourceFullPath("5/test.pdf")
+    val testPath12: String = getTestResourceFullPath("5/test.doc")
+    val testDirPath1: String = getTestResourceFullPath("1/1.1")
+    val testDirPath2: String = getTestResourceFullPath("1/1.2")
+    val testDirPath3: String = getTestResourceFullPath("3")
+    val testDirPath4: String = getTestResourceFullPath("3/3.1")
+    val testDirPath5: String = getTestResourceFullPath("4")
+
+    /**
+      * Return path of a directory or file in the "resources" folder
+      *
+      * @param relPath the file/directory and its parent folders inside resources
+      * @return the full path to the file
+      */
+    private def getTestResourceFullPath(relPath: String): String = {
+      val p = Try{
+        new File(getClass.getClassLoader.getResource(relPath).getFile).getCanonicalPath
+      }
+      p match {
+        case Success(x) => x
+        case Failure(_) => ""
+      }
+    }
   }
 
-  val stopWords = StopWords("./src/main/resources/stop-word-list.txt")
+  val stopWords: String = org.Fcocco01.DocumentClassifier.Essentials.Constants.Defaults.stopwords
 
   object DummyObject {
     val vector1 = RealVector("test.docx",Array(("embedded", 0.0),("plugin", 0.0),
@@ -113,5 +124,32 @@ object TestingResources {
       ("line", 0.0176712), ("compiler", 0.02525526), ("data", 0.02588252),
       ("inline", 0.6), ("document", 0.0), ("programmer", 0.235),  ("text", 0.53253),
       ("particular", 0.243566),("knows", 0.0356546565)).toMap)
+
+    val vector7 = RealVector("demo8.doc", Array(("embedded", 0.0), ("plugin", 0.0), ("test", 0.0), ("fonts", 0.0),
+      ("knows", 0.02588777793837106859375),
+      ("essential", 0.025887777938371069053058448616866371594369411468505859375), ("demonstrates", 0.0),
+      ("line", 0.0176711575822097177734804063220508396625518798828125), ("document", 0.0),
+      ("compiler", 0.025887777938371069053058448616866371594369411468505859375),
+      ("data", 0.02588705859375), ("inline", 0.0), ("programmer", 0.010690530584486168663775),
+      ("demonstrate", 0.025887777938371069053058448616866371594369411468505859375), ("text", 0.0),
+      ("particular", 0.0258877779388505859375), ("guarantee", 0.0),
+      ("safe", 0.025887777938371069053058448616866371594369411468505859375),
+      ("iterator", 0.025887777938371069053058448616866371594369411468505859375),
+      ("object", 0.025887777938371069053058448616866371594369411468505859375),
+      ("ensure", 0.025887777938371069053058448616866371594369411468505859375),
+      ("returned", 0.02588777793837106905359375), ("various", 0.0),
+      ("cast", 0.05177555585),
+      ("slightly", 0.02588777705859375),
+      ("annoying", 0.025887759375),
+      ("variable", 0.025887777938371069053058448616866371594369411468505859375), ("ability", 0.0),
+      ("placed", 0.02585859375), ("calibre", 0.58877779383710690530584486168663715943694114),
+      ("integer", 0.025887777938371069053058448616866371594369411468505859375), ("docx", 0.0),
+      ("kind", 0.025887777938371069053058448616866371594369411468505859375),
+      ("type", 0.035342315164419435),
+      ("typically", 0.025887777938371069053058448616866371594369411468505859375),
+      ("required", 0.011468505859375),
+      ("assignment", 0.025887777938371069053058448616866371594369411468505859375),
+      ("formatting", 0.0), ("types", 0.0), ("input", 0.0),
+      ("list", 0.02588777793811468505859375)).toMap)
   }
 }

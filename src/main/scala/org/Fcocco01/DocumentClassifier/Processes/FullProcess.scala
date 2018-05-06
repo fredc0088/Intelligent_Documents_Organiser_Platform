@@ -2,7 +2,7 @@ package org.Fcocco01.DocumentClassifier.Processes
 
 import org.Fcocco01.DocumentClassifier.{Core, Essentials, Visualisation}
 import javafx.beans.property.{ReadOnlyDoubleProperty, ReadOnlyDoubleWrapper}
-import Core.Clustering.FlatClustering.{K_Means, printClusters}
+import Core.Clustering.FlatClustering.{k_Means, printClusters}
 import Core.Clustering.HierarchicalClustering._
 import Core.Clustering.{DVector, Distance, Similarity}
 import Core.DocGathering.DocumentFinder
@@ -129,7 +129,7 @@ object FullProcess {
 
           val numberOfClusters = clustersNumber
 
-          val clusters = K_Means(numberOfClusters)(compareFun)(vectors: _*)
+          val clusters = k_Means(numberOfClusters)(compareFun)(vectors: _*)
 
           println("Clustering after  " + currentTimeMins(time))
 

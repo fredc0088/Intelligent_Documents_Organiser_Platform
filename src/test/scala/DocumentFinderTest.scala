@@ -2,9 +2,9 @@ package org.Fcocco01.DocumentClassifier.Test
 
 import java.io.File
 
-import org.Fcocco01.DocumentClassifier.{Core,Test}
+import org.Fcocco01.DocumentClassifier.{Core, Test}
 import Core.DocGathering.DocumentFinder
-import Test.TestingResources.Paths.{testDirPath1, testDirPath2, testDirPath3, testDirPath4}
+import Test.TestingResources.Paths._
 
 class DocumentFinderTest extends UnitTest("Core.DocGathering.DocumentFinder") {
 

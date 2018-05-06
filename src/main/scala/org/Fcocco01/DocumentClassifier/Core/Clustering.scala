@@ -83,7 +83,7 @@ object Clustering {
     import Types.TypeClasses.Clusters.Hierarchical.Cluster
     import scala.collection.mutable.PriorityQueue
 
-    type MatrixEl = (Double, DVector, DVector)
+    case class MatrixEl(score: Double, vectorL: DVector, vectorR: DVector)
     case class ScoreMatrix(matrix: Array[Array[MatrixEl]], elements: Traversable[DVector])
 
 
@@ -112,14 +112,14 @@ object Clustering {
       * @return an array which is one meaningful half of the matrix
       */
     def cutMatrix(m: ScoreMatrix): Array[MatrixEl] =
-      m.matrix.flatten.filterNot(x => x._2 == x._3).take(m.matrix.flatten.length / TWO + ONE)
+      m.matrix.flatten.filterNot(x => x.vectorL == x.vectorR).take(m.matrix.flatten.length / TWO + ONE)
 
     /** Define a strategy to pair different clusters, used mostly for a subsequent merge into one cluster.
       * It provides a [[collection.mutable.PriorityQueue]] ordered depending on the priority the strategy define
       * (like minimum value ) and a function to obtain the right vectors depending on the value of comparison
       * defined by the strategy. */
     trait Merging_Strategy {
-      def getDistance(m: Either[ScoreMatrix, Traversable[MatrixEl]]): MatrixEl
+      def getScore(m: Either[ScoreMatrix, Traversable[MatrixEl]]): MatrixEl
 
       def getPQueue(m: ScoreMatrix): mutable.PriorityQueue[MatrixEl]
     }
@@ -134,9 +134,9 @@ object Clustering {
     object Single_Link extends Merging_Strategy {
 
       override def getPQueue(m: ScoreMatrix): mutable.PriorityQueue[MatrixEl] =
-        mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
+        mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_.score))
 
-      override def getDistance(m: Either[ScoreMatrix, Traversable[MatrixEl]]): (Double, DVector, DVector) = {
+      override def getScore(m: Either[ScoreMatrix, Traversable[MatrixEl]]): MatrixEl = {
         val matrix = m match {
           case Left(x) => x.matrix.flatten.toList
           case Right(y) => y.toList
@@ -144,8 +144,8 @@ object Clustering {
 
         @tailrec
         def find(a: List[MatrixEl]): MatrixEl = {
-          val mx = a.maxBy(_._1)
-          if (mx._2.id == mx._3.id) {
+          val mx = a.maxBy(_.score)
+          if (mx.vectorL.id == mx.vectorR.id) {
             find(a diff List(mx))
           } else mx
         }
@@ -164,9 +164,9 @@ object Clustering {
     object Complete_Link extends Merging_Strategy {
 
       override def getPQueue(m: ScoreMatrix): mutable.PriorityQueue[MatrixEl] =
-        mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1)).reverse
+        mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_.score)).reverse
 
-      override def getDistance(m: Either[ScoreMatrix, Traversable[MatrixEl]]) : MatrixEl = {
+      override def getScore(m: Either[ScoreMatrix, Traversable[MatrixEl]]) : MatrixEl = {
         val matrix = m match {
           case Left(x) => x.matrix.flatten.toList
           case Right(y) => y.toList
@@ -174,8 +174,8 @@ object Clustering {
 
         @tailrec
         def find(a: List[MatrixEl]): MatrixEl = {
-          val mx = a.minBy(_._1)
-          if (mx._2.id == mx._3.id) {
+          val mx = a.minBy(_.score)
+          if (mx.vectorL.id == mx.vectorR.id) {
             find(a diff List(mx))
           } else mx
         }
@@ -198,7 +198,7 @@ object Clustering {
       for (i <- ZERO until v.size) {
         for (j <- ZERO until v.size) {
           matrix(i)(j) =
-            (f(v(i), v(j)), v(i), v(j))
+            MatrixEl(f(v(i), v(j)), v(i), v(j))
         }
       }
       ScoreMatrix(matrix, vectors)
@@ -220,15 +220,17 @@ object Clustering {
         tree.size match {
           case ONE => tree.head
           case _ =>
-            val c: MatrixEl = linkStrategy.getDistance(Right(p))
-            val cls1 = getRightCluster(tree, c._2)
-            val cls2 = getRightCluster(tree, c._3)
+            val c: MatrixEl = linkStrategy.getScore(Right(p))
+            val cls1 = getRightCluster(tree, c.vectorL)
+            val cls2 = getRightCluster(tree, c.vectorR)
             if (cls1.isEmpty || cls2.isEmpty || cls1 == cls2 ) {
               p.dequeue()
               createClusterTree(setL, tree)
             } else {
-              val mergedCls = cls1.get.merge(cls2.get)(Some(p.dequeue._1))
-              val newTree = tree.filterNot(x => x == mergedCls.childL || x == mergedCls.childR)
+              val mergedCls = cls1.get.merge(cls2.get)(Some(p.dequeue.score))
+              val newTree = tree.filterNot(x => {
+                val c = mergedCls.getChildren.get
+                x == c._1 || x == c._2})
               val newTree2 = newTree :+ mergedCls
               createClusterTree(setL + ONE, newTree2)
             }
@@ -256,7 +258,7 @@ object Clustering {
       * @param vectors the dataset formed of document vectors
       * @return a set of clusters
       */
-    def K_Means(k: Int) (dist: DistanceORSimFun) (vectors: DVector*) : Vector[Cluster] = {
+    def k_Means(k: Int) (dist: DistanceORSimFun) (vectors: DVector*) : Vector[Cluster] = {
       val n = if(k <= vectors.size && k > ZERO) k else Math.sqrt(k/TWO).toInt
 
       val initialSeeds = scala.util.Random.shuffle(vectors).take(n)

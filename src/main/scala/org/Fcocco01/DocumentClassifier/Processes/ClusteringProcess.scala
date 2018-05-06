@@ -2,7 +2,7 @@ package org.Fcocco01.DocumentClassifier.Processes
 
 import org.Fcocco01.DocumentClassifier.{Core,Essentials}
 import Core.Clustering.{DVector, Distance, FlatClustering, Similarity, HierarchicalClustering}
-import FlatClustering.{K_Means, printClusters}
+import FlatClustering.{k_Means, printClusters}
 import HierarchicalClustering._
 import Essentials.Util.Time.currentTimeMins
 import Essentials.Types.TypeClasses.Clusters.{Flat,Hierarchical}
@@ -46,7 +46,7 @@ case class ClusteringProcess(clusteringMode: String, comparison: String) extends
 
         val numberOfClusters = clustersNumber
 
-        val clusters: Vector[Flat.Cluster] = K_Means(numberOfClusters)(compareFun)(vectors.toSeq: _*)
+        val clusters: Vector[Flat.Cluster] = k_Means(numberOfClusters)(compareFun)(vectors.toSeq: _*)
 
         printClusters(clusters: _*)
 
