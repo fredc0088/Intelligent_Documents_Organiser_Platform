@@ -99,7 +99,7 @@ object DataSetMorph {
     * probably from a different chained function, it will produce a empty vector.
     * Optionally, a dictionary can be used as parameter as well, in order to normalise the vector produced.
     *
-    * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Features.Bag_Of_Words_Models]]
+    * @param modeller Modelling Functions of [[Types.Scheme]]. Many are already contained in [[Features.Ranking_Modellers]]
     * @param dictionary A set of unique terms composing a dictionary (see [[Dictionary]])
     * @return [[DocumentVector]] instance, either [[RealVector]] or [[EmptyVector]]
     */
