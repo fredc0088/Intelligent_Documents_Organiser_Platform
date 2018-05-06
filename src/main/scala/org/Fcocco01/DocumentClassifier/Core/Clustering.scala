@@ -84,7 +84,7 @@ object Clustering {
     import scala.collection.mutable.PriorityQueue
 
     type MatrixEl = (Double, DVector, DVector)
-    type SimMatrix = Array[Array[MatrixEl]]
+    case class ScoreMatrix(matrix: Array[Array[MatrixEl]], elements: Traversable[DVector])
 
 
     /**
@@ -111,17 +111,17 @@ object Clustering {
       * @param m a similarity matrix
       * @return an array which is one meaningful half of the matrix
       */
-    def cutMatrix(m: SimMatrix): Array[MatrixEl] =
-      m.flatten.filterNot(x => x._2 == x._3).take(m.flatten.length / TWO + ONE)
+    def cutMatrix(m: ScoreMatrix): Array[MatrixEl] =
+      m.matrix.flatten.filterNot(x => x._2 == x._3).take(m.matrix.flatten.length / TWO + ONE)
 
     /** Define a strategy to pair different clusters, used mostly for a subsequent merge into one cluster.
       * It provides a [[collection.mutable.PriorityQueue]] ordered depending on the priority the strategy define
-      * (like minimum value) and a function to obtain the right vectors depending on the value of comparison
+      * (like minimum value ) and a function to obtain the right vectors depending on the value of comparison
       * defined by the strategy. */
     trait Merging_Strategy {
-      def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]): MatrixEl
+      def getDistance(m: Either[ScoreMatrix, Traversable[MatrixEl]]): MatrixEl
 
-      def getPQueue(m: SimMatrix): mutable.PriorityQueue[MatrixEl]
+      def getPQueue(m: ScoreMatrix): mutable.PriorityQueue[MatrixEl]
     }
 
     /**
@@ -133,12 +133,12 @@ object Clustering {
       */
     object Single_Link extends Merging_Strategy {
 
-      override def getPQueue(m: SimMatrix): mutable.PriorityQueue[MatrixEl] =
+      override def getPQueue(m: ScoreMatrix): mutable.PriorityQueue[MatrixEl] =
         mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1))
 
-      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]): (Double, DVector, DVector) = {
+      override def getDistance(m: Either[ScoreMatrix, Traversable[MatrixEl]]): (Double, DVector, DVector) = {
         val matrix = m match {
-          case Left(x) => x.flatten.toList
+          case Left(x) => x.matrix.flatten.toList
           case Right(y) => y.toList
         }
 
@@ -163,12 +163,12 @@ object Clustering {
       */
     object Complete_Link extends Merging_Strategy {
 
-      override def getPQueue(m: SimMatrix): mutable.PriorityQueue[MatrixEl] =
+      override def getPQueue(m: ScoreMatrix): mutable.PriorityQueue[MatrixEl] =
         mutable.PriorityQueue[MatrixEl](cutMatrix(m): _*)(Ordering.by(_._1)).reverse
 
-      override def getDistance(m: Either[SimMatrix, Traversable[MatrixEl]]) : MatrixEl = {
+      override def getDistance(m: Either[ScoreMatrix, Traversable[MatrixEl]]) : MatrixEl = {
         val matrix = m match {
-          case Left(x) => x.flatten.toList
+          case Left(x) => x.matrix.flatten.toList
           case Right(y) => y.toList
         }
 
@@ -191,7 +191,7 @@ object Clustering {
       * @param f distance/similarity function to apply on two vectors
       * @return a matrix of [[MatrixEl]]
       */
-    def createSimMatrix(vectors: Traversable[DVector], f: DistanceORSimFun): SimMatrix = {
+    def createSimMatrix(vectors: Traversable[DVector], f: DistanceORSimFun): ScoreMatrix = {
       val v = vectors.toArray.par
       val size = v.size
       val matrix = Array.ofDim[MatrixEl](size, size)
@@ -201,7 +201,7 @@ object Clustering {
             (f(v(i), v(j)), v(i), v(j))
         }
       }
-      matrix
+      ScoreMatrix(matrix, vectors)
     }
 
     /**
@@ -209,11 +209,10 @@ object Clustering {
       * @param m
       * @param init
       * @param linkStrategy
-      * @param v
       * @return
       */
-    def agglomerative_HC(m: SimMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy, v: DVector*): Cluster = {
-      val cls = init(v.toSeq)
+    def agglomerative_HC(m: ScoreMatrix, init: Seq[DVector] => List[Cluster], linkStrategy: Merging_Strategy): Cluster = {
+      val cls = init(m.elements.toSeq)
       val p: mutable.PriorityQueue[MatrixEl] = linkStrategy.getPQueue(m)
 
       @tailrec
@@ -307,9 +306,7 @@ object Clustering {
       * @param values
       * @return the mean value
       */
-    private def valueMean(values: Vector[Double]) = {
-      values.sum / values.size
-    }
+    private def valueMean(values: Vector[Double]) : Double = values.sum / values.size
 
     /**
       * Print one or more clusters on the console with information on their content

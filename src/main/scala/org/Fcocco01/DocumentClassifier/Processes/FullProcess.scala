@@ -113,12 +113,11 @@ object FullProcess {
           val docWrappedInCluster = (x: Seq[DVector]) => x.map(Types.TypeClasses.Clusters.Hierarchical.SingleCluster).toList
           val clusters = linkStrategy match {
             case "Single Link" =>
-              if (comparison.contains("Dist")) agglomerative_HC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
-              else agglomerative_HC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
-            case "Complete Link" => {
-              if (comparison.contains("Dist")) agglomerative_HC(matrix, docWrappedInCluster, Single_Link, vectors.toSeq: _*)
-              else agglomerative_HC(matrix, docWrappedInCluster, Complete_Link, vectors.toSeq: _*)
-            }
+              if (comparison.contains("Dist")) agglomerative_HC(matrix, docWrappedInCluster, Complete_Link)
+              else agglomerative_HC(matrix, docWrappedInCluster, Single_Link)
+            case "Complete Link" =>
+              if (comparison.contains("Dist")) agglomerative_HC(matrix, docWrappedInCluster, Single_Link)
+              else agglomerative_HC(matrix, docWrappedInCluster, Complete_Link)
           }
           println("Clustering after  " + currentTimeMins(time))
 
