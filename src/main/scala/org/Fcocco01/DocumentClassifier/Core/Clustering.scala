@@ -104,7 +104,7 @@ object Clustering {
       *        1   2    3     4
       *  -----------------------
       *   1 |  1   .7   .5    .2
-      *   2 | .7   1    .8    .1
+      *   2 | .7    1   .8    .1
       *   3 | .5   .8    1    .7
       *   4 | .2   .1   .7     1
       *
@@ -125,7 +125,11 @@ object Clustering {
     }
 
     /**
-      *
+      * Single linkage is a inter-cluster metric that join two cluster based on their two closest
+      * members.
+      * IMPORTANT: It is currently set to natively work with SIMILARITY measures.
+      * As such, if measures DISTANCE scoring was used, [[Complete_Link]]  where the intention
+      * was to use [[Single_Link]] should be used instead for a correct result.
       */
     object Single_Link extends Merging_Strategy {
 
@@ -151,7 +155,11 @@ object Clustering {
     }
 
     /**
-      *
+      * Complete linkage is a inter-cluster metric that join two cluster based on their two
+      * furthest members.
+      * IMPORTANT: It is currently set to natively work with SIMILARITY measures.
+      * As such, if measures DISTANCE scoring was used, [[Single_Link]]  where the intention
+      * was to use [[Complete_Link]] should be used instead for a correct result.
       */
     object Complete_Link extends Merging_Strategy {
 

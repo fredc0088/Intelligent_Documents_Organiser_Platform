@@ -7,8 +7,8 @@ import Essentials.Types.TypeClasses.Vectors.{DocumentVector => V}
 import Similarity._
 import Distance._
 import HierarchicalClustering._
-import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.Clusters.Hierarchical
-import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.Clusters.Hierarchical.{Cluster, MultiCluster, SingleCluster}
+import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.Clusters.Hierarchical.{
+  Cluster, MultiCluster, SingleCluster}
 import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.TableDrivenPropertyChecks
 
@@ -35,9 +35,16 @@ class HierarchicalClusteringTest extends UnitTest("Core.Clustering.HierarchicalC
   "Agglomerative Hierarchical clustering single-link" should "create the correct structure" in {
     val vectors = Array(vector1,vector2,vector3,vector4)
     val clusters = agglomerative_HC(matrix,standard_init,Single_Link,vectors: _*)
-    val expected = MultiCluster(SingleCluster(vector3),SingleCluster(vector2))
+    val expected = MultiCluster(MultiCluster(SingleCluster(vector3),SingleCluster(vector2))(None),
+    MultiCluster(SingleCluster(vector1),SingleCluster(vector4))(None))(None)
+    assert(expected == clusters)
   }
 
+  "Agglomerative Hierarchical clustering single-link" should "return right distance for multicluster X" in {
+    val vectors = Array(vector1,vector2,vector3,vector4)
+    val clusters = agglomerative_HC(matrix,standard_init,Single_Link,vectors: _*)
+    assert(Some(0.0) == clusters.getChildren.get._2.distance)
+  }
 
 
 //  "Similarity matrix's elements" should "tuple of three elements (Double,DocumentVector,DocumentVector)" in {
