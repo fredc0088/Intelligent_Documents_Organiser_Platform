@@ -13,7 +13,7 @@ object TestingResources {
     val words1gram = "[^a-z0-9]"
   }
   object Paths {
-    val testPath1: String = getTestResourceFullPath("1/1.2/Java - Generics by Oracle.docx")
+    val testPath1: String = getTestResourceFullPath("1/1.2/Java_Generics_by_Oracle.docx")
     val testPath2: String = getTestResourceFullPath("1/1.1/demo.docx")
     val testPath3: String = getTestResourceFullPath("3/3.2/test.docx")
     val testPath4: String = getTestResourceFullPath("3/3.1/SampleDOCFile_100kb.doc")
