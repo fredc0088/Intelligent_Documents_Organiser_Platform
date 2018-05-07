@@ -88,7 +88,7 @@ class FeaturesTest extends UnitTest ("Core.Features"){
     )
 
   "TfLog" should "return right result" in
-    assertResult(0.0276747222) {
+    assertResult(3.1354942159) {
       val x = tfLog("text",tokens(1).get.tokens)
       BigDecimal(x.weight).setScale(10, BigDecimal.RoundingMode.HALF_UP).toDouble
     }
@@ -169,6 +169,6 @@ class FeaturesTest extends UnitTest ("Core.Features"){
     assertResult(0.0012089708834031455){a("example",tokens(0)).weight}
     assertResult(0.0){a("example",Array.empty[String]).weight}
     assertResult(0.10120187302050646){b("example",tokens(0)).weight}
-    assertResult(0.0012048396307164518){c("example",tokens(0)).weight}
+    assertResult(0.5803680633768329){c("example",tokens(0)).weight}
   }
 }
