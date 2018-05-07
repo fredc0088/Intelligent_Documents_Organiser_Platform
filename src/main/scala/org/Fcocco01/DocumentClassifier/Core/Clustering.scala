@@ -23,6 +23,8 @@ object Clustering {
   object Similarity {
 
     /**
+      * Measure the angle created between two vectors, determining their simililarity.
+      * The dot product of two vectors
       *
       * @param v1
       * @param v2
@@ -31,17 +33,29 @@ object Clustering {
     def cosine(v1: DVector, v2: DVector): Double = {
       if(v1.isEmpty || v2.isEmpty) ZERO
       else {
-        val a: Double = getAbsoluteValue(v1) |> Math.sqrt
-        val b: Double = getAbsoluteValue(v2) |> Math.sqrt
-        val euclideanLength = a * b
-        getDocProduct(v1, v2).values.sum / {if(euclideanLength > ZERO) euclideanLength else ONE}
+        val a: Double = getEuclideanLenght(v1)
+        val b: Double = getEuclideanLenght(v2)
+        val euclideanMagnitude = a * b
+        getDocProduct(v1, v2).values.sum / {if(euclideanMagnitude > ZERO) euclideanMagnitude else ONE}
       }
     }
 
+    /**
+      * Multiplies each term of a vector with the correspondent term in another vector.
+      *
+      * @param v1 a vector
+      * @param v2 a vector compared against v1
+      * @return the terms with new values coming from the dot product
+      */
     def getDocProduct(v1: DVector, v2: DVector): Map[Token, Double] =
       v1.features.map { case (k, v) => k -> (v * v2.features.getOrElse(k, ZERO.toDouble)) }
 
-    def getAbsoluteValue(v: DVector): Double = v.features.toVector.map(x => Math.pow(x._2, TWO)).sum
+    /**
+      *
+      * @param v
+      * @return
+      */
+    def getEuclideanLenght(v: DVector): Double = v.features.toVector.map(x => Math.pow(x._2, TWO)).sum |> Math.sqrt
   }
 
   /**
@@ -50,6 +64,7 @@ object Clustering {
   object Distance {
 
     /**
+      * The Euclidean distance between two vectors is the length of the line segment connecting them.
       *
       * @param v1
       * @param v2
@@ -65,6 +80,7 @@ object Clustering {
         }.sum |> Math.sqrt
       }
     /**
+      * Sum of the lengths of the projections of the line segment between the vectors onto the coordinate axes.
       *
       * @param v1
       * @param v2
