@@ -144,7 +144,7 @@ class Controller extends jfxf.Initializable {
 
   @jfxf.FXML
   private def changeOnWeighting(event: ActionEvent): Unit= {
-    if(weightingList.getValue == "Bag-Of-Words") {
+    if(weightingList.getValue == "Raw-Bag-Of-Words") {
       if(IDFlist.getItems.size > 2)IDFlist.getItems.removeAll("Idf","Smooth Idf")
       IDFlist.setValue("Normal")
     }

@@ -39,7 +39,7 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
         case "Tf" => createVector(compose_weighting_Fun(tf)(idfWeightedTerms), dictionary)
         case "Aug Tf" => createVector(compose_weighting_Fun(augmented_tf)(idfWeightedTerms), dictionary)
         case "TFLog" => createVector(compose_weighting_Fun(tfLog)(idfWeightedTerms), dictionary)
-        case "Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms), dictionary)
+        case "Raw-Bag-Of-Words" => createVector(compose_weighting_Fun(rawBag)(idfWeightedTerms), dictionary)
       }
 
       if (idfChoice != "Normal" || dictionary.isEmpty) println("Terms weighted to idf in " + currentTimeMins(time))
@@ -53,13 +53,6 @@ case class DataSetPreparation(weightFun: String, idfChoice: String) extends Base
 
     setProgress(SEVEN)
 
-
-    val mar = vectors.toParArray.map(x => (x.id.split("Desktop").last,x.features.maxBy(_._2)._1,x.features.maxBy(_._2)._2))
-
-    for (m <- mar) {
-      println(s"For document ${m._1}\n   The most important term is ${m._2} with value ${m._3}")
-      println("")
-    }
     vectors
   }
 }

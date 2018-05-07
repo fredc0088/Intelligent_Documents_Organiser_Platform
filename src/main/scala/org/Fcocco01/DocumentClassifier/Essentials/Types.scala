@@ -1,6 +1,6 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
-import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE}
+import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, EMPTY_STRING}
 
 /**
   * Aliases to be used around the code for a better readability
@@ -66,7 +66,7 @@ object Types {
         def size: Int = Constants.ZERO
         val features = Map.empty[Token,Weight]
         override def apply(key: Term): Weight = Double.NaN
-        override def mainTopic = ""
+        override def mainTopic: Text = EMPTY_STRING
       }
 
     }
@@ -78,7 +78,7 @@ object Types {
       import Constants.{ZERO, HALF, ONE}
       object Hierarchical {
         /**
-          *
+          * Trait for clusters if the approach is Hierarchical Clustering.
           */
         sealed trait Cluster {
 
@@ -108,7 +108,7 @@ object Types {
 
           lazy val vectors: List[DVector] = List(if(v == null) Vectors.EmptyVector else v)
           lazy val name: String =
-            if(v == null || v.isEmpty) ""
+            if(v == null || v.isEmpty) EMPTY_STRING
             else
               vectors.head.id
 
@@ -145,8 +145,8 @@ object Types {
               }
             val height = getHeight.toInt
             val name = if (height > FIVE && highestTerms.length > FIVE)
-              constructTitle("", height / FIVE, highestTerms, default)
-            else constructTitle("", height, highestTerms, default)
+              constructTitle(EMPTY_STRING, height / FIVE, highestTerms, default)
+            else constructTitle(EMPTY_STRING, height, highestTerms, default)
             s"$name${Math.abs(this.hashCode).toString}"
           }
 
@@ -183,7 +183,7 @@ object Types {
           * the cluster. Hashcode is used to ensure uniqueness. */
           lazy val name: String = {
             val mains = elements.map(x => x.features.toArray.sortBy(_._2).reverse.head).sortBy(_._2).reverse
-            val names  = if(mains.size > THREE) mains.map(_._1).toArray.distinct.take(THREE)
+            val names  = if(mains.size > FIVE) mains.map(_._1).toArray.distinct.take(FIVE)
             else mains.map(_._1).toArray.distinct.take(ONE)
             names.mkString("_") ++ s"_${this.hashCode}"
           }
