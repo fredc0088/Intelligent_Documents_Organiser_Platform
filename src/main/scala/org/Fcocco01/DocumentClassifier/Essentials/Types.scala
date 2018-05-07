@@ -1,6 +1,6 @@
 package org.Fcocco01.DocumentClassifier.Essentials
 
-import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, EMPTY_STRING}
+import org.Fcocco01.DocumentClassifier.Essentials.Constants.{FIVE, THREE, EMPTY_STRING}
 
 /**
   * Aliases to be used around the code for a better readability
@@ -145,7 +145,7 @@ object Types {
               }
             val height = getHeight.toInt
             val name = if (height > FIVE && highestTerms.length > FIVE)
-              constructTitle(EMPTY_STRING, height / FIVE, highestTerms, default)
+              constructTitle(EMPTY_STRING, height / THREE, highestTerms, default)
             else constructTitle(EMPTY_STRING, height, highestTerms, default)
             s"$name${Math.abs(this.hashCode).toString}"
           }
