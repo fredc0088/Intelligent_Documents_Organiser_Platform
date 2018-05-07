@@ -64,11 +64,11 @@ object Clustering {
   object Distance {
 
     /**
-      * The Euclidean distance between two vectors is the length of the line segment connecting them.
+      * The shortest distance distance between two vectors is the length of the line segment connecting them.
       *
       * @param v1
       * @param v2
-      * @return
+      * @return The distance
       */
     def euclidean(v1: DVector, v2: DVector): Double =
       if(v1.isEmpty || v2.isEmpty) ONE
@@ -81,10 +81,12 @@ object Clustering {
       }
     /**
       * Sum of the lengths of the projections of the line segment between the vectors onto the coordinate axes.
+      * Manhattan metric is the shortest path between the two vectors
+      * if you are only allowed to move horizontally or vertically.
       *
       * @param v1
       * @param v2
-      * @return
+      * @return the distance
       */
     def manhattan(v1: DVector, v2: DVector): Double =
       if(v1.isEmpty || v2.isEmpty) ONE
