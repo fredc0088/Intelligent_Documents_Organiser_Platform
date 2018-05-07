@@ -103,7 +103,7 @@ package object Features {
     * @param term checked term
     * @return number of times the term appear in the document, 0 if document is empty
     */
-  private def GetFrequency(document: Tokens, term: Term) : Int =
+  private def getFrequency(document: Tokens, term: Term) : Int =
     if(document.isEmpty) ZERO else document.count(_ == term)
 
   /** Contains function for modelling a document vector into a Bag-Of-Words model,
@@ -119,7 +119,7 @@ package object Features {
       */
     def rawBag(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, GetFrequency(document, term).toDouble)
+      else TermWeighted(term, getFrequency(document, term).toDouble)
 
     /**
       *
@@ -130,7 +130,7 @@ package object Features {
       */
     def tfLog(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, Math.log(ONE + tf(term,document).weight))
+      else TermWeighted(term, Math.log(ONE + getFrequency(document,term)))
 
     /**
       *
@@ -141,7 +141,7 @@ package object Features {
       */
     def tf(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, ZERO)
-      else TermWeighted(term, GetFrequency(document, term).toDouble / document.size)
+      else TermWeighted(term, getFrequency(document, term).toDouble / document.size)
 
     /**
       * Augmented frequency, to prevent a bias towards longer documents,
@@ -149,13 +149,13 @@ package object Features {
       * This computation tend to be heavy and affect performances.
       *
       * @param term
-      * @param document tokens from tokenised document
+      * @param document tokens from tokenized document
       * @return the term accordingly weighted, as 0 if document is empty
       */
     def augmented_tf(term: Term, document: Tokens) : TermWeighted =
       if(document.isEmpty) TermWeighted(term, HALF)
-      else TermWeighted(term, HALF + ( HALF * GetFrequency(document, term).toDouble /
-          document.par.map(x => GetFrequency(document,x)).toArray.max))
+      else TermWeighted(term, HALF + ( HALF * getFrequency(document, term).toDouble /
+          document.par.map(x => getFrequency(document,x)).toArray.max))
 
     type IDFValue = IDF.IDFValue
 
