@@ -1,4 +1,4 @@
-# Document Clusterizer
+# Intelligent Documents Organiser Platform
 
 Platform to perform analysis and clustering for documents belonging to a file system.
 

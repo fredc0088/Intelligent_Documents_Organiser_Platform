@@ -111,7 +111,7 @@ package object Features {
   object Ranking_Modellers {
 
     /**
-      *
+      * A simple count of the occurrences of a term in a given document.
       *
       * @param term
       * @param document tokens from tokenized document
@@ -133,7 +133,8 @@ package object Features {
       else TermWeighted(term, Math.log(ONE + getFrequency(document,term)))
 
     /**
-      *
+      * As [[rawBag]], but proportional to the size of the document, generating the actual weight
+      * of a term in a document.
       *
       * @param term
       * @param document tokens from tokenized document

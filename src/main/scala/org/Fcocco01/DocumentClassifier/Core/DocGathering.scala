@@ -10,6 +10,13 @@ import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
 
  object DocGathering {
 
+   /**
+     * This entity can obtains a collection of paths pointing to documents obtain from the indicated directories,
+     * regardless of their position in a directory structure.
+     *
+     * @param directories The directories to obtain the documents from
+     * @param directoriesToExclude Directories to exclude in the process
+     */
    class DocumentFinder(directories: Array[String],directoriesToExclude: Array[String]) extends DocumentsPaths{
 
      def recursiveTreeDocsSearch(dir: String): List[File] = {
@@ -36,6 +43,10 @@ import org.Fcocco01.DocumentClassifier.Essentials.Types.TypeClasses.DocPath
        this.getPaths(documents).distinct.map(DocPath)
      }
    }
+
+   /**
+     * Object to obtain the collection of [[DocPath]] pointing to the actual documents.
+     */
    object DocumentFinder {
     def apply(directories: Array[String],directoriesToExclude: Array[String] = Array()): List[DocPath] = {
       val instance = new DocumentFinder(directories, directoriesToExclude)

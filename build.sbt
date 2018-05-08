@@ -40,7 +40,7 @@ val paradise = "org.scalamacros" %% "paradise" % "2.1.1"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "Documents_Clusterizer",
+    name := "Intelligent_Documents_Organiser_Platform",
     version := "1.0.0",
     scalaVersion := "2.12.3",
     organization := "org.Fcocco01",
@@ -69,8 +69,6 @@ assemblyMergeStrategy in assembly := {
   case PathList("META-INF", _*) => MergeStrategy.discard
   case _ => MergeStrategy.first
 }
-
-
 
 fork := true
 
