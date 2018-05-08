@@ -18,7 +18,7 @@ object Main extends JFXApp {
   val root: jfxs.Parent = jfxf.FXMLLoader.load(resource)
 
   stage = new PrimaryStage() {
-    title = "Documents Clusterizer"
+    title = "Intelligent Documents Organiser Platform"
     scene = new Scene(root)
     resizable = false
   }
