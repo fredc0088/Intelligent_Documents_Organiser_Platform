@@ -18,6 +18,9 @@ An executable jar can be created with 'sbt assembly'
 
 sbt test
 
+## Use
+Please check the [wiki](https://github.com/fredc0088/Intelligent_Documents_Organiser_Platform/wiki).
+
 ## Built With
 
 sbt 1.1.4
