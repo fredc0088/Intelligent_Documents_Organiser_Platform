@@ -5,6 +5,9 @@ Platform to perform analysis and clustering for documents belonging to a file sy
 ## Prerequisites
 
 jre 8
+
+javaFX (it's included with Oracle JDK, if OpenJDK is being used please find alternatives such as OpenJFX)
+
 For building: sbt 1.0+
 
 ## Build
