@@ -6,9 +6,14 @@ Platform to perform analysis and clustering for documents belonging to a file sy
 
 jre 8
 
-javaFX (it's included with Oracle JDK, if OpenJDK is being used please find alternatives such as OpenJFX)
+javaFX (it's included with Oracle JDK, if OpenJDK is being used please find alternatives such as OpenJFX, see below)
 
 For building: sbt 1.0+
+
+### OpenFX
+Usually javafx comes shipped together with Oracle jre/jdk. However, that may not be the case for some distribution of the OpenJDK.
+In that case the suggestion is to try [OpenFX](https://openjfx.io/openjfx-docs/#install-javafx).
+After installing it following the instruction, include it in the sbt classpath, or move the jar specifically into a `lib` folder in the root of the project.
 
 ## Build
 
